@@ -1,5 +1,6 @@
 using Infrastructure.Data.Seeds;
 using WebAPI.DependencyInjection;
+using WebAPI.Middleware.ExceptionHandling;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,6 +27,9 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+//Middleware
+app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 app.UseAuthorization();
 

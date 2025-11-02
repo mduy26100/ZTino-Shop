@@ -1,6 +1,7 @@
 ﻿using WebAPI.DependencyInjection.Auth;
 using WebAPI.DependencyInjection.Common;
 using WebAPI.DependencyInjection.Infrastructure;
+using WebAPI.DependencyInjection.Shared;
 
 namespace WebAPI.DependencyInjection
 {
@@ -18,6 +19,9 @@ namespace WebAPI.DependencyInjection
 
             //Common
             services.AddCorsPolicies();
+
+            //Shared
+            services.AddSharedServices();
 
             return services;
         }

@@ -12,7 +12,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Features\Auth\" />
+    <Folder Include="Features\Auth\Configurations\" />
+    <Folder Include="Features\Auth\Queries\" />
+    <Folder Include="Features\Auth\Services\Query\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="15.1.0" />
   </ItemGroup>
 
 </Project>
