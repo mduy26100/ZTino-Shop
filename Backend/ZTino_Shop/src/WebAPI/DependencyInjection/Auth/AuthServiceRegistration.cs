@@ -1,4 +1,6 @@
-﻿using Application.Features.Auth.Services.Command.Login;
+﻿using Application.Common.Interfaces.Services.User;
+using Application.Common.Interfaces.Shared;
+using Application.Features.Auth.Services.Command.Login;
 using Application.Features.Auth.Services.Command.Login.Factory;
 using Application.Features.Auth.Services.Command.Login.Strategy;
 using Application.Features.Auth.Services.Jwt;
@@ -7,6 +9,8 @@ using Infrastructure.Auth.Options;
 using Infrastructure.Auth.Services.Command.Login;
 using Infrastructure.Auth.Services.Command.Login.Strategies;
 using Infrastructure.Auth.Services.Jwt;
+using Infrastructure.Common.Interfaces.Services.User;
+using Infrastructure.Common.Interfaces.Shared;
 using Infrastructure.Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
@@ -56,7 +60,8 @@ namespace WebAPI.DependencyInjection.Auth
 
             // ===== Core Services =====
             services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
-
+            services.AddScoped<IUserService, UserService>();
+            services.AddScoped<ICurrentUserContext, CurrentUserContext>();
 
             // ===== Login =====
             services.AddScoped<ILoginStrategyFactory, LoginStrategyFactory>();

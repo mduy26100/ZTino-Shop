@@ -16,9 +16,9 @@ namespace WebAPI.DependencyInjection
             //Infrastructure
             services.AddDatabaseServices(configuration);
 
-
             //Common
             services.AddCorsPolicies();
+            services.AddUserContextServices();
 
             //Shared
             services.AddSharedServices();
