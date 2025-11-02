@@ -1,4 +1,5 @@
 ﻿using Application.Features.Auth.Commands.Login;
+using Application.Features.Auth.Commands.Register;
 
 namespace WebAPI.Controllers.Auth
 {
@@ -15,6 +16,13 @@ namespace WebAPI.Controllers.Auth
 
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginCommand command, CancellationToken cancellationToken)
+        {
+            var result = await _mediator.Send(command, cancellationToken);
+            return Ok(result);
+        }
+
+        [HttpPost("register")]
+        public async Task<IActionResult> Register([FromBody] RegisterCommand command, CancellationToken cancellationToken)
         {
             var result = await _mediator.Send(command, cancellationToken);
             return Ok(result);
