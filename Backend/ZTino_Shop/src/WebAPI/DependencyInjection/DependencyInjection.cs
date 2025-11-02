@@ -19,6 +19,7 @@ namespace WebAPI.DependencyInjection
             //Common
             services.AddCorsPolicies();
             services.AddUserContextServices();
+            services.AddFileUploadServices(configuration);
 
             //Shared
             services.AddSharedServices();
