@@ -1,5 +1,6 @@
 ﻿using Application.Features.Auth.Commands.Login;
 using Application.Features.Auth.Commands.Register;
+using Application.Features.Auth.Commands.TokenRefresh;
 
 namespace WebAPI.Controllers.Auth
 {
@@ -23,6 +24,13 @@ namespace WebAPI.Controllers.Auth
 
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterCommand command, CancellationToken cancellationToken)
+        {
+            var result = await _mediator.Send(command, cancellationToken);
+            return Ok(result);
+        }
+
+        [HttpPost("token/refresh")]
+        public async Task<IActionResult> RefreshToken([FromBody] TokenRefreshCommand command, CancellationToken cancellationToken)
         {
             var result = await _mediator.Send(command, cancellationToken);
             return Ok(result);

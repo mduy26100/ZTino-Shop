@@ -4,12 +4,14 @@ using Application.Features.Auth.Services.Command.Login;
 using Application.Features.Auth.Services.Command.Login.Factory;
 using Application.Features.Auth.Services.Command.Login.Strategy;
 using Application.Features.Auth.Services.Command.Register;
+using Application.Features.Auth.Services.Command.TokenRefresh;
 using Application.Features.Auth.Services.Jwt;
 using Infrastructure.Auth.Models;
 using Infrastructure.Auth.Options;
 using Infrastructure.Auth.Services.Command.Login;
 using Infrastructure.Auth.Services.Command.Login.Strategies;
 using Infrastructure.Auth.Services.Command.Register;
+using Infrastructure.Auth.Services.Command.TokenRefresh;
 using Infrastructure.Auth.Services.Jwt;
 using Infrastructure.Common.Interfaces.Services.User;
 using Infrastructure.Common.Interfaces.Shared;
@@ -72,6 +74,10 @@ namespace WebAPI.DependencyInjection.Auth
 
             // ===== Register =====
             services.AddScoped<IRegisterService, RegisterService>();
+
+
+            //===== Token Refresh =====
+            services.AddScoped<ITokenRefreshService, TokenRefreshService>();
 
             return services;
         }
