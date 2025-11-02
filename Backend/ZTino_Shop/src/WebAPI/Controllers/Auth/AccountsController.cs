@@ -1,4 +1,5 @@
-﻿using Application.Features.Auth.Commands.UpdateProfile;
+﻿using Application.Features.Auth.Commands.Logout;
+using Application.Features.Auth.Commands.UpdateProfile;
 using Application.Features.Auth.Queries.CurrentUser;
 using Microsoft.AspNetCore.Authorization;
 using WebAPI.Models.Auth;
@@ -32,6 +33,14 @@ namespace WebAPI.Controllers.Auth
             CancellationToken cancellationToken)
         {
             var command = new UpdateProfileCommand(form.ToDto());
+            var result = await _mediator.Send(command, cancellationToken);
+            return Ok(result);
+        }
+
+        [HttpPost("logout")]
+        public async Task<IActionResult> Logout(CancellationToken cancellationToken)
+        {
+            var command = new LogoutCommand();
             var result = await _mediator.Send(command, cancellationToken);
             return Ok(result);
         }

@@ -3,6 +3,7 @@ using Application.Common.Interfaces.Shared;
 using Application.Features.Auth.Services.Command.Login;
 using Application.Features.Auth.Services.Command.Login.Factory;
 using Application.Features.Auth.Services.Command.Login.Strategy;
+using Application.Features.Auth.Services.Command.Logout;
 using Application.Features.Auth.Services.Command.Register;
 using Application.Features.Auth.Services.Command.TokenRefresh;
 using Application.Features.Auth.Services.Command.UpdateProfile;
@@ -13,6 +14,7 @@ using Infrastructure.Auth.Models;
 using Infrastructure.Auth.Options;
 using Infrastructure.Auth.Services.Command.Login;
 using Infrastructure.Auth.Services.Command.Login.Strategies;
+using Infrastructure.Auth.Services.Command.Logout;
 using Infrastructure.Auth.Services.Command.Register;
 using Infrastructure.Auth.Services.Command.TokenRefresh;
 using Infrastructure.Auth.Services.Command.UpdateProfile;
@@ -94,6 +96,9 @@ namespace WebAPI.DependencyInjection.Auth
             services.AddScoped<SelfUpdateProfileStrategy>();
             services.AddScoped<ManagerUpdateProfileStrategy>();
             services.AddScoped<IUpdateProfileService, UpdateProfileService>();
+
+            //===== Logout =====
+            services.AddScoped<ILogoutService, LogoutService>();
 
             return services;
         }
