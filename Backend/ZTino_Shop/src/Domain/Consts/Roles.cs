@@ -1,4 +1,4 @@
-﻿namespace Domain.Const
+﻿namespace Domain.Consts
 {
     public static class Roles
     {

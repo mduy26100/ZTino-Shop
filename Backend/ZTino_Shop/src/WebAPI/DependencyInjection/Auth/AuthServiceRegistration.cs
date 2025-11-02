@@ -5,6 +5,8 @@ using Application.Features.Auth.Services.Command.Login.Factory;
 using Application.Features.Auth.Services.Command.Login.Strategy;
 using Application.Features.Auth.Services.Command.Register;
 using Application.Features.Auth.Services.Command.TokenRefresh;
+using Application.Features.Auth.Services.Command.UpdateProfile;
+using Application.Features.Auth.Services.Command.UpdateProfile.Factory;
 using Application.Features.Auth.Services.Jwt;
 using Application.Features.Auth.Services.Query.CurrentUser;
 using Infrastructure.Auth.Models;
@@ -13,6 +15,9 @@ using Infrastructure.Auth.Services.Command.Login;
 using Infrastructure.Auth.Services.Command.Login.Strategies;
 using Infrastructure.Auth.Services.Command.Register;
 using Infrastructure.Auth.Services.Command.TokenRefresh;
+using Infrastructure.Auth.Services.Command.UpdateProfile;
+using Infrastructure.Auth.Services.Command.UpdateProfile.Factory;
+using Infrastructure.Auth.Services.Command.UpdateProfile.Strategies;
 using Infrastructure.Auth.Services.Jwt;
 using Infrastructure.Auth.Services.Query.CurrentUser;
 using Infrastructure.Common.Interfaces.Services.User;
@@ -83,6 +88,12 @@ namespace WebAPI.DependencyInjection.Auth
 
             //===== Current User =====
             services.AddScoped<ICurrentUserService, CurrentUserService>();
+
+            // ===== Update Profile =====
+            services.AddScoped<IUpdateProfileStrategyFactory, UpdateProfileStrategyFactory>();
+            services.AddScoped<SelfUpdateProfileStrategy>();
+            services.AddScoped<ManagerUpdateProfileStrategy>();
+            services.AddScoped<IUpdateProfileService, UpdateProfileService>();
 
             return services;
         }

@@ -1,7 +1,7 @@
 ﻿using Application.Common.Interfaces.Shared;
 using Application.Features.Auth.DTOs;
 using Application.Features.Auth.Services.Command.Register;
-using Domain.Const;
+using Domain.Consts;
 using Infrastructure.Auth.Models;
 
 namespace Infrastructure.Auth.Services.Command.Register

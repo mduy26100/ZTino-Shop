@@ -1,4 +1,4 @@
-﻿using Domain.Const;
+﻿using Domain.Consts;
 using Infrastructure.Auth.Models;
 
 namespace Infrastructure.Data.Seeds
