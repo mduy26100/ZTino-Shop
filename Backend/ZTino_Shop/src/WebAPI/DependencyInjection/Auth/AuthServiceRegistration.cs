@@ -6,6 +6,7 @@ using Application.Features.Auth.Services.Command.Login.Strategy;
 using Application.Features.Auth.Services.Command.Register;
 using Application.Features.Auth.Services.Command.TokenRefresh;
 using Application.Features.Auth.Services.Jwt;
+using Application.Features.Auth.Services.Query.CurrentUser;
 using Infrastructure.Auth.Models;
 using Infrastructure.Auth.Options;
 using Infrastructure.Auth.Services.Command.Login;
@@ -13,6 +14,7 @@ using Infrastructure.Auth.Services.Command.Login.Strategies;
 using Infrastructure.Auth.Services.Command.Register;
 using Infrastructure.Auth.Services.Command.TokenRefresh;
 using Infrastructure.Auth.Services.Jwt;
+using Infrastructure.Auth.Services.Query.CurrentUser;
 using Infrastructure.Common.Interfaces.Services.User;
 using Infrastructure.Common.Interfaces.Shared;
 using Infrastructure.Data;
@@ -78,6 +80,9 @@ namespace WebAPI.DependencyInjection.Auth
 
             //===== Token Refresh =====
             services.AddScoped<ITokenRefreshService, TokenRefreshService>();
+
+            //===== Current User =====
+            services.AddScoped<ICurrentUserService, CurrentUserService>();
 
             return services;
         }
