@@ -1,9 +1,10 @@
-﻿using Infrastructure.Auth.Models;
+﻿using Application.Common.Interfaces.Persistence.EFCore;
+using Infrastructure.Auth.Models;
 using Infrastructure.Data.Configurations.Auth;
 
 namespace Infrastructure.Data
 {
-    public class ApplicationDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, Guid>
+    public class ApplicationDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, Guid>, IApplicationDbContext
     {
         public ApplicationDbContext(DbContextOptions options) : base(options)
         {

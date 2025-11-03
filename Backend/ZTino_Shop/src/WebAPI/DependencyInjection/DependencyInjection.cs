@@ -15,6 +15,7 @@ namespace WebAPI.DependencyInjection
 
             //Infrastructure
             services.AddDatabaseServices(configuration);
+            services.AddCacheServices(configuration);
 
             //Common
             services.AddCorsPolicies();
