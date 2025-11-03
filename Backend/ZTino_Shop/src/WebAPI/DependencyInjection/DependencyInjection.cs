@@ -1,5 +1,6 @@
 ﻿using WebAPI.DependencyInjection.Auth;
 using WebAPI.DependencyInjection.Common;
+using WebAPI.DependencyInjection.Features;
 using WebAPI.DependencyInjection.Infrastructure;
 using WebAPI.DependencyInjection.Shared;
 
@@ -24,6 +25,9 @@ namespace WebAPI.DependencyInjection
 
             //Shared
             services.AddSharedServices();
+
+            //Features
+            services.AddProductServices();
 
             return services;
         }

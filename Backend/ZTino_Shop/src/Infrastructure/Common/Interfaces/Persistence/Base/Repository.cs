@@ -3,7 +3,7 @@ using Infrastructure.Data;
 
 namespace Infrastructure.Common.Interfaces.Persistence.Base
 {
-    internal abstract class Repository<T, TKey> : IRepository<T, TKey> where T : class
+    public abstract class Repository<T, TKey> : IRepository<T, TKey> where T : class
     {
         protected readonly ApplicationDbContext _context;
         protected readonly DbSet<T> _dbSet;
