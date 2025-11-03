@@ -1,4 +1,5 @@
 ﻿using Application.Features.Products.Commands.Categories.CreateCategory;
+using Application.Features.Products.Commands.Categories.DeleteCategory;
 using Domain.Consts;
 using Microsoft.AspNetCore.Authorization;
 
@@ -21,6 +22,14 @@ namespace WebAPI.Controllers.Manager.Products
         {
             var result = await _mediator.Send(command, cancellationToken);
             return Ok(result);
+        }
+
+        [HttpDelete("{Id:int}")]
+        public async Task<IActionResult> DeleteCategory(int Id, CancellationToken cancellationToken)
+        {
+            var command = new DeleteCategoryCommand(Id);
+            var result = await _mediator.Send(command, cancellationToken);
+            return NoContent();
         }
     }
 }

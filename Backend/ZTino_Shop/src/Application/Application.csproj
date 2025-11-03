@@ -13,11 +13,9 @@
 
   <ItemGroup>
     <Folder Include="Features\Auth\Configurations\" />
-    <Folder Include="Features\Products\Interfaces\Services\Commands\Categories\DeleteCategory\" />
     <Folder Include="Features\Products\Interfaces\Services\Commands\Categories\UpdateCategory\" />
     <Folder Include="Features\Products\Interfaces\Services\Queries\" />
     <Folder Include="Features\Products\Queries\" />
-    <Folder Include="Features\Products\Services\Commands\Categories\DeleteCategory\" />
     <Folder Include="Features\Products\Services\Commands\Categories\UpdateCategory\" />
     <Folder Include="Features\Products\Services\Queries\" />
   </ItemGroup>

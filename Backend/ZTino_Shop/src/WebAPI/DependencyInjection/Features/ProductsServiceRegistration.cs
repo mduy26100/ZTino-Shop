@@ -1,6 +1,8 @@
 ﻿using Application.Features.Products.Interfaces.Services.Commands.Categories.CreateCategory;
+using Application.Features.Products.Interfaces.Services.Commands.Categories.DeleteCategory;
 using Application.Features.Products.Repositories;
 using Application.Features.Products.Services.Commands.Categories.CreateCategory;
+using Application.Features.Products.Services.Commands.Categories.DeleteCategory;
 using Infrastructure.Products.Repositories;
 
 namespace WebAPI.DependencyInjection.Features
@@ -19,6 +21,7 @@ namespace WebAPI.DependencyInjection.Features
 
             //Categories
             services.AddScoped<ICreateCategoryService, CreateCategoryService>();
+            services.AddScoped<IDeleteCategoryService, DeleteCategoryService>();
 
             return services;
         }
