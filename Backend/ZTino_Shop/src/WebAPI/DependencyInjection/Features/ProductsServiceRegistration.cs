@@ -1,4 +1,6 @@
-﻿using Application.Features.Products.Repositories;
+﻿using Application.Features.Products.Interfaces.Services.Commands.Categories.CreateCategory;
+using Application.Features.Products.Repositories;
+using Application.Features.Products.Services.Commands.Categories.CreateCategory;
 using Infrastructure.Products.Repositories;
 
 namespace WebAPI.DependencyInjection.Features
@@ -14,6 +16,9 @@ namespace WebAPI.DependencyInjection.Features
             services.AddScoped<ICategoryRepository, CategoryRepository>();
             services.AddScoped<ISizeRepository, SizeRepository>();
             services.AddScoped<IColorRepository, ColorRepository>();
+
+            //Categories
+            services.AddScoped<ICreateCategoryService, CreateCategoryService>();
 
             return services;
         }

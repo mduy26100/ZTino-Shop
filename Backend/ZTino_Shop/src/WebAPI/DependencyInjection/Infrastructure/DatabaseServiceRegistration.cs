@@ -1,4 +1,5 @@
-﻿using Infrastructure.Data;
+﻿using Application.Common.Interfaces.Persistence.EFCore;
+using Infrastructure.Data;
 
 namespace WebAPI.DependencyInjection.Infrastructure
 {
@@ -10,8 +11,8 @@ namespace WebAPI.DependencyInjection.Infrastructure
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
 
-            //services.AddScoped<IApplicationDbContext>(provider =>
-            //    provider.GetRequiredService<ApplicationDbContext>());
+            services.AddScoped<IApplicationDbContext>(provider =>
+                provider.GetRequiredService<ApplicationDbContext>());
 
             return services;
         }
