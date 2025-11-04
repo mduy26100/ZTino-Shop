@@ -11,11 +11,10 @@ namespace Infrastructure.Data.Configurations.Products
             builder.HasKey(c => c.Id);
 
             builder.Property(c => c.Name)
-                   .IsRequired()
-                   .HasMaxLength(50);
+                .IsRequired()
+                .HasMaxLength(50);
 
-            builder.HasIndex(c => c.Name)
-                   .IsUnique();
+            builder.HasIndex(c => c.Name).IsUnique();
         }
     }
 }

@@ -1,21 +1,54 @@
-﻿using Application.Features.Products.DTOs.Categories;
-using Application.Features.Products.Interfaces.Services.Commands.Categories.UpdateCategory;
+﻿using Application.Common.Interfaces.Persistence.EFCore;
+using Application.Features.Products.DTOs.Categories;
+using Application.Features.Products.Repositories;
 
 namespace Application.Features.Products.Commands.Categories.UpdateCategory
 {
     public class UpdateCategoryHandler : IRequestHandler<UpdateCategoryCommand, UpsertCategoryDto>
     {
-        private readonly IUpdateCategoryService _updateCategoryService;
+        private readonly ICategoryRepository _categoryRepository;
+        private readonly IMapper _mapper;
+        private readonly IApplicationDbContext _context;
 
-        public UpdateCategoryHandler(IUpdateCategoryService updateCategoryService)
+        public UpdateCategoryHandler(
+            ICategoryRepository categoryRepository,
+            IMapper mapper,
+            IApplicationDbContext context)
         {
-            _updateCategoryService = updateCategoryService;
+            _categoryRepository = categoryRepository;
+            _mapper = mapper;
+            _context = context;
         }
 
         public async Task<UpsertCategoryDto> Handle(UpdateCategoryCommand request, CancellationToken cancellationToken)
         {
-            var result = await _updateCategoryService.UpdateAsync(request.Dto, cancellationToken);
-            return result;
+            var dto = request.Dto;
+
+            var entity = await _categoryRepository.GetByIdAsync(dto.Id, cancellationToken);
+            if (entity == null)
+                throw new KeyNotFoundException($"Category with Id {dto.Id} not found.");
+
+            bool nameExists = await _categoryRepository.AnyAsync(
+                c => c.Name == dto.Name && c.Id != dto.Id,
+                cancellationToken);
+            if (nameExists)
+                throw new InvalidOperationException("Category with the same name already exists.");
+
+            if (dto.ParentId != null)
+            {
+                bool parentExists = await _categoryRepository.AnyAsync(
+                    c => c.Id == dto.ParentId,
+                    cancellationToken);
+                if (!parentExists)
+                    throw new InvalidOperationException("Parent category does not exist.");
+            }
+
+            _mapper.Map(dto, entity);
+
+            _categoryRepository.Update(entity);
+            await _context.SaveChangesAsync(cancellationToken);
+
+            return _mapper.Map<UpsertCategoryDto>(entity);
         }
     }
 }

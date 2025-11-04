@@ -1,10 +1,4 @@
-﻿using Application.Features.Products.Interfaces.Services.Commands.Categories.CreateCategory;
-using Application.Features.Products.Interfaces.Services.Commands.Categories.DeleteCategory;
-using Application.Features.Products.Interfaces.Services.Commands.Categories.UpdateCategory;
-using Application.Features.Products.Repositories;
-using Application.Features.Products.Services.Commands.Categories.CreateCategory;
-using Application.Features.Products.Services.Commands.Categories.DeleteCategory;
-using Application.Features.Products.Services.Commands.Categories.UpdateCategory;
+﻿using Application.Features.Products.Repositories;
 using Infrastructure.Products.Repositories;
 
 namespace WebAPI.DependencyInjection.Features
@@ -20,11 +14,6 @@ namespace WebAPI.DependencyInjection.Features
             services.AddScoped<ICategoryRepository, CategoryRepository>();
             services.AddScoped<ISizeRepository, SizeRepository>();
             services.AddScoped<IColorRepository, ColorRepository>();
-
-            //Categories
-            services.AddScoped<ICreateCategoryService, CreateCategoryService>();
-            services.AddScoped<IDeleteCategoryService, DeleteCategoryService>();
-            services.AddScoped<IUpdateCategoryService, UpdateCategoryService>();
 
             return services;
         }

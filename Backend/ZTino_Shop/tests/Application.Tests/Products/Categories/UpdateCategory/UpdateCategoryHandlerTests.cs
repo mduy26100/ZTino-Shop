@@ -1,48 +1,52 @@
 ﻿using Application.Common.Interfaces.Persistence.EFCore;
+using Application.Features.Products.Commands.Categories.UpdateCategory;
 using Application.Features.Products.DTOs.Categories;
 using Application.Features.Products.Repositories;
-using Application.Features.Products.Services.Commands.Categories.UpdateCategory;
 using Domain.Models.Products;
 
 namespace Application.Tests.Products.Categories.UpdateCategory
 {
-    public class UpdateCategoryServiceTests
+    public class UpdateCategoryHandlerTests
     {
         private readonly Mock<ICategoryRepository> _categoryRepoMock;
         private readonly Mock<IMapper> _mapperMock;
         private readonly Mock<IApplicationDbContext> _contextMock;
-        private readonly UpdateCategoryService _service;
+        private readonly UpdateCategoryHandler _handler;
 
-        public UpdateCategoryServiceTests()
+        public UpdateCategoryHandlerTests()
         {
             _categoryRepoMock = new Mock<ICategoryRepository>();
             _mapperMock = new Mock<IMapper>();
             _contextMock = new Mock<IApplicationDbContext>();
-            _service = new UpdateCategoryService(
+
+            _handler = new UpdateCategoryHandler(
                 _categoryRepoMock.Object,
                 _mapperMock.Object,
                 _contextMock.Object
-                );
+            );
         }
 
         [Fact]
-        public async Task UpdateAsync_ShouldThrow_WhenIdInvalid()
+        public async Task Handle_ShouldThrow_WhenCategoryNotFound()
         {
             var dto = new UpsertCategoryDto { Id = 1, Name = "Shirts" };
+            var request = new UpdateCategoryCommand(dto);
 
             _categoryRepoMock
                 .Setup(r => r.GetByIdAsync(dto.Id, It.IsAny<CancellationToken>()))
                 .ReturnsAsync((Category?)null);
 
-            await Assert.ThrowsAsync<KeyNotFoundException>(() => _service.UpdateAsync(dto));
+            await Assert.ThrowsAsync<KeyNotFoundException>(() => _handler.Handle(request, CancellationToken.None));
         }
 
         [Fact]
-        public async Task UpdateAsync_ShouldThrow_WhenNameExists()
+        public async Task Handle_ShouldThrow_WhenNameAlreadyExists()
         {
-            var dto = new UpsertCategoryDto { Id = 1, Name = "Shirts"};
+            var dto = new UpsertCategoryDto { Id = 1, Name = "Shirts" };
+            var request = new UpdateCategoryCommand(dto);
 
             var existingCategory = new Category { Id = dto.Id, Name = "OldName" };
+
             _categoryRepoMock
                 .Setup(r => r.GetByIdAsync(dto.Id, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(existingCategory);
@@ -51,30 +55,34 @@ namespace Application.Tests.Products.Categories.UpdateCategory
                 .Setup(r => r.AnyAsync(It.IsAny<Expression<Func<Category, bool>>>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(true);
 
-            await Assert.ThrowsAsync<InvalidOperationException>(() => _service.UpdateAsync(dto));
+            await Assert.ThrowsAsync<InvalidOperationException>(() => _handler.Handle(request, CancellationToken.None));
         }
 
         [Fact]
-        public async Task UpdateAsync_ShouldThrow_WhenParentNotExist()
+        public async Task Handle_ShouldThrow_WhenParentCategoryDoesNotExist()
         {
             var dto = new UpsertCategoryDto { Id = 1, Name = "Shirts", ParentId = 2 };
-
+            var request = new UpdateCategoryCommand(dto);
             var existingCategory = new Category { Id = dto.Id, Name = "OldName" };
+
             _categoryRepoMock
                 .Setup(r => r.GetByIdAsync(dto.Id, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(existingCategory);
 
             _categoryRepoMock
-                .Setup(r => r.AnyAsync(It.IsAny<Expression<Func<Category, bool>>>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(true);
+                .SetupSequence(r => r.AnyAsync(It.IsAny<Expression<Func<Category, bool>>>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(false)
+                .ReturnsAsync(false);
 
-            await Assert.ThrowsAnyAsync<InvalidOperationException>(() => _service.UpdateAsync(dto));
+            await Assert.ThrowsAsync<InvalidOperationException>(() => _handler.Handle(request, CancellationToken.None));
         }
 
         [Fact]
-        public async Task UpdateAsync_ShouldReturnDto_WhenSuccess()
+        public async Task Handle_ShouldUpdateCategory_WhenValid()
         {
             var dto = new UpsertCategoryDto { Id = 1, Name = "Shirts", ParentId = 2 };
+            var request = new UpdateCategoryCommand(dto);
+
             var existingCategory = new Category { Id = dto.Id, Name = "OldName", ParentId = 1 };
 
             _categoryRepoMock
@@ -86,10 +94,10 @@ namespace Application.Tests.Products.Categories.UpdateCategory
                 .ReturnsAsync(false)
                 .ReturnsAsync(true);
 
-            _mapperMock.Setup(m => m.Map<Category>(dto)).Returns(existingCategory);
+            _mapperMock.Setup(m => m.Map(dto, existingCategory)).Verifiable();
             _mapperMock.Setup(m => m.Map<UpsertCategoryDto>(existingCategory)).Returns(dto);
 
-            var result = await _service.UpdateAsync(dto, CancellationToken.None);
+            var result = await _handler.Handle(request, CancellationToken.None);
 
             Assert.Equal("Shirts", result.Name);
 

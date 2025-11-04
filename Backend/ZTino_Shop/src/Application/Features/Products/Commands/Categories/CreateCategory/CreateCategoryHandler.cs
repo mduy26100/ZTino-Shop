@@ -1,21 +1,46 @@
-﻿using Application.Features.Products.DTOs.Categories;
-using Application.Features.Products.Interfaces.Services.Commands.Categories.CreateCategory;
+﻿using Application.Common.Interfaces.Persistence.EFCore;
+using Application.Features.Products.DTOs.Categories;
+using Application.Features.Products.Repositories;
+using Domain.Models.Products;
 
 namespace Application.Features.Products.Commands.Categories.CreateCategory
 {
     public class CreateCategoryHandler : IRequestHandler<CreateCategoryCommand, UpsertCategoryDto>
     {
-        private readonly ICreateCategoryService _createCategoryService;
+        private readonly ICategoryRepository _categoryRepository;
+        private readonly IMapper _mapper;
+        private readonly IApplicationDbContext _context;
 
-        public CreateCategoryHandler(ICreateCategoryService createCategoryService)
+        public CreateCategoryHandler(
+            ICategoryRepository categoryRepository,
+            IMapper mapper,
+            IApplicationDbContext context)
         {
-            _createCategoryService = createCategoryService;
+            _categoryRepository = categoryRepository;
+            _mapper = mapper;
+            _context = context;
         }
 
         public async Task<UpsertCategoryDto> Handle(CreateCategoryCommand request, CancellationToken cancellationToken)
         {
-            var result = await _createCategoryService.CreateAsync(request.Dto, cancellationToken);
-            return result;
+            var dto = request.Dto;
+
+            if (dto.ParentId != null)
+            {
+                bool parentExists = await _categoryRepository.AnyAsync(c => c.Id == dto.ParentId, cancellationToken);
+                if (!parentExists)
+                    throw new InvalidOperationException("Parent category does not exist.");
+            }
+
+            bool nameExists = await _categoryRepository.AnyAsync(c => c.Name == dto.Name, cancellationToken);
+            if (nameExists)
+                throw new InvalidOperationException("Category with the same name already exists.");
+
+            var entity = _mapper.Map<Category>(dto);
+            await _categoryRepository.AddAsync(entity, cancellationToken);
+            await _context.SaveChangesAsync(cancellationToken);
+
+            return _mapper.Map<UpsertCategoryDto>(entity);
         }
     }
 }

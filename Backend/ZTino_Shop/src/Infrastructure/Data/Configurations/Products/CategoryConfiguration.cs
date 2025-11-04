@@ -11,23 +11,20 @@ namespace Infrastructure.Data.Configurations.Products
             builder.HasKey(c => c.Id);
 
             builder.Property(c => c.Name)
-                   .IsRequired()
-                   .HasMaxLength(100);
+                .IsRequired()
+                .HasMaxLength(100);
 
             builder.Property(c => c.Slug)
-                   .IsRequired()
-                   .HasMaxLength(150);
+                .IsRequired()
+                .HasMaxLength(150);
 
             builder.Property(c => c.IsActive)
-                   .HasDefaultValue(true);
+                .HasDefaultValue(true);
 
-            builder.Property(c => c.ParentId)
-                   .IsRequired(false);
-
-            builder.HasMany<Category>()
-                   .WithOne()
-                   .HasForeignKey(c => c.ParentId)
-                   .OnDelete(DeleteBehavior.Restrict);
+            builder.HasOne(c => c.Parent)
+                .WithMany(c => c.Children)
+                .HasForeignKey(c => c.ParentId)
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }
