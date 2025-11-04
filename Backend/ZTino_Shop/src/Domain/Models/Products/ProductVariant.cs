@@ -9,5 +9,10 @@
         public int StockQuantity { get; set; }
         public decimal Price { get; set; }
         public bool IsActive { get; set; } = true;
+
+        public Product Product { get; set; } = default!;
+        public Color Color { get; set; } = default!;
+        public Size Size { get; set; } = default!;
+        public ICollection<ProductImage> Images { get; set; } = new List<ProductImage>();
     }
 }

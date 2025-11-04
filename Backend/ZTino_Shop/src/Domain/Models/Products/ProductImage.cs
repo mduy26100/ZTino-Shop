@@ -7,5 +7,7 @@
         public string ImageUrl { get; set; } = default!;
         public bool IsMain { get; set; } = false;
         public int DisplayOrder { get; set; } = 0;
+
+        public ProductVariant ProductVariant { get; set; } = default!;
     }
 }
