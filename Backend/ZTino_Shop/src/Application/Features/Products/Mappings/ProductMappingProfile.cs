@@ -7,7 +7,10 @@ namespace Application.Features.Products.Mappings
     {
         public ProductMappingProfile()
         {
-            CreateMap<Product, UpsertProductDto>().ReverseMap();
+            CreateMap<Product, UpsertProductDto>()
+                .ReverseMap()
+                .ForMember(dest => dest.Id, opt => opt.Ignore())
+                .ForMember(dest => dest.MainImageUrl, opt => opt.Ignore());
         }
     }
 }
