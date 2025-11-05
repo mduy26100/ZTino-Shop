@@ -33,10 +33,27 @@ namespace Application.Tests.Products.Categories.CreateCategory
             var command = new CreateCategoryCommand(dto);
 
             _categoryRepoMock
-                .Setup(r => r.AnyAsync(It.IsAny<Expression<Func<Category, bool>>>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(false);
+                .Setup(r => r.GetByIdAsync(1, It.IsAny<CancellationToken>()))
+                .ReturnsAsync((Category?)null);
 
-            await Assert.ThrowsAsync<InvalidOperationException>(() => _handler.Handle(command, CancellationToken.None));
+            await Assert.ThrowsAsync<InvalidOperationException>(
+                () => _handler.Handle(command, CancellationToken.None));
+        }
+
+        [Fact]
+        public async Task Handle_ShouldThrow_WhenParentIsNotRoot()
+        {
+            var dto = new UpsertCategoryDto { Name = "ChildCategory", ParentId = 2 };
+            var command = new CreateCategoryCommand(dto);
+
+            var parent = new Category { Id = 2, Name = "ParentCategory", ParentId = 1 };
+
+            _categoryRepoMock
+                .Setup(r => r.GetByIdAsync(2, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(parent);
+
+            await Assert.ThrowsAsync<InvalidOperationException>(
+                () => _handler.Handle(command, CancellationToken.None));
         }
 
         [Fact]
@@ -49,24 +66,29 @@ namespace Application.Tests.Products.Categories.CreateCategory
                 .Setup(r => r.AnyAsync(It.IsAny<Expression<Func<Category, bool>>>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(true);
 
-            // Act & Assert
-            await Assert.ThrowsAsync<InvalidOperationException>(() => _handler.Handle(command, CancellationToken.None));
+            await Assert.ThrowsAsync<InvalidOperationException>(
+                () => _handler.Handle(command, CancellationToken.None));
         }
 
         [Fact]
         public async Task Handle_ShouldReturnDto_WhenSuccess()
         {
-            var dto = new UpsertCategoryDto { Name = "Pants" };
+            var dto = new UpsertCategoryDto { Name = "Pants", ParentId = null };
             var entity = new Category { Name = "Pants" };
             var command = new CreateCategoryCommand(dto);
 
             _categoryRepoMock
-                .SetupSequence(r => r.AnyAsync(It.IsAny<Expression<Func<Category, bool>>>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(false)
+                .Setup(r => r.AnyAsync(It.IsAny<Expression<Func<Category, bool>>>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(false);
 
             _mapperMock.Setup(m => m.Map<Category>(dto)).Returns(entity);
             _mapperMock.Setup(m => m.Map<UpsertCategoryDto>(entity)).Returns(dto);
+
+            _categoryRepoMock.Setup(r => r.AddAsync(entity, It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
+
+            _contextMock
+                .Setup(c => c.SaveChangesAsync(It.IsAny<CancellationToken>()))
+                .Returns(Task.FromResult(1));
 
             var result = await _handler.Handle(command, CancellationToken.None);
 
