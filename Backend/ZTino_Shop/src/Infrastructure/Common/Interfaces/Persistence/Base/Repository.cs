@@ -28,6 +28,11 @@ namespace Infrastructure.Common.Interfaces.Persistence.Base
             return query;
         }
 
+        public virtual async Task<IEnumerable<T>> GetAllAsync(CancellationToken cancellationToken = default)
+        {
+            return await _dbSet.AsNoTracking().ToListAsync(cancellationToken);
+        }
+
         public virtual async Task<T?> GetByIdAsync(TKey id, CancellationToken cancellationToken = default)
         {
             if (id is null)

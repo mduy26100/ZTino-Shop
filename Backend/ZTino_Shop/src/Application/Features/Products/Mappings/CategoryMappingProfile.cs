@@ -8,6 +8,7 @@ namespace Application.Features.Products.Mappings
         public CategoryMappingProfile()
         {
             CreateMap<Category, UpsertCategoryDto>().ReverseMap();
+            CreateMap<Category, CategoryTreeDto>().ReverseMap();
         }
     }
 }

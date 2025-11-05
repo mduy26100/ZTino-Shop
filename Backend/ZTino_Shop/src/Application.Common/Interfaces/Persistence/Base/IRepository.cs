@@ -4,6 +4,7 @@
     {
         // Query
         IQueryable<T> GetAll(Expression<Func<T, bool>>? filter = null, bool asNoTracking = true);
+        Task<IEnumerable<T>> GetAllAsync(CancellationToken cancellationToken = default);
         Task<T?> GetByIdAsync(TKey id, CancellationToken cancellationToken = default);
         Task<IEnumerable<T>> FindAsync(
             Expression<Func<T, bool>> predicate,
