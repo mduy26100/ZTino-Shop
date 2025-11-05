@@ -9,6 +9,7 @@ namespace WebAPI.DependencyInjection.Infrastructure
             services.AddAutoMapper(cfg =>
             {
                 cfg.AddProfile<CategoryMappingProfile>();
+                cfg.AddProfile<ProductMappingProfile>();
             });
 
             return services;

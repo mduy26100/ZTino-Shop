@@ -2,7 +2,6 @@
 using Application.Features.Products.Commands.Categories.DeleteCategory;
 using Application.Features.Products.Commands.Categories.UpdateCategory;
 using Domain.Consts;
-using Microsoft.AspNetCore.Authorization;
 
 namespace WebAPI.Controllers.Manager.Products
 {
