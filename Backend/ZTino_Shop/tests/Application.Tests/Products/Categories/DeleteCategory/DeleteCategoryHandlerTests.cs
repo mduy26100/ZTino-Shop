@@ -8,16 +8,19 @@ namespace Application.Tests.Products.Categories.DeleteCategory
     public class DeleteCategoryHandlerTests
     {
         private readonly Mock<ICategoryRepository> _categoryRepoMock;
+        private readonly Mock<IProductRepository> _productRepoMock;
         private readonly Mock<IApplicationDbContext> _contextMock;
         private readonly DeleteCategoryHandler _handler;
 
         public DeleteCategoryHandlerTests()
         {
             _categoryRepoMock = new Mock<ICategoryRepository>();
+            _productRepoMock = new Mock<IProductRepository>();
             _contextMock = new Mock<IApplicationDbContext>();
 
             _handler = new DeleteCategoryHandler(
                 _categoryRepoMock.Object,
+                _productRepoMock.Object,
                 _contextMock.Object
             );
         }
@@ -38,7 +41,27 @@ namespace Application.Tests.Products.Categories.DeleteCategory
         }
 
         [Fact]
-        public async Task Handle_ShouldRemoveCategory_WhenCategoryExists()
+        public async Task Handle_ShouldThrow_WhenCategoryHasProducts()
+        {
+            int id = 1;
+            var command = new DeleteCategoryCommand(id);
+            var category = new Category { Id = id, Name = "Shirts" };
+
+            _categoryRepoMock
+                .Setup(r => r.GetByIdAsync(id, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(category);
+
+            _productRepoMock
+                .Setup(r => r.AnyAsync(It.IsAny<Expression<Func<Product, bool>>>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(true);
+
+            await Assert.ThrowsAsync<InvalidOperationException>(
+                () => _handler.Handle(command, CancellationToken.None)
+            );
+        }
+
+        [Fact]
+        public async Task Handle_ShouldRemoveCategory_WhenCategoryExistsAndHasNoProducts()
         {
             int id = 1;
             var category = new Category { Id = id, Name = "Shirts" };
@@ -47,6 +70,10 @@ namespace Application.Tests.Products.Categories.DeleteCategory
             _categoryRepoMock
                 .Setup(r => r.GetByIdAsync(id, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(category);
+
+            _productRepoMock
+                .Setup(r => r.AnyAsync(x => x.CategoryId == id, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(false);
 
             await _handler.Handle(command, CancellationToken.None);
 
