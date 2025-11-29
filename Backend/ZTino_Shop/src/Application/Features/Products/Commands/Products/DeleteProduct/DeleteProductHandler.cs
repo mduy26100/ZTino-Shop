@@ -1,0 +1,29 @@
+﻿using Application.Common.Interfaces.Persistence.EFCore;
+using Application.Features.Products.Repositories;
+
+namespace Application.Features.Products.Commands.Products.DeleteProduct
+{
+    public class DeleteProductHandler : IRequestHandler<DeleteProductCommand, Unit>
+    {
+        private readonly IProductRepository _productRepository;
+        private readonly IApplicationDbContext _context;
+
+        public DeleteProductHandler(IProductRepository productRepository,
+            IApplicationDbContext context)
+        {
+            _productRepository = productRepository;
+            _context = context;
+        }
+
+        public async Task<Unit> Handle(DeleteProductCommand request, CancellationToken cancellationToken)
+        {
+            var entity = await _productRepository.GetByIdAsync(request.Id, cancellationToken);
+            if (entity == null)
+                throw new KeyNotFoundException($"Product with id {request.Id} not found.");
+
+            _productRepository.Remove(entity);
+            await _context.SaveChangesAsync(cancellationToken);
+            return Unit.Value;
+        }
+    }
+}

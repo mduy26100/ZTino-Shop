@@ -1,4 +1,5 @@
 ﻿using Application.Features.Products.Commands.Products.CreateProduct;
+using Application.Features.Products.Commands.Products.DeleteProduct;
 using Application.Features.Products.Commands.Products.UpdateProduct;
 using Domain.Consts;
 using WebAPI.Models.Products.Product;
@@ -33,6 +34,14 @@ namespace WebAPI.Controllers.Manager.Products
             CancellationToken cancellationToken)
         {
             var command = new UpdateProductCommand(form.ToDto());
+            var result = await _mediator.Send(command, cancellationToken);
+            return Ok(result);
+        }
+
+        [HttpDelete("{Id:int}")]
+        public async Task<IActionResult> DeleteProduct(int Id, CancellationToken cancellationToken)
+        {
+            var command = new DeleteProductCommand(Id);
             var result = await _mediator.Send(command, cancellationToken);
             return Ok(result);
         }
