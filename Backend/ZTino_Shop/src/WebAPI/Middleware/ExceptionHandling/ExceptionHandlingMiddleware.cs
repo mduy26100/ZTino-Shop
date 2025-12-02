@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using System.Text.Json;
+using Application.Common.Models.Responses;
 
 namespace WebAPI.Middleware.ExceptionHandling
 {
@@ -22,51 +23,60 @@ namespace WebAPI.Middleware.ExceptionHandling
             }
             catch (ValidationException ex)
             {
-                context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
-                context.Response.ContentType = "application/json";
-
-                var errors = ex.Errors
-                    .GroupBy(e => e.PropertyName)
-                    .ToDictionary(
-                        g => g.Key,
-                        g => g.Select(e => e.ErrorMessage).ToArray()
-                    );
-
-                var result = new
+                await WriteErrorResponse(context, HttpStatusCode.BadRequest, new ApiError
                 {
-                    type = "validation-error",
-                    errors
-                };
-
-                await context.Response.WriteAsync(JsonSerializer.Serialize(result, new JsonSerializerOptions
-                {
-                    WriteIndented = true
-                }));
+                    Type = "validation-error",
+                    Message = "Validation failed.",
+                    Details = ex.Errors
+                        .GroupBy(e => e.PropertyName)
+                        .ToDictionary(
+                            g => g.Key,
+                            g => g.Select(e => e.ErrorMessage).ToArray()
+                        )
+                });
             }
             catch (UnauthorizedAccessException ex)
             {
-                context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
-                context.Response.ContentType = "application/json";
-
-                await context.Response.WriteAsync(JsonSerializer.Serialize(new
+                await WriteErrorResponse(context, HttpStatusCode.Unauthorized, new ApiError
                 {
-                    type = "unauthorized",
-                    message = ex.Message
-                }));
+                    Type = "unauthorized",
+                    Message = ex.Message,
+                    Details = null
+                });
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Unhandled Exception");
 
-                context.Response.StatusCode = 500;
-                context.Response.ContentType = "application/json";
-
-                await context.Response.WriteAsync(JsonSerializer.Serialize(new
+                await WriteErrorResponse(context, HttpStatusCode.InternalServerError, new ApiError
                 {
-                    type = "internal-server-error",
-                    message = ex.Message
-                }));
+                    Type = "internal-server-error",
+                    Message = ex.Message,
+                    Details = null
+                });
             }
+        }
+
+        private static async Task WriteErrorResponse(HttpContext context, HttpStatusCode statusCode, ApiError error)
+        {
+            context.Response.StatusCode = (int)statusCode;
+            context.Response.ContentType = "application/json";
+
+            var meta = new Meta
+            {
+                Timestamp = DateTime.UtcNow,
+                Path = context.Request.Path
+            };
+
+            var responseWrapped = ApiResponse.Fail(error, (int)statusCode);
+            responseWrapped.Meta = meta;
+
+            string json = JsonSerializer.Serialize(responseWrapped, new JsonSerializerOptions
+            {
+                WriteIndented = true
+            });
+
+            await context.Response.WriteAsync(json);
         }
     }
 }

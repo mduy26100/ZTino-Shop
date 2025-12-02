@@ -11,6 +11,8 @@ namespace Application.Features.Products.Mappings
                 .ReverseMap()
                 .ForMember(dest => dest.Id, opt => opt.Ignore())
                 .ForMember(dest => dest.MainImageUrl, opt => opt.Ignore());
+
+            CreateMap<Product, ProductDto>().ReverseMap();
         }
     }
 }
