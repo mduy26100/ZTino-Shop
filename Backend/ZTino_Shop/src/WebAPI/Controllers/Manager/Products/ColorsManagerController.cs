@@ -1,4 +1,5 @@
 ﻿using Application.Features.Products.Commands.Colors.CreateColor;
+using Application.Features.Products.Commands.Colors.UpdateColor;
 
 namespace WebAPI.Controllers.Manager.Products
 {
@@ -16,6 +17,13 @@ namespace WebAPI.Controllers.Manager.Products
 
         [HttpPost]
         public async Task<IActionResult> CreateColor(CreateColorCommand command, CancellationToken cancellationToken)
+        {
+            var result = await _mediator.Send(command, cancellationToken);
+            return Ok(result);
+        }
+
+        [HttpPut]
+        public async Task<IActionResult> UpdateColor(UpdateColorCommand command, CancellationToken cancellationToken)
         {
             var result = await _mediator.Send(command, cancellationToken);
             return Ok(result);
