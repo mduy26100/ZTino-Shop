@@ -1,4 +1,5 @@
 ﻿using Application.Features.Products.Queries.Products.GetAllProducts;
+using Application.Features.Products.Queries.Products.GetProductDetail;
 
 namespace WebAPI.Controllers.Products
 {
@@ -18,6 +19,16 @@ namespace WebAPI.Controllers.Products
         {
             var query = new GetAllProductsQuery();
             var result = await _mediator.Send(query);
+            return Ok(result);
+        }
+
+        [HttpGet("{id:int}")]
+        public async Task<IActionResult> GetProductDetail(int id, CancellationToken cancellationToken)
+        {
+            var query = new GetProductDetailQuery(id);
+            var result = await _mediator.Send(query, cancellationToken);
+            if (result is null)
+                return NotFound();
             return Ok(result);
         }
     }
