@@ -8,6 +8,7 @@ namespace Application.Features.Products.Mappings
         public SizeMappingProfile()
         {
             CreateMap<Size, UpsertSizeDto>().ReverseMap();
+            CreateMap<Size, SizeDto>().ReverseMap();
         }
     }
 }
