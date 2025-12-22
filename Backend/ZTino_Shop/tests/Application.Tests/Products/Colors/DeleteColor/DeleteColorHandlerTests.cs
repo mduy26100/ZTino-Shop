@@ -74,7 +74,7 @@ namespace Application.Tests.Products.Colors.DeleteColor
 
             _variantRepositoryMock
                 .Setup(r => r.AnyAsync(
-                    It.IsAny<Expression<Func<ProductVariant, bool>>>(),
+                    It.IsAny<Expression<Func<Domain.Models.Products.ProductVariant, bool>>>(),
                     It.IsAny<CancellationToken>()
                 ))
                 .ReturnsAsync(true);

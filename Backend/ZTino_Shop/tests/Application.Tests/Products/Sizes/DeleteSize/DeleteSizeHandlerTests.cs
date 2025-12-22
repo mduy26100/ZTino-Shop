@@ -37,7 +37,7 @@ namespace Application.Tests.Products.Sizes.DeleteSize
                 .ReturnsAsync(size);
 
             _productVariantRepositoryMock
-                .Setup(x => x.AnyAsync(It.IsAny<Expression<Func<ProductVariant, bool>>>(), It.IsAny<CancellationToken>()))
+                .Setup(x => x.AnyAsync(It.IsAny<Expression<Func<Domain.Models.Products.ProductVariant, bool>>>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(false);
 
             var result = await _handler.Handle(command, CancellationToken.None);
@@ -79,7 +79,7 @@ namespace Application.Tests.Products.Sizes.DeleteSize
                 .ReturnsAsync(size);
 
             _productVariantRepositoryMock
-                .Setup(x => x.AnyAsync(It.IsAny<Expression<Func<ProductVariant, bool>>>(), It.IsAny<CancellationToken>()))
+                .Setup(x => x.AnyAsync(It.IsAny<Expression<Func<Domain.Models.Products.ProductVariant, bool>>>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(true);
 
             var exception = await Assert.ThrowsAsync<InvalidOperationException>(() =>

@@ -12,6 +12,7 @@ namespace WebAPI.DependencyInjection.Infrastructure
                 cfg.AddProfile<ProductMappingProfile>();
                 cfg.AddProfile<ColorMappingProfile>();
                 cfg.AddProfile<SizeMappingProfile>();
+                cfg.AddProfile<ProductVariantMappingProfile>();
             });
 
             return services;
