@@ -1,4 +1,5 @@
 ﻿using Application.Features.Products.Commands.ProductVariants.CreateProductVariant;
+using Application.Features.Products.Commands.ProductVariants.UpdateProductVariant;
 using Domain.Consts;
 
 namespace WebAPI.Controllers.Manager.Products
@@ -17,6 +18,13 @@ namespace WebAPI.Controllers.Manager.Products
 
         [HttpPost]
         public async Task<IActionResult> CreateProductVariant(CreateProductVariantCommand command, CancellationToken cancellationToken)
+        {
+            var result = await _mediator.Send(command, cancellationToken);
+            return Ok(result);
+        }
+
+        [HttpPut]
+        public async Task<IActionResult> UpdateProductVariant(UpdateProductVariantCommand command, CancellationToken cancellationToken)
         {
             var result = await _mediator.Send(command, cancellationToken);
             return Ok(result);
