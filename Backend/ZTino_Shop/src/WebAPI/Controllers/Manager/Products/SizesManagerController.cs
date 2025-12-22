@@ -1,4 +1,5 @@
 ﻿using Application.Features.Products.Commands.Sizes.CreateSize;
+using Application.Features.Products.Commands.Sizes.DeleteSize;
 using Application.Features.Products.Commands.Sizes.UpdateSize;
 using Domain.Consts;
 
@@ -26,6 +27,14 @@ namespace WebAPI.Controllers.Manager.Products
         [HttpPut]
         public async Task<IActionResult> UpdateSize(UpdateSizeCommand command, CancellationToken cancellationToken)
         {
+            var result = await _mediator.Send(command, cancellationToken);
+            return Ok(result);
+        }
+
+        [HttpDelete("{Id:int}")]
+        public async Task<IActionResult> DeleteSize(int Id, CancellationToken cancellationToken)
+        {
+            var command = new DeleteSizeCommand(Id);
             var result = await _mediator.Send(command, cancellationToken);
             return Ok(result);
         }
