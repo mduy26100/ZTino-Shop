@@ -1,4 +1,5 @@
 ﻿using Application.Features.Products.Commands.ProductVariants.CreateProductVariant;
+using Application.Features.Products.Commands.ProductVariants.DeleteProductVariant;
 using Application.Features.Products.Commands.ProductVariants.UpdateProductVariant;
 using Domain.Consts;
 
@@ -26,6 +27,14 @@ namespace WebAPI.Controllers.Manager.Products
         [HttpPut]
         public async Task<IActionResult> UpdateProductVariant(UpdateProductVariantCommand command, CancellationToken cancellationToken)
         {
+            var result = await _mediator.Send(command, cancellationToken);
+            return Ok(result);
+        }
+
+        [HttpDelete("{Id:int}")]
+        public async Task<IActionResult> DeleteProductVariant(int Id, CancellationToken cancellationToken)
+        {
+            var command = new DeleteProductVariantCommand(Id);
             var result = await _mediator.Send(command, cancellationToken);
             return Ok(result);
         }
