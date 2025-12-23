@@ -1,4 +1,5 @@
 ﻿using Application.Features.Products.Commands.ProductImages.CreateProductImage;
+using Application.Features.Products.Commands.ProductImages.UpdateProductImage;
 using Domain.Consts;
 using WebAPI.Models.Products.Product;
 
@@ -17,9 +18,17 @@ namespace WebAPI.Controllers.Manager.Products
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateProductImage([FromForm] UpsertProductImageForm form, CancellationToken cancellationToken)
+        public async Task<IActionResult> CreateProductImages([FromForm] UpsertProductImageForm form, CancellationToken cancellationToken)
         {
             var command = new CreateProductImagesCommand(form.CreateImages());
+            var result = await _mediator.Send(command, cancellationToken);
+            return Ok(result);
+        }
+
+        [HttpPut]
+        public async Task<IActionResult> UpdateProductImage([FromForm] UpsertProductImageForm form, CancellationToken cancellationToken)
+        {
+            var command = new UpdateProductImageCommand(form.UpdateImage());
             var result = await _mediator.Send(command, cancellationToken);
             return Ok(result);
         }

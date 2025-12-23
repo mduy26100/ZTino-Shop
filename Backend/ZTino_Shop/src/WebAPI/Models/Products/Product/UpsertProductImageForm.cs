@@ -7,11 +7,12 @@ namespace WebAPI.Models.Products.Product
         public int Id { get; set; }
         public int ProductVariantId { get; set; }
         public bool IsMain { get; set; } = false;
-        public List<IFormFile> ImageUrls { get; set; } = new();
+        public List<IFormFile> ImageFiles { get; set; } = new();
+        public IFormFile? ImageFile { get; set; }
 
         public List<UpsertProductImageDto> CreateImages()
         {
-            return ImageUrls.Select(file => new UpsertProductImageDto
+            return ImageFiles.Select(file => new UpsertProductImageDto
             {
                 Id = Id,
                 ProductVariantId = ProductVariantId,
@@ -19,6 +20,19 @@ namespace WebAPI.Models.Products.Product
                 ImgFileName = file.FileName,
                 ImgContentType = file.ContentType
             }).ToList();
+        }
+
+        public UpsertProductImageDto UpdateImage()
+        {
+            return new UpsertProductImageDto
+            {
+                Id = Id,
+                IsMain = IsMain,
+                ProductVariantId = ProductVariantId,
+                ImgContent = ImageFile?.OpenReadStream(),
+                ImgFileName = ImageFile?.FileName,
+                ImgContentType = ImageFile?.ContentType
+            };
         }
     }
 }
