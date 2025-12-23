@@ -29,6 +29,9 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+//CORS
+app.UseCors("AllowAll");
+
 //Middleware
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 app.UseMiddleware<ResponseWrappingMiddleware>();
