@@ -1,7 +1,13 @@
 import React, { useState } from 'react';
 import { Button, Card, Typography, Space, message } from 'antd';
 import { PlusIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
-import { CategoryModal, CategoryTable, useCreateCategory, useGetCategories } from '../../features/product';
+import { 
+    UpsertCategoryModal,
+    CategoryTable, 
+    useCreateCategory, 
+    useUpdateCategory,
+    useGetCategories 
+} from '../../features/product';
 
 const { Title, Text } = Typography;
 
@@ -10,22 +16,44 @@ const CategoryPage = () => {
     const { data, isLoading, refetch } = useGetCategories();
     
     const { create, isLoading: isCreating } = useCreateCategory();
+    const { update, isUpdating } = useUpdateCategory();
+    
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [editingRecord, setEditingRecord] = useState(null);
 
-    const handleCreateSubmit = async (values) => {
-        await create(values, {
+    const handleOpenCreate = () => {
+        setEditingRecord(null);
+        setIsModalOpen(true);
+    };
+
+    const handleOpenEdit = (record) => {
+        setEditingRecord(record);
+        setIsModalOpen(true);
+    };
+
+    const handleCloseModal = () => {
+        setIsModalOpen(false);
+        setEditingRecord(null);
+    };
+
+    const handleSubmit = async (values) => {
+        const isEdit = !!editingRecord;
+        const action = isEdit ? update : create;
+        const payload = isEdit ? { ...values, id: editingRecord.id } : values;
+
+        await action(payload, {
             onSuccess: () => {
                 messageApi.open({
                     type: 'success',
-                    content: 'Category created successfully',
+                    content: `Category ${isEdit ? 'updated' : 'created'} successfully`,
                 });
-                setIsModalOpen(false);
+                handleCloseModal();
                 refetch();
             },
             onError: (error) => {
                 messageApi.open({
                     type: 'error',
-                    content: error?.Error?.Message || error?.message || 'Failed to create category',
+                    content: error?.Error?.Message || error?.message || 'Operation failed',
                 });
             }
         });
@@ -53,7 +81,7 @@ const CategoryPage = () => {
                             type="primary" 
                             icon={<PlusIcon className="w-4 h-4" />} 
                             className="bg-indigo-600 hover:!bg-indigo-700 border-none h-10 rounded-xl flex items-center shadow-lg shadow-indigo-100"
-                            onClick={() => setIsModalOpen(true)}
+                            onClick={handleOpenCreate}
                         >
                             Add Category
                         </Button>
@@ -65,17 +93,18 @@ const CategoryPage = () => {
                 <CategoryTable 
                     data={data} 
                     loading={isLoading} 
-                    onEdit={(record) => console.log(record)}
-                    onDelete={(record) => console.log(record)}
+                    onEdit={handleOpenEdit}
+                    onDelete={(record) => console.log('Delete logic here')}
                 />
             </Card>
 
-            <CategoryModal
+            <UpsertCategoryModal
                 open={isModalOpen}
-                onCancel={() => setIsModalOpen(false)}
-                onSubmit={handleCreateSubmit}
-                confirmLoading={isCreating}
+                onCancel={handleCloseModal}
+                onSubmit={handleSubmit}
+                confirmLoading={editingRecord ? isUpdating : isCreating}
                 categoryList={data}
+                initialValues={editingRecord}
             />
         </div>
     );

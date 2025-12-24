@@ -1,34 +1,42 @@
 import React, { useEffect, useMemo } from 'react';
 import { Modal, Form, Input, Checkbox, Select, Button } from 'antd';
 
-const CategoryModal = ({ 
+const UpsertCategoryModal = ({ 
     open, 
     onCancel, 
     onSubmit, 
     confirmLoading, 
-    categoryList = [] 
+    categoryList = [],
+    initialValues = null 
 }) => {
     const [form] = Form.useForm();
+    const isEdit = !!initialValues;
+
+    const shouldShowParentSelect = !isEdit || (isEdit && initialValues?.parentId !== null);
 
     const parentOptions = useMemo(() => {
         return categoryList
-            .filter(category => category.parentId === null)
+            .filter(category => category.parentId === null && category.id !== initialValues?.id)
             .map(category => ({
                 label: category.name,
                 value: category.id
             }));
-    }, [categoryList]);
+    }, [categoryList, initialValues]);
 
     useEffect(() => {
         if (open) {
-            form.resetFields();
+            if (initialValues) {
+                form.setFieldsValue(initialValues);
+            } else {
+                form.resetFields();
+            }
         }
-    }, [open, form]);
+    }, [open, initialValues, form]);
 
     const handleSubmit = async () => {
         try {
             const values = await form.validateFields();
-            onSubmit(values);
+            onSubmit(values, form);
         } catch (error) {
             console.error('Validate Failed:', error);
         }
@@ -36,7 +44,7 @@ const CategoryModal = ({
 
     return (
         <Modal
-            title="Create New Category"
+            title={isEdit ? "Update Category" : "Create New Category"}
             open={open}
             onCancel={onCancel}
             width={500}
@@ -51,7 +59,7 @@ const CategoryModal = ({
                     onClick={handleSubmit}
                     className="bg-indigo-600 hover:!bg-indigo-700 border-none rounded-lg"
                 >
-                    Create
+                    {isEdit ? "Update" : "Create"}
                 </Button>,
             ]}
             destroyOnHidden
@@ -82,25 +90,33 @@ const CategoryModal = ({
                 <Form.Item
                     name="slug"
                     label={<span className="font-medium text-gray-700">Slug</span>}
-                    rules={[{ required: true, message: 'Please enter slug' }]}
+                    rules={[
+                        { required: true, message: 'Please enter slug' },
+                        { 
+                            pattern: /^[a-z0-9-]+$/, 
+                            message: 'Slug can only contain lowercase letters, numbers, and hyphens.' 
+                        }
+                    ]}
                 >
                     <Input placeholder="e.g. mens-clothing" className="rounded-lg py-2" />
                 </Form.Item>
 
-                <Form.Item 
-                    name="parentId" 
-                    label={<span className="font-medium text-gray-700">Parent Category</span>}
-                >
-                    <Select
-                        placeholder="Select parent category (Root)"
-                        allowClear
-                        options={parentOptions}
-                        className="rounded-lg h-10"
-                        showSearch
-                        optionFilterProp="label"
-                        popupMatchSelectWidth={false}
-                    />
-                </Form.Item>
+                {shouldShowParentSelect && (
+                    <Form.Item 
+                        name="parentId" 
+                        label={<span className="font-medium text-gray-700">Parent Category</span>}
+                    >
+                        <Select
+                            placeholder="Select parent category (Root)"
+                            allowClear
+                            options={parentOptions}
+                            className="rounded-lg h-10"
+                            showSearch
+                            optionFilterProp="label"
+                            popupMatchSelectWidth={false}
+                        />
+                    </Form.Item>
+                )}
 
                 <Form.Item name="isActive" valuePropName="checked" className="mb-0">
                     <Checkbox className="text-gray-600 font-medium">Active</Checkbox>
@@ -110,4 +126,4 @@ const CategoryModal = ({
     );
 };
 
-export default CategoryModal;
+export default UpsertCategoryModal;
