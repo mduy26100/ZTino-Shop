@@ -1,6 +1,7 @@
 import MainLayout from "../layouts/MainLayout";
 import Login from "../pages/Auth/LoginPage";
 import Dashboard from "../pages/Dashboard/Dashboard";
+import ErrorPage from "../pages/Error/ErrorPage";
 import PrivateRoute from "./PrivateRoute";
 import PublicRoute from "./PublicRoute";
 import { createBrowserRouter, createRoutesFromElements, Navigate, Route, RouterProvider } from "react-router-dom";
@@ -18,11 +19,13 @@ const router = createBrowserRouter(
         />
 
         <Route path="/" 
-        element={
-            <PrivateRoute>
-                <MainLayout /> 
-            </PrivateRoute>
-        }>
+            element={
+                <PrivateRoute>
+                    <MainLayout /> 
+                </PrivateRoute>
+            }
+            errorElement={<ErrorPage />}
+        >
             <Route index element={<Navigate to="/dashboard" replace />} />
             <Route path="dashboard" element={<Dashboard />} />
         </Route>
