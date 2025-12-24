@@ -1,9 +1,19 @@
 //components
+//Category
 export {default as CategoryTable} from "./components/category/CategoryTable";
 export {default as UpsertCategoryModal} from "./components/category/UpsertCategoryModal";
 
+//Color
+export {default as ColorCard} from "./components/color/ColorCard";
+
+
+
 //hooks
+//Category
 export {useGetCategories} from "./hooks/category/useGetCategories";
 export {useCreateCategory} from "./hooks/category/useCreateCategory";
 export {useUpdateCategory} from "./hooks/category/useUpdateCategory";
 export {useDeleteCategory} from "./hooks/category/useDeleteCategory";
+//Color
+export {useGetColors} from "./hooks/color/useGetColors";
+
