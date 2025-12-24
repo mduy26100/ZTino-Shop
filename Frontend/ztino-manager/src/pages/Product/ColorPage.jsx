@@ -7,6 +7,7 @@ import {
     useGetColors, 
     useCreateColor, 
     useUpdateColor, 
+    useDeleteColor,
     UpsertColorModal 
 } from '../../features/product';
 
@@ -19,6 +20,7 @@ const ColorPage = () => {
     const { data = [], isLoading, refetch } = useGetColors();
     const { create, isCreating } = useCreateColor();
     const { update, isUpdating } = useUpdateColor();
+    const { remove } = useDeleteColor();
     
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingRecord, setEditingRecord] = useState(null);
@@ -37,6 +39,45 @@ const ColorPage = () => {
         setIsModalOpen(false);
         setEditingRecord(null);
     }, []);
+
+    const handleDelete = useCallback((record) => {
+        modal.confirm({
+            title: 'Delete Color',
+            icon: <ExclamationCircleFilled />,
+            content: (
+                <div className="pt-2">
+                    <Text>Are you sure you want to delete color </Text>
+                    <Text strong>"{record.name}"</Text>?
+                    <br />
+                    <Text type="secondary" className="text-xs">
+                        This action cannot be undone.
+                    </Text>
+                </div>
+            ),
+            okText: 'Delete',
+            okType: 'danger',
+            cancelText: 'Cancel',
+            centered: true,
+            maskClosable: true,
+            onOk: async () => {
+                await remove(record.id, {
+                    onSuccess: () => {
+                        messageApi.open({
+                            type: 'success',
+                            content: `Deleted color: ${record.name}`,
+                        });
+                        refetch();
+                    },
+                    onError: (error) => {                        
+                        messageApi.open({
+                            type: 'error',
+                            content: error?.Error?.Message || error?.message || 'Delete failed',
+                        });
+                    }
+                });
+            },
+        });
+    }, [modal, remove, messageApi, refetch]);
 
     const handleSubmit = useCallback(async (values) => {
         const isEdit = !!editingRecord;
@@ -60,32 +101,6 @@ const ColorPage = () => {
             }
         });
     }, [create, update, editingRecord, messageApi, handleCloseModal, refetch]);
-
-    const handleDelete = useCallback((record) => {
-        modal.confirm({
-            title: 'Delete Color',
-            icon: <ExclamationCircleFilled />,
-            content: (
-                <div className="pt-2">
-                    <Text>Are you sure you want to delete color </Text>
-                    <Text strong>"{record.name}"</Text>?
-                    <br />
-                    <Text type="secondary" className="text-xs">
-                        This action cannot be undone.
-                    </Text>
-                </div>
-            ),
-            okText: 'Delete',
-            okType: 'danger',
-            cancelText: 'Cancel',
-            centered: true,
-            maskClosable: true,
-            onOk: async () => {
-                messageApi.success(`Deleted color: ${record.name}`);
-                refetch();
-            },
-        });
-    }, [modal, messageApi, refetch]);
 
     const renderContent = () => {
         if (isLoading) {

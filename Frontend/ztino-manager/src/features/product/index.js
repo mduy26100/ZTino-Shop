@@ -20,3 +20,4 @@ export {useDeleteCategory} from "./hooks/category/useDeleteCategory";
 export {useGetColors} from "./hooks/color/useGetColors";
 export {useCreateColor} from "./hooks/color/useCreateColor";
 export {useUpdateColor} from "./hooks/color/useUpdateColor";
+export {useDeleteColor} from "./hooks/color/useDeleteColor";

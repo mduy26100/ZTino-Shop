@@ -23,3 +23,7 @@ export const updateColor = (payload) => {
 
     return axiosClient.put(`${URL_MANAGER}/${payload.id}`, {dto});
 };
+
+export const deleteColor = (id) => {
+    return axiosClient.delete(`${URL_MANAGER}/${id}`);
+};
