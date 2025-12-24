@@ -10,22 +10,28 @@ const CategoryTable = ({ data, loading, onEdit, onDelete }) => {
             title: 'Category Name',
             dataIndex: 'name',
             key: 'name',
-            width: '40%',
-            render: (name) => <Text className="font-semibold text-slate-700">{name}</Text>,
+            width: 250, 
+            render: (name) => (
+                <Text className="font-semibold text-slate-700 block truncate">
+                    {name}
+                </Text>
+            ),
         },
         {
             title: 'Slug',
             dataIndex: 'slug',
             key: 'slug',
-            render: (slug) => <span className="text-xs font-mono text-slate-400">{slug}</span>,
+            width: 200,
+            render: (slug) => <span className="text-xs font-mono text-slate-400 block truncate">{slug}</span>,
         },
         {
             title: 'Status',
             dataIndex: 'isActive',
             key: 'isActive',
             align: 'center',
+            width: 120,
             render: (isActive) => (
-                <Tag color={isActive ? 'success' : 'error'} className="rounded-full border-none px-3 capitalize">
+                <Tag color={isActive ? 'success' : 'error'} className="rounded-full border-none px-2.5 capitalize text-[11px] font-medium m-0">
                     {isActive ? 'active' : 'inactive'}
                 </Tag>
             ),
@@ -33,23 +39,26 @@ const CategoryTable = ({ data, loading, onEdit, onDelete }) => {
         {
             title: 'Actions',
             key: 'actions',
-            align: 'right',
+            align: 'center',
+            width: 100,
             render: (_, record) => (
-                <Space size="small">
+                <Space size={4}>
                     <Tooltip title="Edit">
                         <Button 
                             type="text" 
+                            size="small"
                             className="flex items-center justify-center hover:!bg-indigo-50 hover:!text-indigo-600"
-                            icon={<PencilSquareIcon className="w-5 h-5" />} 
+                            icon={<PencilSquareIcon className="w-4 h-4" />} 
                             onClick={() => onEdit?.(record)}
                         />
                     </Tooltip>
                     <Tooltip title="Delete">
                         <Button 
                             type="text" 
+                            size="small"
                             danger
                             className="flex items-center justify-center hover:!bg-rose-50"
-                            icon={<TrashIcon className="w-5 h-5" />} 
+                            icon={<TrashIcon className="w-4 h-4" />} 
                             onClick={() => onDelete?.(record)}
                         />
                     </Tooltip>
@@ -69,8 +78,11 @@ const CategoryTable = ({ data, loading, onEdit, onDelete }) => {
                 childrenColumnName: "children",
                 expandRowByClick: true,
                 rowExpandable: (record) => record.parentId === null,
+                indentSize: 15,
             }}
-            className="category-table shadow-none"
+            scroll={{ x: 'max-content' }}
+            className="category-table shadow-none overflow-hidden"
+            size="middle"
         />
     );
 };
