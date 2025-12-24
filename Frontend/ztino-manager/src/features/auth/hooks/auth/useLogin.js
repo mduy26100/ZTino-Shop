@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { setToken, setUser, clearAuth } from '../../../utils/localStorage';
-import { loginAPI } from '../../../api/auth/authentication.api';
-import { decodeToken, getRolesFromToken } from '../../../utils/jwtDecode';
+import { loginAPI } from '../../api/authentication.api';
+import { decodeToken, getRolesFromToken } from '../../../../utils/jwtDecode';
+import { useAuth } from '../../../../contexts/AuthContext';
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const PWD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
@@ -9,14 +9,12 @@ const PWD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?
 export const useLogin = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+  
+  const { login: contextLogin } = useAuth();
 
   const validate = (credentials) => {
-    if (!credentials.email || !EMAIL_REGEX.test(credentials.email)) {
-      return "Invalid email format";
-    }
-    if (!credentials.password || !PWD_REGEX.test(credentials.password)) {
-      return "Password must be at least 8 characters, including uppercase, lowercase, numbers, and symbols";
-    }
+    if (!credentials.email || !EMAIL_REGEX.test(credentials.email)) return "Invalid email format";
+    if (!credentials.password || !PWD_REGEX.test(credentials.password)) return "Password validation failed...";
     return null;
   };
 
@@ -30,9 +28,7 @@ export const useLogin = () => {
 
       const data = await loginAPI(credentials);
 
-      if (!data || !data.accessToken) {
-        throw new Error("System failed to provide access token");
-      }
+      if (!data || !data.accessToken) throw new Error("System failed to provide access token");
 
       const { accessToken } = data;
       const roles = getRolesFromToken(accessToken);
@@ -40,8 +36,6 @@ export const useLogin = () => {
       if (!roles.includes("Manager")) {
         throw new Error("Access denied: Manager privileges required");
       }
-
-      setToken(accessToken);
 
       const decoded = decodeToken(accessToken);
       const userPayload = {
@@ -51,24 +45,13 @@ export const useLogin = () => {
         roles: roles
       };
 
-      setUser(userPayload);
+      contextLogin(accessToken, userPayload);
+
       return data;
 
     } catch (err) {
-      let msg = "An unexpected error occurred";
-
-      if (err?.Error?.Message) {
-        msg = err.Error.Message;
-      } else if (err?.Error) {
-        msg = typeof err.Error === 'string' ? err.Error : JSON.stringify(err.Error);
-      } else if (err?.message) {
-        msg = err.message;
-      } else if (typeof err === 'string') {
-        msg = err;
-      }
-
+      let msg = err?.Error?.Message || err?.message || "An unexpected error occurred";
       setError(msg);
-      clearAuth();
       throw err;
     } finally {
       setIsLoading(false);
