@@ -5,6 +5,7 @@ export {default as UpsertCategoryModal} from "./components/category/UpsertCatego
 
 //Color
 export {default as ColorCard} from "./components/color/ColorCard";
+export {default as UpsertColorModal} from "./components/color/UpsertColorModal";
 
 
 
@@ -14,6 +15,7 @@ export {useGetCategories} from "./hooks/category/useGetCategories";
 export {useCreateCategory} from "./hooks/category/useCreateCategory";
 export {useUpdateCategory} from "./hooks/category/useUpdateCategory";
 export {useDeleteCategory} from "./hooks/category/useDeleteCategory";
+
 //Color
 export {useGetColors} from "./hooks/color/useGetColors";
-
+export {useCreateColor} from "./hooks/color/useCreateColor";

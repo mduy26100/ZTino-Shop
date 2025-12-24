@@ -1,7 +1,12 @@
 import React, { useState, useCallback } from 'react';
 import { Button, Typography, Space, message, Row, Col, Empty, Skeleton, Modal } from 'antd';
 import { PlusIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
-import { ColorCard, useGetColors } from '../../features/product';
+import { 
+    ColorCard, 
+    useGetColors, 
+    useCreateColor, 
+    UpsertColorModal 
+} from '../../features/product';
 
 const { Title, Text } = Typography;
 
@@ -10,6 +15,7 @@ const ColorPage = () => {
     const [modal, modalContextHolder] = Modal.useModal();
     
     const { data = [], isLoading, refetch } = useGetColors();
+    const { create, isCreating } = useCreateColor();
     
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingRecord, setEditingRecord] = useState(null);
@@ -43,6 +49,31 @@ const ColorPage = () => {
         });
     }, [modal, messageApi, refetch]);
 
+    const handleSubmit = useCallback(async (values) => {
+        const isEdit = !!editingRecord;
+        const action = isEdit ? null : create; 
+        const payload = isEdit ? { ...values, id: editingRecord.id } : values;
+
+        if (!action) return;
+
+        await action(payload, {
+            onSuccess: () => {
+                messageApi.open({
+                    type: 'success',
+                    content: `Color ${isEdit ? 'updated' : 'created'} successfully`,
+                });
+                handleCloseModal();
+                refetch();
+            },
+            onError: (error) => {
+                messageApi.open({
+                    type: 'error',
+                    content: error?.Error?.Message || error?.message || 'Operation failed',
+                });
+            }
+        });
+    }, [create, editingRecord, messageApi, handleCloseModal, refetch]);
+
     const renderContent = () => {
         if (isLoading) {
             return (
@@ -61,8 +92,11 @@ const ColorPage = () => {
 
         if (!data || data.length === 0) {
             return (
-                <div className="py-20 bg-white rounded-3xl border border-dashed border-gray-200 flex justify-center">
+                <div className="py-20 bg-white rounded-3xl border border-dashed border-gray-200 flex justify-center flex-col items-center gap-4">
                     <Empty description="No colors found" />
+                    <Button type="primary" onClick={handleOpenCreate}>
+                        Create First Color
+                    </Button>
                 </div>
             );
         }
@@ -118,12 +152,13 @@ const ColorPage = () => {
                 {renderContent()}
             </div>
 
-            {/* Placeholder cho UpsertColorModal sau này */}
-            {/* <UpsertColorModal 
+            <UpsertColorModal 
                 open={isModalOpen}
                 onCancel={handleCloseModal}
+                onSubmit={handleSubmit}
+                confirmLoading={isCreating}
                 initialValues={editingRecord}
-            /> */}
+            />
         </div>
     );
 };
