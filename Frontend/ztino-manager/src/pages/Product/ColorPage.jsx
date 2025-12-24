@@ -1,10 +1,12 @@
 import React, { useState, useCallback } from 'react';
 import { Button, Typography, Space, message, Row, Col, Empty, Skeleton, Modal } from 'antd';
 import { PlusIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
+import { ExclamationCircleFilled } from '@ant-design/icons';
 import { 
     ColorCard, 
     useGetColors, 
     useCreateColor, 
+    useUpdateColor, 
     UpsertColorModal 
 } from '../../features/product';
 
@@ -16,6 +18,7 @@ const ColorPage = () => {
     
     const { data = [], isLoading, refetch } = useGetColors();
     const { create, isCreating } = useCreateColor();
+    const { update, isUpdating } = useUpdateColor();
     
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingRecord, setEditingRecord] = useState(null);
@@ -35,26 +38,10 @@ const ColorPage = () => {
         setEditingRecord(null);
     }, []);
 
-    const handleDelete = useCallback((record) => {
-        modal.confirm({
-            title: 'Delete Color',
-            content: `Are you sure you want to delete color "${record.name}"?`,
-            okText: 'Delete',
-            okType: 'danger',
-            centered: true,
-            onOk: async () => {
-                messageApi.success(`Deleted color: ${record.name}`);
-                refetch();
-            },
-        });
-    }, [modal, messageApi, refetch]);
-
     const handleSubmit = useCallback(async (values) => {
         const isEdit = !!editingRecord;
-        const action = isEdit ? null : create; 
+        const action = isEdit ? update : create;
         const payload = isEdit ? { ...values, id: editingRecord.id } : values;
-
-        if (!action) return;
 
         await action(payload, {
             onSuccess: () => {
@@ -72,7 +59,33 @@ const ColorPage = () => {
                 });
             }
         });
-    }, [create, editingRecord, messageApi, handleCloseModal, refetch]);
+    }, [create, update, editingRecord, messageApi, handleCloseModal, refetch]);
+
+    const handleDelete = useCallback((record) => {
+        modal.confirm({
+            title: 'Delete Color',
+            icon: <ExclamationCircleFilled />,
+            content: (
+                <div className="pt-2">
+                    <Text>Are you sure you want to delete color </Text>
+                    <Text strong>"{record.name}"</Text>?
+                    <br />
+                    <Text type="secondary" className="text-xs">
+                        This action cannot be undone.
+                    </Text>
+                </div>
+            ),
+            okText: 'Delete',
+            okType: 'danger',
+            cancelText: 'Cancel',
+            centered: true,
+            maskClosable: true,
+            onOk: async () => {
+                messageApi.success(`Deleted color: ${record.name}`);
+                refetch();
+            },
+        });
+    }, [modal, messageApi, refetch]);
 
     const renderContent = () => {
         if (isLoading) {
@@ -156,7 +169,7 @@ const ColorPage = () => {
                 open={isModalOpen}
                 onCancel={handleCloseModal}
                 onSubmit={handleSubmit}
-                confirmLoading={isCreating}
+                confirmLoading={editingRecord ? isUpdating : isCreating}
                 initialValues={editingRecord}
             />
         </div>
