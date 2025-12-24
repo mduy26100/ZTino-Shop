@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
-import { Button, Card, Typography, Space, message } from 'antd';
+import { Button, Card, Typography, Space, message, Modal } from 'antd';
 import { PlusIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
+import { ExclamationCircleFilled } from '@ant-design/icons';
 import { 
     UpsertCategoryModal,
     CategoryTable, 
     useCreateCategory, 
     useUpdateCategory,
+    useDeleteCategory,
     useGetCategories 
 } from '../../features/product';
 
@@ -13,10 +15,13 @@ const { Title, Text } = Typography;
 
 const CategoryPage = () => {
     const [messageApi, contextHolder] = message.useMessage();
+    const [modal, modalContextHolder] = Modal.useModal();
+    
     const { data, isLoading, refetch } = useGetCategories();
     
     const { create, isLoading: isCreating } = useCreateCategory();
     const { update, isUpdating } = useUpdateCategory();
+    const { remove } = useDeleteCategory();
     
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingRecord, setEditingRecord] = useState(null);
@@ -59,9 +64,49 @@ const CategoryPage = () => {
         });
     };
 
+    const handleDelete = (record) => {
+        modal.confirm({
+            title: 'Delete Category',
+            icon: <ExclamationCircleFilled />,
+            content: (
+                <div className="pt-2">
+                    <Text>Are you sure you want to delete category </Text>
+                    <Text strong>"{record.name}"</Text>?
+                    <br />
+                    <Text type="secondary" className="text-xs">
+                        This action cannot be undone.
+                    </Text>
+                </div>
+            ),
+            okText: 'Delete',
+            okType: 'danger',
+            cancelText: 'Cancel',
+            centered: true,
+            maskClosable: true,
+            onOk: async () => {
+                await remove(record.id, {
+                    onSuccess: () => {
+                        messageApi.open({
+                            type: 'success',
+                            content: `Category "${record.name}" deleted successfully`,
+                        });
+                        refetch();
+                    },
+                    onError: (error) => {
+                        messageApi.open({
+                            type: 'error',
+                            content: error?.Error?.Message || error?.message || 'Delete failed',
+                        });
+                    }
+                });
+            },
+        });
+    };
+
     return (
         <div className="animate-fade-in space-y-6">
             {contextHolder}
+            {modalContextHolder}
             
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
@@ -94,7 +139,7 @@ const CategoryPage = () => {
                     data={data} 
                     loading={isLoading} 
                     onEdit={handleOpenEdit}
-                    onDelete={(record) => console.log('Delete logic here')}
+                    onDelete={handleDelete}
                 />
             </Card>
 

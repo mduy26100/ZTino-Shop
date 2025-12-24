@@ -29,3 +29,7 @@ export const updateCategory = (payload) => {
 
     return axiosClient.put(`${URL_MANAGER}/${payload.id}`, { dto });
 };
+
+export const deleteCategory = (id) => {
+    return axiosClient.delete(`${URL_MANAGER}/${id}`);
+};

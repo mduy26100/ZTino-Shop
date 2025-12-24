@@ -6,3 +6,4 @@ export {default as UpsertCategoryModal} from "./components/category/UpsertCatego
 export {useGetCategories} from "./hooks/category/useGetCategories";
 export {useCreateCategory} from "./hooks/category/useCreateCategory";
 export {useUpdateCategory} from "./hooks/category/useUpdateCategory";
+export {useDeleteCategory} from "./hooks/category/useDeleteCategory";
