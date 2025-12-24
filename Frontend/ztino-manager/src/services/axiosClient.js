@@ -20,19 +20,30 @@ axiosClient.interceptors.request.use(
 
 axiosClient.interceptors.response.use(
   (response) => {
-    const res = response.data;
-    if (res?.StatusCode >= 200 && res?.StatusCode < 300) {
-      return res.Data;
+    if (response.status === 204) {
+      return true; 
     }
+
+    const res = response.data;
+
+    if (res && typeof res.StatusCode === 'number') {
+        if (res.StatusCode >= 200 && res.StatusCode < 300) {
+            return res.Data;
+        }
+        return Promise.reject(res);
+    }
+
+    if (response.status >= 200 && response.status < 300) {
+        return res;
+    }
+
     return Promise.reject(res);
   },
   (error) => {
     if (error.response?.status === 401) {
       if (window.location.pathname !== '/login') {
         clearAuth(); 
-
         window.location.href = '/login';
-        
         return Promise.reject(error);
       }
     }
@@ -43,7 +54,7 @@ axiosClient.interceptors.response.use(
 
     return Promise.reject({
       Error: {
-        Message: "Network error",
+        Message: "Network error. Please check your connection.",
       },
     });
   }
