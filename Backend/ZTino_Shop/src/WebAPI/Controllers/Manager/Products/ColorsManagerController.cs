@@ -23,8 +23,8 @@ namespace WebAPI.Controllers.Manager.Products
             return Ok(result);
         }
 
-        [HttpPut]
-        public async Task<IActionResult> UpdateColor(UpdateColorCommand command, CancellationToken cancellationToken)
+        [HttpPut("{Id:int}")]
+        public async Task<IActionResult> UpdateColor(int Id, UpdateColorCommand command, CancellationToken cancellationToken)
         {
             var result = await _mediator.Send(command, cancellationToken);
             return Ok(result);
