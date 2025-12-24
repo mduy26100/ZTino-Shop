@@ -126,4 +126,4 @@ const UpsertCategoryModal = ({
     );
 };
 
-export default UpsertCategoryModal;
+export default React.memo(UpsertCategoryModal);

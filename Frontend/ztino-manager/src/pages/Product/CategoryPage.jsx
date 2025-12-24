@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { Button, Card, Typography, Space, message, Modal } from 'antd';
 import { PlusIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
 import { ExclamationCircleFilled } from '@ant-design/icons';
@@ -26,22 +26,22 @@ const CategoryPage = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingRecord, setEditingRecord] = useState(null);
 
-    const handleOpenCreate = () => {
+    const handleOpenCreate = useCallback(() => {
         setEditingRecord(null);
         setIsModalOpen(true);
-    };
+    }, []);
 
-    const handleOpenEdit = (record) => {
+    const handleOpenEdit = useCallback((record) => {
         setEditingRecord(record);
         setIsModalOpen(true);
-    };
+    }, []);
 
-    const handleCloseModal = () => {
+    const handleCloseModal = useCallback(() => {
         setIsModalOpen(false);
         setEditingRecord(null);
-    };
+    }, []);
 
-    const handleSubmit = async (values) => {
+    const handleSubmit = useCallback(async (values) => {
         const isEdit = !!editingRecord;
         const action = isEdit ? update : create;
         const payload = isEdit ? { ...values, id: editingRecord.id } : values;
@@ -62,9 +62,9 @@ const CategoryPage = () => {
                 });
             }
         });
-    };
+    }, [editingRecord, update, create, messageApi, handleCloseModal, refetch]);
 
-    const handleDelete = (record) => {
+    const handleDelete = useCallback((record) => {
         modal.confirm({
             title: 'Delete Category',
             icon: <ExclamationCircleFilled />,
@@ -101,7 +101,7 @@ const CategoryPage = () => {
                 });
             },
         });
-    };
+    }, [modal, remove, messageApi, refetch]);
 
     return (
         <div className="animate-fade-in space-y-6">
