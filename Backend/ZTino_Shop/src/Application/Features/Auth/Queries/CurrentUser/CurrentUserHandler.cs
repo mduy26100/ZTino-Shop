@@ -1,5 +1,5 @@
 ﻿using Application.Common.Interfaces.Logging;
-using Application.Common.Interfaces.Shared;
+using Application.Common.Interfaces.Identity;
 using Application.Features.Auth.DTOs;
 using Application.Features.Auth.Services.Query.CurrentUser;
 
@@ -8,12 +8,12 @@ namespace Application.Features.Auth.Queries.CurrentUser
     public class CurrentUserHandler : IRequestHandler<CurrentUserQuery, UserProfileDto>
     {
         private readonly ICurrentUserService _currentUserService;
-        private readonly ICurrentUserContext _currentUserContext;
+        private readonly ICurrentUser _currentUserContext;
         private readonly ILoggingService<CurrentUserHandler> _logger;
 
         public CurrentUserHandler(
             ICurrentUserService currentUserService,
-            ICurrentUserContext currentUserContext,
+            ICurrentUser currentUserContext,
             ILoggingService<CurrentUserHandler> logger)
         {
             _currentUserService = currentUserService;

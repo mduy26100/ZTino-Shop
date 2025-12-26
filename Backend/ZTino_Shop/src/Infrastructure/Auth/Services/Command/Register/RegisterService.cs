@@ -1,4 +1,4 @@
-﻿using Application.Common.Interfaces.Shared;
+﻿using Application.Common.Interfaces.Identity;
 using Application.Features.Auth.DTOs;
 using Application.Features.Auth.Services.Command.Register;
 using Domain.Consts;
@@ -9,10 +9,10 @@ namespace Infrastructure.Auth.Services.Command.Register
     public class RegisterService : IRegisterService
     {
         private readonly UserManager<ApplicationUser> _userManager;
-        private readonly ICurrentUserContext _currentUserContext;
+        private readonly ICurrentUser _currentUserContext;
 
         public RegisterService(UserManager<ApplicationUser> userManager,
-            ICurrentUserContext currentUserContext)
+            ICurrentUser currentUserContext)
         {
             _userManager = userManager;
             _currentUserContext = currentUserContext;

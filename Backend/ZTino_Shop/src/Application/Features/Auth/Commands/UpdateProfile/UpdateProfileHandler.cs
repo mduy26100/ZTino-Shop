@@ -1,5 +1,5 @@
 ﻿using Application.Common.Interfaces.Logging;
-using Application.Common.Interfaces.Shared;
+using Application.Common.Interfaces.Identity;
 using Application.Features.Auth.DTOs;
 using Application.Features.Auth.Services.Command.UpdateProfile;
 
@@ -9,13 +9,13 @@ namespace Application.Features.Auth.Commands.UpdateProfile
     {
         private readonly IUpdateProfileService _updateProfileService;
         private readonly ILoggingService<UpdateProfileHandler> _logger;
-        private readonly ICurrentUserContext _currentUserContext;
+        private readonly ICurrentUser _currentUserContext;
 
 
         public UpdateProfileHandler(
             IUpdateProfileService updateProfileService,
             ILoggingService<UpdateProfileHandler> logger,
-            ICurrentUserContext currentUserContext)
+            ICurrentUser currentUserContext)
         {
             _updateProfileService = updateProfileService;
             _logger = logger;

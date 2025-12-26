@@ -1,5 +1,5 @@
 ﻿using Application.Common.Interfaces.Logging;
-using Application.Common.Interfaces.Shared;
+using Application.Common.Interfaces.Identity;
 using Application.Features.Auth.Services.Command.Logout;
 
 namespace Application.Features.Auth.Commands.Logout
@@ -7,12 +7,12 @@ namespace Application.Features.Auth.Commands.Logout
     public class LogoutHandler : IRequestHandler<LogoutCommand, bool>
     {
         private readonly ILogoutService _logoutService;
-        private readonly ICurrentUserContext _currentUserContext;
+        private readonly ICurrentUser _currentUserContext;
         private readonly ILoggingService<LogoutHandler> _logger;
 
         public LogoutHandler(
             ILogoutService logoutService,
-            ICurrentUserContext currentUserContext,
+            ICurrentUser currentUserContext,
             ILoggingService<LogoutHandler> logger)
         {
             _logoutService = logoutService;

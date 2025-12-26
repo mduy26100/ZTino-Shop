@@ -1,6 +1,6 @@
-﻿namespace Application.Common.Interfaces.Services.User
+﻿namespace Application.Common.Interfaces.Identity
 {
-    public interface IUserService
+    public interface IIdentityService
     {
         Task<bool> UserExistsAsync(Guid userId);
         Task<IReadOnlyList<string>> GetUserRolesAsync(Guid userId);

@@ -1,7 +1,6 @@
-﻿using Application.Common.Interfaces.Services.User;
-using Application.Common.Interfaces.Shared;
-using Infrastructure.Common.Interfaces.Services.User;
-using Infrastructure.Common.Interfaces.Shared;
+﻿using Application.Common.Interfaces.Identity;
+using Application.Common.Interfaces.Identity;
+using Infrastructure.Common.Interfaces.Identity;
 
 namespace WebAPI.DependencyInjection.Common
 {
@@ -10,8 +9,8 @@ namespace WebAPI.DependencyInjection.Common
         public static IServiceCollection AddUserContextServices(this IServiceCollection services)
         {
             services.AddHttpContextAccessor();
-            services.AddScoped<IUserService, UserService>();
-            services.AddScoped<ICurrentUserContext, CurrentUserContext>();
+            services.AddScoped<IIdentityService, IdentityService>();
+            services.AddScoped<ICurrentUser, CurrentUser>();
             return services;
         }
     }

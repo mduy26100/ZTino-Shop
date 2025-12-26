@@ -1,4 +1,4 @@
-﻿using Application.Common.Interfaces.Shared;
+﻿using Application.Common.Interfaces.Identity;
 using Application.Features.Auth.DTOs;
 using Application.Features.Auth.Services.Command.UpdateProfile;
 using Application.Features.Auth.Services.Command.UpdateProfile.Factory;
@@ -10,11 +10,11 @@ namespace Infrastructure.Auth.Services.Command.UpdateProfile
     public class UpdateProfileService : IUpdateProfileService
     {
         private readonly IUpdateProfileStrategyFactory _strategyFactory;
-        private readonly ICurrentUserContext _currentUserContext;
+        private readonly ICurrentUser _currentUserContext;
 
         public UpdateProfileService(
             IUpdateProfileStrategyFactory strategyFactory,
-            ICurrentUserContext currentUserContext)
+            ICurrentUser currentUserContext)
         {
             _strategyFactory = strategyFactory;
             _currentUserContext = currentUserContext;

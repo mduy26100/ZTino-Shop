@@ -1,5 +1,5 @@
-﻿using Application.Common.Interfaces.Services.User;
-using Application.Common.Interfaces.Shared;
+﻿using Application.Common.Interfaces.Identity;
+using Application.Common.Interfaces.Identity;
 using Application.Features.Auth.Services.Command.Login;
 using Application.Features.Auth.Services.Command.Login.Factory;
 using Application.Features.Auth.Services.Command.Login.Strategy;
@@ -22,8 +22,7 @@ using Infrastructure.Auth.Services.Command.UpdateProfile.Factory;
 using Infrastructure.Auth.Services.Command.UpdateProfile.Strategies;
 using Infrastructure.Auth.Services.Jwt;
 using Infrastructure.Auth.Services.Query.CurrentUser;
-using Infrastructure.Common.Interfaces.Services.User;
-using Infrastructure.Common.Interfaces.Shared;
+using Infrastructure.Common.Interfaces.Identity;
 using Infrastructure.Data;
 
 namespace WebAPI.DependencyInjection.Auth
@@ -70,8 +69,8 @@ namespace WebAPI.DependencyInjection.Auth
 
             // ===== Core Services =====
             services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
-            services.AddScoped<IUserService, UserService>();
-            services.AddScoped<ICurrentUserContext, CurrentUserContext>();
+            services.AddScoped<IIdentityService, IdentityService>();
+            services.AddScoped<ICurrentUser, CurrentUser>();
 
             // ===== Login =====
             services.AddScoped<ILoginStrategyFactory, LoginStrategyFactory>();

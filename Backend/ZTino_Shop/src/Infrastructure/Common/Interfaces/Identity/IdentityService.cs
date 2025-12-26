@@ -1,13 +1,13 @@
-﻿using Application.Common.Interfaces.Services.User;
+﻿using Application.Common.Interfaces.Identity;
 using Infrastructure.Auth.Models;
 
-namespace Infrastructure.Common.Interfaces.Services.User
+namespace Infrastructure.Common.Interfaces.Identity
 {
-    public class UserService : IUserService
+    public class IdentityService : IIdentityService
     {
         private readonly UserManager<ApplicationUser> _userManager;
 
-        public UserService(UserManager<ApplicationUser> userManager)
+        public IdentityService(UserManager<ApplicationUser> userManager)
         {
             _userManager = userManager;
         }

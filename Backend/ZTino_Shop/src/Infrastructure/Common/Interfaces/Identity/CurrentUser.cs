@@ -1,13 +1,12 @@
-﻿using Application.Common.Interfaces.Shared;
-using Microsoft.AspNetCore.Http;
+﻿using Application.Common.Interfaces.Identity;
 
-namespace Infrastructure.Common.Interfaces.Shared
+namespace Infrastructure.Common.Interfaces.Identity
 {
-    public class CurrentUserContext : ICurrentUserContext
+    public class CurrentUser : ICurrentUser
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public CurrentUserContext(IHttpContextAccessor httpContextAccessor)
+        public CurrentUser(IHttpContextAccessor httpContextAccessor)
         {
             _httpContextAccessor = httpContextAccessor;
         }
