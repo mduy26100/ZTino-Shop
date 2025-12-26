@@ -1,7 +1,5 @@
 ﻿using Application.Common.Behaviors;
-using Application.Common.Interfaces.Logging;
 using Application.Features.Auth.Commands.Login;
-using Infrastructure.Common.Interfaces.Logging;
 
 namespace WebAPI.DependencyInjection.Shared
 {
@@ -12,9 +10,6 @@ namespace WebAPI.DependencyInjection.Shared
 
             //Add MediatR
             services.AddMediatR(typeof(LoginCommand).Assembly);
-
-            //Logging
-            services.AddScoped(typeof(ILoggingService<>), typeof(LoggingService<>));
 
             //Add FluentValidation
             services.AddValidatorsFromAssemblyContaining<LoginValidator>();
