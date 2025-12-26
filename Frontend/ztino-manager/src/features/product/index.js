@@ -7,6 +7,8 @@ export {default as UpsertCategoryModal} from "./components/category/UpsertCatego
 export {default as ColorCard} from "./components/color/ColorCard";
 export {default as UpsertColorModal} from "./components/color/UpsertColorModal";
 
+//Size
+export {default as SizeCard} from "./components/size/SizeCard";
 
 
 //hooks
@@ -21,3 +23,6 @@ export {useGetColors} from "./hooks/color/useGetColors";
 export {useCreateColor} from "./hooks/color/useCreateColor";
 export {useUpdateColor} from "./hooks/color/useUpdateColor";
 export {useDeleteColor} from "./hooks/color/useDeleteColor";
+
+//Size
+export {useGetSizes} from "./hooks/size/useGetSizes";
