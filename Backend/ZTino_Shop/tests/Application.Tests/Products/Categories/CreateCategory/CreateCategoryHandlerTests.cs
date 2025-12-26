@@ -1,4 +1,4 @@
-﻿using Application.Common.Interfaces.Persistence.EFCore;
+﻿using Application.Common.Interfaces.Persistence.Data;
 using Application.Features.Products.Commands.Categories.CreateCategory;
 using Application.Features.Products.DTOs.Categories;
 using Application.Features.Products.Repositories;

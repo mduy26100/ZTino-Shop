@@ -1,4 +1,4 @@
-﻿using Application.Common.Interfaces.Persistence.EFCore;
+﻿using Application.Common.Interfaces.Persistence.Data;
 using Application.Common.Interfaces.Services.FileUpLoad;
 using Application.Common.Models;
 using Application.Features.Products.Commands.ProductImages.CreateProductImage;

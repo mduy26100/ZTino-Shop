@@ -1,4 +1,4 @@
-﻿using Application.Common.Interfaces.Persistence.EFCore;
+﻿using Application.Common.Interfaces.Persistence.Data;
 using Application.Common.Interfaces.Services.FileUpLoad;
 using Application.Features.Products.Commands.Products.UpdateProduct;
 using Application.Features.Products.DTOs.Products;

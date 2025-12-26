@@ -1,4 +1,4 @@
-﻿namespace Application.Common.Interfaces.Persistence.EFCore
+﻿namespace Application.Common.Interfaces.Persistence.Data
 {
     public interface IApplicationDbContext
     {

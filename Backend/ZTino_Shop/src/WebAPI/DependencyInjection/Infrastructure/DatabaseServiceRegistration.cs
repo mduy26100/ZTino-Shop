@@ -1,4 +1,4 @@
-﻿using Application.Common.Interfaces.Persistence.EFCore;
+﻿using Application.Common.Interfaces.Persistence.Data;
 using Infrastructure.Data;
 
 namespace WebAPI.DependencyInjection.Infrastructure

@@ -1,4 +1,4 @@
-﻿using Application.Common.Interfaces.Persistence.EFCore;
+﻿using Application.Common.Interfaces.Persistence.Data;
 using Application.Features.Products.Commands.Colors.UpdateColor;
 using Application.Features.Products.DTOs.Colors;
 using Application.Features.Products.Repositories;

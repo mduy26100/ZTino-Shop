@@ -1,4 +1,4 @@
-﻿using Application.Common.Interfaces.Persistence.EFCore;
+﻿using Application.Common.Interfaces.Persistence.Data;
 using Domain.Models.Products;
 using Infrastructure.Auth.Models;
 using Infrastructure.Data.Configurations.Auth;
