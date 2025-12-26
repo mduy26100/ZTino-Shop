@@ -28,4 +28,4 @@ export {useDeleteColor} from "./hooks/color/useDeleteColor";
 export {useGetSizes} from "./hooks/size/useGetSizes";
 export {useCreateSize} from "./hooks/size/useCreateSize";
 export {useUpdateSize} from "./hooks/size/useUpdateSize";
-
+export {useDeleteSize} from "./hooks/size/useDeleteSize";   

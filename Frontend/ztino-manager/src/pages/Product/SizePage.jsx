@@ -14,6 +14,7 @@ import {
     useGetSizes, 
     useCreateSize, 
     useUpdateSize, 
+    useDeleteSize,
     UpsertSizeModal 
 } from '../../features/product';
 
@@ -26,10 +27,18 @@ const SizePage = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingRecord, setEditingRecord] = useState(null);
 
-    const { data, isLoading, refetch } = useGetSizes();
+    const { data, isLoading, refetch } = useGetSizes({
+        onError: (err) => {
+            messageApi.open({
+                type: 'error',
+                content: err?.message || 'Failed to load sizes.',
+            });
+        }
+    });
 
     const { create, isCreating } = useCreateSize();
     const { update, isUpdating } = useUpdateSize();
+    const { remove } = useDeleteSize();
 
     const handleOpenCreate = useCallback(() => {
         setEditingRecord(null);
@@ -88,13 +97,25 @@ const SizePage = () => {
             okType: 'danger',
             cancelText: 'Cancel',
             centered: true,
-            maskClosable: true,
             onOk: async () => {
-                messageApi.success(`Deleted size: ${record.name}`);
-                refetch();
+                await remove(record.id, {
+                    onSuccess: () => {
+                        messageApi.open({
+                            type: 'success',
+                            content: `Deleted size: ${record.name}`,
+                        });
+                        refetch();
+                    },
+                    onError: (error) => {                        
+                        messageApi.open({
+                            type: 'error',
+                            content: error?.Error?.Message || error?.message || 'Delete failed',
+                        });
+                    }
+                });
             },
         });
-    }, [modal, messageApi, refetch]);
+    }, [modal, remove, messageApi, refetch]);
 
     const handleRefresh = useCallback(() => {
         refetch({
