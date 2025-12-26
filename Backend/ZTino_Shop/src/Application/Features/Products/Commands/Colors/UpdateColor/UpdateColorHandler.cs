@@ -26,7 +26,7 @@ namespace Application.Features.Products.Commands.Colors.UpdateColor
             var entity = await _colorRepository.GetByIdAsync(dto.Id, cancellationToken);
 
             if (entity == null)
-                throw new KeyNotFoundException($"Color with Id {dto.Id} not found.");
+                throw new NotFoundException($"Color with Id {dto.Id} not found.");
 
             bool nameExists = await _colorRepository.AnyAsync(
                 c => c.Name == dto.Name && c.Id != dto.Id,

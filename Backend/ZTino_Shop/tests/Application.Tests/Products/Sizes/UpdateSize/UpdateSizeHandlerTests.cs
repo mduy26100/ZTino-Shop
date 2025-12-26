@@ -66,7 +66,7 @@ namespace Application.Tests.Products.Sizes.UpdateSize
                 .Setup(x => x.GetByIdAsync(dto.Id, It.IsAny<CancellationToken>()))
                 .ReturnsAsync((Size?)null);
 
-            var exception = await Assert.ThrowsAsync<KeyNotFoundException>(() =>
+            var exception = await Assert.ThrowsAsync<NotFoundException>(() =>
                 _handler.Handle(command, CancellationToken.None));
 
             Assert.Equal($"Size with Id {dto.Id} not found.", exception.Message);

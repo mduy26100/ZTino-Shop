@@ -40,7 +40,7 @@ namespace Application.Features.Products.Commands.ProductImages.CreateProductImag
                 .AnyAsync(v => v.Id == variantId, cancellationToken);
 
             if (!variantExists)
-                throw new KeyNotFoundException($"Product Variant with ID {variantId} does not exist.");
+                throw new NotFoundException($"Product Variant with ID {variantId} does not exist.");
 
             int currentMaxOrder = await _productImageRepository
                 .GetMaxDisplayOrderAsync(variantId, cancellationToken);

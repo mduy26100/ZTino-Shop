@@ -19,7 +19,7 @@ namespace Application.Features.Products.Commands.Products.DeleteProduct
         {
             var entity = await _productRepository.GetByIdAsync(request.Id, cancellationToken);
             if (entity == null)
-                throw new KeyNotFoundException($"Product with id {request.Id} not found.");
+                throw new NotFoundException($"Product with id {request.Id} not found.");
 
             _productRepository.Remove(entity);
             await _context.SaveChangesAsync(cancellationToken);

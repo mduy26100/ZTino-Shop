@@ -54,7 +54,7 @@ namespace Application.Tests.Products.Colors.DeleteColor
                 .Setup(r => r.GetByIdAsync(id, It.IsAny<CancellationToken>()))
                 .ReturnsAsync((Color?)null);
 
-            await Assert.ThrowsAsync<KeyNotFoundException>(() =>
+            await Assert.ThrowsAsync<NotFoundException>(() =>
                 _handler.Handle(new DeleteColorCommand(id), CancellationToken.None)
             );
 

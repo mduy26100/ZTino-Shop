@@ -45,7 +45,7 @@ namespace Application.Tests.Products.ProductImages.CreateProductImages
         }
 
         [Fact]
-        public async Task Handle_VariantNotExists_ThrowsKeyNotFoundException()
+        public async Task Handle_VariantNotExists_ThrowsNotFoundException()
         {
             _productVariantRepository
                 .Setup(x => x.AnyAsync(
@@ -58,7 +58,7 @@ namespace Application.Tests.Products.ProductImages.CreateProductImages
                 new() { ProductVariantId = 1 }
             });
 
-            await Assert.ThrowsAsync<KeyNotFoundException>(() =>
+            await Assert.ThrowsAsync<NotFoundException>(() =>
                 _handler.Handle(command, CancellationToken.None));
         }
 

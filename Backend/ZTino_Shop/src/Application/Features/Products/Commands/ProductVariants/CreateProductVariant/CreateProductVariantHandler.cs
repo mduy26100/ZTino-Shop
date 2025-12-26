@@ -33,15 +33,15 @@ namespace Application.Features.Products.Commands.ProductVariants.CreateProductVa
         {
             var productExists = await _productRepository.AnyAsync(p => p.Id == request.Dto.ProductId, cancellationToken);
             if (!productExists)
-                throw new KeyNotFoundException("Product not found.");
+                throw new NotFoundException("Product not found.");
 
             var sizeExists = await _sizeRepository.AnyAsync(s => s.Id == request.Dto.SizeId, cancellationToken);
             if (!sizeExists)
-                throw new KeyNotFoundException("Size not found.");
+                throw new NotFoundException("Size not found.");
 
             var colorExists = await _colorRepository.AnyAsync(c => c.Id == request.Dto.ColorId, cancellationToken);
             if (!colorExists)
-                throw new KeyNotFoundException("Color not found.");
+                throw new NotFoundException("Color not found.");
 
             var variantExists = await _productVariantRepository.AnyAsync(pv => pv.ProductId == request.Dto.ProductId &&
                                                                              pv.SizeId == request.Dto.SizeId &&

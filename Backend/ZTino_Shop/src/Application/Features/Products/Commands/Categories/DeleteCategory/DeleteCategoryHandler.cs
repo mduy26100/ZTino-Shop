@@ -24,7 +24,7 @@ namespace Application.Features.Products.Commands.Categories.DeleteCategory
             var entity = await _categoryRepository.GetByIdAsync(request.Id, cancellationToken);
 
             if (entity == null)
-                throw new KeyNotFoundException($"Category with id {request.Id} not found.");
+                throw new NotFoundException($"Category with id {request.Id} not found.");
 
             bool hasProducts = await _productRepository.AnyAsync(x => x.CategoryId == request.Id, cancellationToken);
             if (hasProducts)

@@ -41,7 +41,7 @@ namespace Application.Tests.Products.ProductVariant.DeleteProductVariant
         }
 
         [Fact]
-        public async Task Handle_Should_ThrowKeyNotFoundException_WhenVariantNotFound()
+        public async Task Handle_Should_ThrowNotFoundException_WhenVariantNotFound()
         {
             var variantId = 1;
 
@@ -49,7 +49,7 @@ namespace Application.Tests.Products.ProductVariant.DeleteProductVariant
                 .Setup(r => r.GetByIdAsync(variantId, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(default(ProductVariantEntity));
 
-            await Assert.ThrowsAsync<KeyNotFoundException>(() =>
+            await Assert.ThrowsAsync<NotFoundException>(() =>
                 _handler.Handle(new DeleteProductVariantCommand(variantId), CancellationToken.None)
             );
 

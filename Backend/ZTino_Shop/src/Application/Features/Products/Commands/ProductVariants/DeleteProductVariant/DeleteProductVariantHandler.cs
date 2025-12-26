@@ -19,7 +19,7 @@ namespace Application.Features.Products.Commands.ProductVariants.DeleteProductVa
         {
             var entity = await _productVariantRepository.GetByIdAsync(request.Id, cancellationToken);
             if (entity == null)
-                throw new KeyNotFoundException($"Product variant with Id {request.Id} not found.");
+                throw new NotFoundException($"Product variant with Id {request.Id} not found.");
 
             _productVariantRepository.Remove(entity);
 

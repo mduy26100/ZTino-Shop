@@ -34,7 +34,7 @@ namespace Application.Features.Products.Commands.Products.CreateProduct
 
             var categoryExists = await _categoryRepository.GetByIdAsync(dto.CategoryId, cancellationToken);
             if (categoryExists == null)
-                throw new KeyNotFoundException($"Category with ID {dto.CategoryId} does not exist.");
+                throw new NotFoundException($"Category with ID {dto.CategoryId} does not exist.");
 
             if(categoryExists.ParentId == null)
                 throw new InvalidOperationException("Product must be assigned to a sub-category, not a root category.");

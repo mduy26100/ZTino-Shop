@@ -54,7 +54,7 @@ namespace Application.Tests.Products.Products.DeleteProduct
 
 
         [Fact]
-        public async Task Handle_ShouldThrowKeyNotFoundException_WhenProductDoesNotExist()
+        public async Task Handle_ShouldThrowNotFoundException_WhenProductDoesNotExist()
         {
             // Arrange
             int productId = 456;
@@ -66,7 +66,7 @@ namespace Application.Tests.Products.Products.DeleteProduct
             var command = new DeleteProductCommand(productId);
 
             // Act & Assert
-            await Assert.ThrowsAsync<KeyNotFoundException>(() =>
+            await Assert.ThrowsAsync<NotFoundException>(() =>
                 _handler.Handle(command, CancellationToken.None));
 
             _productRepositoryMock.Verify(r => r.Remove(It.IsAny<Product>()), Times.Never);

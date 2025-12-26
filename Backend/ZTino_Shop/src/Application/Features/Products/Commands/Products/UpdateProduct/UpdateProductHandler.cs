@@ -33,11 +33,11 @@ namespace Application.Features.Products.Commands.Products.UpdateProduct
 
             var entity = await _productRepository.GetByIdAsync(dto.Id, cancellationToken);
             if (entity == null)
-                throw new KeyNotFoundException($"Product with Id {dto.Id} not found.");
+                throw new NotFoundException($"Product with Id {dto.Id} not found.");
 
             var categoryExists = await _categoryRepository.GetByIdAsync(dto.CategoryId, cancellationToken);
             if (categoryExists == null)
-                throw new KeyNotFoundException($"Category with ID {dto.CategoryId} does not exist.");
+                throw new NotFoundException($"Category with ID {dto.CategoryId} does not exist.");
 
             if (categoryExists.ParentId == null)
                 throw new InvalidOperationException("Product must be assigned to a sub-category, not a root category.");

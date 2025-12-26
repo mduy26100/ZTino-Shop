@@ -58,7 +58,7 @@ namespace Application.Tests.Products.Sizes.DeleteSize
                 .Setup(x => x.GetByIdAsync(sizeId, It.IsAny<CancellationToken>()))
                 .ReturnsAsync((Size?)null);
 
-            var exception = await Assert.ThrowsAsync<KeyNotFoundException>(() =>
+            var exception = await Assert.ThrowsAsync<NotFoundException>(() =>
                 _handler.Handle(command, CancellationToken.None));
 
             Assert.Equal($"Size with Id {sizeId} not found.", exception.Message);

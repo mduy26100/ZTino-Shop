@@ -37,7 +37,7 @@ namespace Application.Tests.Features.Products.Commands.ProductImages.UpdateProdu
             _repoMock.Setup(x => x.GetByIdAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync((ProductImage?)null);
 
-            await Assert.ThrowsAsync<KeyNotFoundException>(() =>
+            await Assert.ThrowsAsync<NotFoundException>(() =>
                 _handler.Handle(new UpdateProductImageCommand(new UpsertProductImageDto { Id = 999 }), CancellationToken.None));
         }
 

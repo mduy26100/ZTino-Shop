@@ -22,7 +22,7 @@ namespace Application.Features.Products.Commands.ProductImages.DeleteProductImag
 
             if (entity == null)
             {
-                throw new KeyNotFoundException($"Product Image with Id {request.Id} not found.");
+                throw new NotFoundException($"Product Image with Id {request.Id} not found.");
             }
 
             if (entity.IsMain)

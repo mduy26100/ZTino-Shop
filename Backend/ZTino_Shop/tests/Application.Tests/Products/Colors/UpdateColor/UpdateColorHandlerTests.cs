@@ -68,7 +68,7 @@ namespace Application.Tests.Products.Colors.UpdateColor
                 .Setup(r => r.GetByIdAsync(dto.Id, It.IsAny<CancellationToken>()))
                 .ReturnsAsync((Color?)null);
 
-            await Assert.ThrowsAsync<KeyNotFoundException>(() =>
+            await Assert.ThrowsAsync<NotFoundException>(() =>
                 _handler.Handle(command, CancellationToken.None));
 
             _colorRepositoryMock.Verify(r => r.Update(It.IsAny<Color>()), Times.Never);

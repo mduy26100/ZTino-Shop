@@ -35,7 +35,7 @@ namespace Application.Tests.Products.Categories.DeleteCategory
                 .Setup(r => r.GetByIdAsync(id, It.IsAny<CancellationToken>()))
                 .ReturnsAsync((Category?)null);
 
-            await Assert.ThrowsAsync<KeyNotFoundException>(
+            await Assert.ThrowsAsync<NotFoundException>(
                 () => _handler.Handle(command, CancellationToken.None)
             );
         }

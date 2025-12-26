@@ -1,6 +1,7 @@
-﻿using System.Net;
-using System.Text.Json;
+﻿using Application.Common.Exceptions;
 using Application.Common.Models.Responses;
+using System.Net;
+using System.Text.Json;
 
 namespace WebAPI.Middleware.ExceptionHandling
 {
@@ -40,6 +41,24 @@ namespace WebAPI.Middleware.ExceptionHandling
                 await WriteErrorResponse(context, HttpStatusCode.Unauthorized, new ApiError
                 {
                     Type = "unauthorized",
+                    Message = ex.Message,
+                    Details = null
+                });
+            }
+            catch (NotFoundException ex)
+            {
+                await WriteErrorResponse(context, HttpStatusCode.NotFound, new ApiError
+                {
+                    Type = "not-found",
+                    Message = ex.Message,
+                    Details = null
+                });
+            }
+            catch (ConflictException ex)
+            {
+                await WriteErrorResponse(context, HttpStatusCode.Conflict, new ApiError
+                {
+                    Type = "conflict",
                     Message = ex.Message,
                     Details = null
                 });

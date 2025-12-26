@@ -43,7 +43,7 @@ namespace Application.Tests.Products.Products.UpdateProduct
                 .Setup(r => r.GetByIdAsync(dto.Id, It.IsAny<CancellationToken>()))
                 .ReturnsAsync((Product?)null);
 
-            await Assert.ThrowsAsync<KeyNotFoundException>(
+            await Assert.ThrowsAsync<NotFoundException>(
                 () => _handler.Handle(command, CancellationToken.None));
         }
 
@@ -63,7 +63,7 @@ namespace Application.Tests.Products.Products.UpdateProduct
                 .Setup(r => r.GetByIdAsync(dto.CategoryId, It.IsAny<CancellationToken>()))
                 .ReturnsAsync((Category?)null);
 
-            await Assert.ThrowsAsync<KeyNotFoundException>(
+            await Assert.ThrowsAsync<NotFoundException>(
                 () => _handler.Handle(command, CancellationToken.None));
         }
 

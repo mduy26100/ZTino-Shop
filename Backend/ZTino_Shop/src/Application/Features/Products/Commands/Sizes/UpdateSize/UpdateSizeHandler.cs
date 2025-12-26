@@ -25,7 +25,7 @@ namespace Application.Features.Products.Commands.Sizes.UpdateSize
 
             var entity = await _sizeRepository.GetByIdAsync(dto.Id, cancellationToken);
             if (entity == null)
-                throw new KeyNotFoundException($"Size with Id {dto.Id} not found.");
+                throw new NotFoundException($"Size with Id {dto.Id} not found.");
 
             bool nameExists = await _sizeRepository.AnyAsync(s => s.Name == dto.Name && s.Id != dto.Id, cancellationToken);
             if (nameExists)

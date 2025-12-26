@@ -26,7 +26,7 @@ namespace Application.Features.Products.Commands.Categories.UpdateCategory
 
             var entity = await _categoryRepository.GetByIdAsync(dto.Id, cancellationToken);
             if (entity == null)
-                throw new KeyNotFoundException($"Category with Id {dto.Id} not found.");
+                throw new NotFoundException($"Category with Id {dto.Id} not found.");
 
             bool nameExists = await _categoryRepository.AnyAsync(
                 c => c.Name == dto.Name && c.Id != dto.Id,

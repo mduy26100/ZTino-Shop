@@ -32,7 +32,7 @@ namespace Application.Tests.Products.ProductImages.DeleteProductImage
 
             var command = new DeleteProductImageCommand(1);
 
-            await Assert.ThrowsAsync<KeyNotFoundException>(() =>
+            await Assert.ThrowsAsync<NotFoundException>(() =>
                 _handler.Handle(command, CancellationToken.None));
         }
 

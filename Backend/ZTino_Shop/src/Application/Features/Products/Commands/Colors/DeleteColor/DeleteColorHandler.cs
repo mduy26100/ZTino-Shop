@@ -22,7 +22,7 @@ namespace Application.Features.Products.Commands.Colors.DeleteColor
         {
             var entity = await _colorRepository.GetByIdAsync(request.Id, cancellationToken);
             if (entity == null)
-                throw new KeyNotFoundException($"Color with Id {request.Id} not found.");
+                throw new NotFoundException($"Color with Id {request.Id} not found.");
 
             bool hasVariants = await _productVariantRepository.AnyAsync(c => c.ColorId == request.Id, cancellationToken);
             if (hasVariants)

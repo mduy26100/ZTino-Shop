@@ -32,7 +32,7 @@ namespace Application.Features.Products.Commands.ProductImages.UpdateProductImag
             var dto = request.Dto;
 
             var entity = await _repo.GetByIdAsync(dto.Id, cancellationToken);
-            if (entity == null) throw new KeyNotFoundException($"Product Image {dto.Id} not found.");
+            if (entity == null) throw new NotFoundException($"Product Image {dto.Id} not found.");
 
             await HandleImageUploadAsync(entity, dto, cancellationToken);
 

@@ -22,7 +22,7 @@ namespace Application.Features.Products.Commands.Sizes.DeleteSize
         {
             var entity = await _sizeRepository.GetByIdAsync(request.Id, cancellationToken);
             if (entity == null)
-                throw new KeyNotFoundException($"Size with Id {request.Id} not found.");
+                throw new NotFoundException($"Size with Id {request.Id} not found.");
 
             var isSizeInUse = await _productVariantRepository.AnyAsync(pv => pv.SizeId == request.Id, cancellationToken);
             if (isSizeInUse)

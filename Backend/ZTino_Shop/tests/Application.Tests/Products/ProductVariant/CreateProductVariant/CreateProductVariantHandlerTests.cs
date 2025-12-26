@@ -83,7 +83,7 @@ namespace Application.Tests.Products.ProductVariant.CreateProductVariant
         }
 
         [Fact]
-        public async Task Handle_Should_ThrowKeyNotFoundException_WhenProductNotFound()
+        public async Task Handle_Should_ThrowNotFoundException_WhenProductNotFound()
         {
             var dto = new UpsertProductVariantDto { ProductId = 1, SizeId = 2, ColorId = 3 };
             var command = new CreateProductVariantCommand(dto);
@@ -91,14 +91,14 @@ namespace Application.Tests.Products.ProductVariant.CreateProductVariant
             _productRepositoryMock.Setup(r => r.AnyAsync(It.IsAny<Expression<Func<Product, bool>>>(), It.IsAny<CancellationToken>()))
                                   .ReturnsAsync(false);
 
-            await Assert.ThrowsAsync<KeyNotFoundException>(() => _handler.Handle(command, CancellationToken.None));
+            await Assert.ThrowsAsync<NotFoundException>(() => _handler.Handle(command, CancellationToken.None));
 
             _productVariantRepositoryMock.Verify(r => r.AddAsync(It.IsAny<ProductVariantEntity>(), It.IsAny<CancellationToken>()), Times.Never);
             _contextMock.Verify(c => c.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
         }
 
         [Fact]
-        public async Task Handle_Should_ThrowKeyNotFoundException_WhenSizeNotFound()
+        public async Task Handle_Should_ThrowNotFoundException_WhenSizeNotFound()
         {
             var dto = new UpsertProductVariantDto { ProductId = 1, SizeId = 2, ColorId = 3 };
             var command = new CreateProductVariantCommand(dto);
@@ -108,11 +108,11 @@ namespace Application.Tests.Products.ProductVariant.CreateProductVariant
             _sizeRepositoryMock.Setup(r => r.AnyAsync(It.IsAny<Expression<Func<Size, bool>>>(), It.IsAny<CancellationToken>()))
                                .ReturnsAsync(false);
 
-            await Assert.ThrowsAsync<KeyNotFoundException>(() => _handler.Handle(command, CancellationToken.None));
+            await Assert.ThrowsAsync<NotFoundException>(() => _handler.Handle(command, CancellationToken.None));
         }
 
         [Fact]
-        public async Task Handle_Should_ThrowKeyNotFoundException_WhenColorNotFound()
+        public async Task Handle_Should_ThrowNotFoundException_WhenColorNotFound()
         {
             var dto = new UpsertProductVariantDto { ProductId = 1, SizeId = 2, ColorId = 3 };
             var command = new CreateProductVariantCommand(dto);
@@ -124,7 +124,7 @@ namespace Application.Tests.Products.ProductVariant.CreateProductVariant
             _colorRepositoryMock.Setup(r => r.AnyAsync(It.IsAny<Expression<Func<Color, bool>>>(), It.IsAny<CancellationToken>()))
                                 .ReturnsAsync(false);
 
-            await Assert.ThrowsAsync<KeyNotFoundException>(() => _handler.Handle(command, CancellationToken.None));
+            await Assert.ThrowsAsync<NotFoundException>(() => _handler.Handle(command, CancellationToken.None));
         }
 
         [Fact]
