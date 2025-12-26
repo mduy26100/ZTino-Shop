@@ -1,6 +1,5 @@
 ﻿using Application.Common.Interfaces.Persistence.EFCore;
 using Application.Common.Interfaces.Services.FileUpLoad;
-using Application.Common.Models;
 using Application.Features.Products.Commands.Products.UpdateProduct;
 using Application.Features.Products.DTOs.Products;
 using Application.Features.Products.Repositories;
@@ -37,13 +36,15 @@ namespace Application.Tests.Products.Products.UpdateProduct
         [Fact]
         public async Task Handle_ShouldThrow_WhenProductNotFound()
         {
-            var command = new UpdateProductCommand(new UpsertProductDto { Id = 1 });
+            var dto = new UpsertProductDto { Id = 1 };
+            var command = new UpdateProductCommand(dto);
 
             _productRepoMock
-                .Setup(r => r.GetByIdAsync(1, It.IsAny<CancellationToken>()))
+                .Setup(r => r.GetByIdAsync(dto.Id, It.IsAny<CancellationToken>()))
                 .ReturnsAsync((Product?)null);
 
-            await Assert.ThrowsAsync<KeyNotFoundException>(() => _handler.Handle(command, default));
+            await Assert.ThrowsAsync<KeyNotFoundException>(
+                () => _handler.Handle(command, CancellationToken.None));
         }
 
         [Fact]
@@ -51,39 +52,72 @@ namespace Application.Tests.Products.Products.UpdateProduct
         {
             var dto = new UpsertProductDto { Id = 1, CategoryId = 99 };
             var command = new UpdateProductCommand(dto);
-            var existingProduct = new Product { Id = 1, Name = "Old" };
+
+            var existingProduct = new Product { Id = 1 };
 
             _productRepoMock
-                .Setup(r => r.GetByIdAsync(1, It.IsAny<CancellationToken>()))
+                .Setup(r => r.GetByIdAsync(dto.Id, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(existingProduct);
 
             _categoryRepoMock
-                .Setup(r => r.AnyAsync(c => c.Id == 99, It.IsAny<CancellationToken>()))
-                .ReturnsAsync(false);
+                .Setup(r => r.GetByIdAsync(dto.CategoryId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync((Category?)null);
 
-            await Assert.ThrowsAsync<KeyNotFoundException>(() => _handler.Handle(command, default));
+            await Assert.ThrowsAsync<KeyNotFoundException>(
+                () => _handler.Handle(command, CancellationToken.None));
         }
 
         [Fact]
-        public async Task Handle_ShouldThrow_WhenNameAlreadyExists()
+        public async Task Handle_ShouldThrow_WhenCategoryIsRoot()
         {
-            var dto = new UpsertProductDto { Id = 1, CategoryId = 1, Name = "Duplicate" };
+            var dto = new UpsertProductDto { Id = 1, CategoryId = 2 };
             var command = new UpdateProductCommand(dto);
-            var existingProduct = new Product { Id = 1, Name = "Old" };
+
+            var existingProduct = new Product { Id = 1 };
+            var rootCategory = new Category { Id = 2, ParentId = null };
 
             _productRepoMock
-                .Setup(r => r.GetByIdAsync(1, It.IsAny<CancellationToken>()))
+                .Setup(r => r.GetByIdAsync(dto.Id, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(existingProduct);
 
             _categoryRepoMock
-                .Setup(r => r.AnyAsync(It.IsAny<Expression<Func<Category, bool>>>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(true);
+                .Setup(r => r.GetByIdAsync(dto.CategoryId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(rootCategory);
+
+            await Assert.ThrowsAsync<InvalidOperationException>(
+                () => _handler.Handle(command, CancellationToken.None));
+        }
+
+        [Fact]
+        public async Task Handle_ShouldThrow_WhenProductNameAlreadyExists()
+        {
+            var dto = new UpsertProductDto
+            {
+                Id = 1,
+                CategoryId = 2,
+                Name = "Duplicate"
+            };
+            var command = new UpdateProductCommand(dto);
+
+            var existingProduct = new Product { Id = 1, Name = "Old" };
+            var subCategory = new Category { Id = 2, ParentId = 10 };
 
             _productRepoMock
-                .Setup(r => r.AnyAsync(It.IsAny<Expression<Func<Product, bool>>>(), It.IsAny<CancellationToken>()))
+                .Setup(r => r.GetByIdAsync(dto.Id, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(existingProduct);
+
+            _categoryRepoMock
+                .Setup(r => r.GetByIdAsync(dto.CategoryId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(subCategory);
+
+            _productRepoMock
+                .Setup(r => r.AnyAsync(
+                    It.IsAny<Expression<Func<Product, bool>>>(),
+                    It.IsAny<CancellationToken>()))
                 .ReturnsAsync(true);
 
-            await Assert.ThrowsAsync<InvalidOperationException>(() => _handler.Handle(command, default));
+            await Assert.ThrowsAsync<InvalidOperationException>(
+                () => _handler.Handle(command, CancellationToken.None));
         }
 
         [Fact]
@@ -94,35 +128,49 @@ namespace Application.Tests.Products.Products.UpdateProduct
                 Id = 1,
                 CategoryId = 2,
                 Name = "Updated Product",
+                ImgContent = null,
+                ImgFileName = null
             };
             var command = new UpdateProductCommand(dto);
 
-            var existingProduct = new Product { Id = 1, Name = "Old", MainImageUrl = "old.jpg" };
-            var updatedProduct = new Product { Id = 1, Name = "Updated Product", MainImageUrl = "new.jpg" };
-            var expectedDto = new UpsertProductDto { Id = 1, Name = "Updated Product" };
+            var existingProduct = new Product
+            {
+                Id = 1,
+                Name = "Old",
+                MainImageUrl = "old.jpg"
+            };
+
+            var subCategory = new Category
+            {
+                Id = 2,
+                ParentId = 10
+            };
+
+            var expectedDto = new UpsertProductDto
+            {
+                Id = 1,
+                Name = "Updated Product"
+            };
 
             _productRepoMock
-                .Setup(r => r.GetByIdAsync(1, It.IsAny<CancellationToken>()))
+                .Setup(r => r.GetByIdAsync(dto.Id, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(existingProduct);
 
             _categoryRepoMock
-                .Setup(r => r.AnyAsync(It.IsAny<System.Linq.Expressions.Expression<Func<Category, bool>>>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(true);
+                .Setup(r => r.GetByIdAsync(dto.CategoryId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(subCategory);
 
             _productRepoMock
-                .Setup(r => r.AnyAsync(It.IsAny<System.Linq.Expressions.Expression<Func<Product, bool>>>(), It.IsAny<CancellationToken>()))
+                .Setup(r => r.AnyAsync(
+                    It.IsAny<Expression<Func<Product, bool>>>(),
+                    It.IsAny<CancellationToken>()))
                 .ReturnsAsync(false);
-
-            _fileUploadMock
-                .Setup(f => f.UploadAsync(It.IsAny<FileUploadRequest>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync("https://example.com/new.jpg");
 
             _mapperMock
                 .Setup(m => m.Map(dto, existingProduct))
                 .Callback(() =>
                 {
                     existingProduct.Name = dto.Name;
-                    existingProduct.MainImageUrl = "https://example.com/new.jpg";
                 });
 
             _mapperMock
@@ -133,11 +181,12 @@ namespace Application.Tests.Products.Products.UpdateProduct
                 .Setup(c => c.SaveChangesAsync(It.IsAny<CancellationToken>()))
                 .ReturnsAsync(1);
 
-            var result = await _handler.Handle(command, default);
+            var result = await _handler.Handle(command, CancellationToken.None);
 
             Assert.NotNull(result);
             Assert.Equal(expectedDto.Name, result.Name);
-            _productRepoMock.Verify(r => r.Update(It.IsAny<Product>()), Times.Once);
+
+            _productRepoMock.Verify(r => r.Update(existingProduct), Times.Once);
             _contextMock.Verify(c => c.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
         }
     }
