@@ -1,6 +1,6 @@
 ﻿using Application.Common.Interfaces.Persistence.Data;
 using Application.Common.Interfaces.Services.FileUpLoad;
-using Application.Common.Models;
+using Application.Common.Models.Requests;
 using Application.Features.Products.DTOs.Products;
 using Application.Features.Products.Repositories;
 

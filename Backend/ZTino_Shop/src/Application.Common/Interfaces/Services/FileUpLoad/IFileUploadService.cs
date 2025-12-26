@@ -1,4 +1,4 @@
-﻿using Application.Common.Models;
+﻿using Application.Common.Models.Requests;
 
 namespace Application.Common.Interfaces.Services.FileUpLoad
 {

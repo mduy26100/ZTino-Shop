@@ -3,8 +3,8 @@ using Application.Common.Interfaces.Services.FileUpLoad;
 using Application.Features.Products.Commands.ProductImages.UpdateProductImage;
 using Application.Features.Products.DTOs.ProductImages;
 using Application.Features.Products.Repositories;
-using Application.Common.Models;
 using Domain.Models.Products;
+using Application.Common.Models.Requests;
 
 namespace Application.Tests.Features.Products.Commands.ProductImages.UpdateProductImage
 {

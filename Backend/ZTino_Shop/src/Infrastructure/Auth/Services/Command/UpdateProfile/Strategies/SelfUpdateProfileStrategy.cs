@@ -1,5 +1,5 @@
 ﻿using Application.Common.Interfaces.Services.FileUpLoad;
-using Application.Common.Models;
+using Application.Common.Models.Requests;
 using Application.Features.Auth.DTOs;
 using Application.Features.Auth.Services.Command.UpdateProfile.Strategy;
 using Infrastructure.Auth.Models;

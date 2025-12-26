@@ -1,6 +1,6 @@
 ﻿using Application.Common.Interfaces.Persistence.Data;
 using Application.Common.Interfaces.Services.FileUpLoad;
-using Application.Common.Models;
+using Application.Common.Models.Requests;
 using Application.Features.Products.Commands.ProductImages.CreateProductImage;
 using Application.Features.Products.DTOs.ProductImages;
 using Application.Features.Products.Repositories;

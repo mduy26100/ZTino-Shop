@@ -1,6 +1,6 @@
 ﻿using Application.Common.Configurations;
 using Application.Common.Interfaces.Services.FileUpLoad;
-using Application.Common.Models;
+using Application.Common.Models.Requests;
 using CloudinaryDotNet;
 using CloudinaryDotNet.Actions;
 
