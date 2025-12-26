@@ -11,6 +11,9 @@ export {default as UpsertColorModal} from "./components/color/UpsertColorModal";
 export {default as SizeCard} from "./components/size/SizeCard";
 export {default as UpsertSizeModal} from "./components/size/UpsertSizeModal";
 
+//Product
+export {default as ProductTable} from "./components/product/ProductTable";
+
 //hooks
 //Category
 export {useGetCategories} from "./hooks/category/useGetCategories";
@@ -29,3 +32,7 @@ export {useGetSizes} from "./hooks/size/useGetSizes";
 export {useCreateSize} from "./hooks/size/useCreateSize";
 export {useUpdateSize} from "./hooks/size/useUpdateSize";
 export {useDeleteSize} from "./hooks/size/useDeleteSize";   
+
+//Product
+export {useGetProducts} from "./hooks/product/useGetProducts";
+
