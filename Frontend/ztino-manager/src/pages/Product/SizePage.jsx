@@ -9,7 +9,13 @@ import {
     ExclamationCircleIcon 
 } from '@heroicons/react/24/outline';
 
-import { SizeCard, useGetSizes, useCreateSize, UpsertSizeModal } from '../../features/product';
+import { 
+    SizeCard, 
+    useGetSizes, 
+    useCreateSize, 
+    useUpdateSize, 
+    UpsertSizeModal 
+} from '../../features/product';
 
 const { Title, Text } = Typography;
 
@@ -20,16 +26,10 @@ const SizePage = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingRecord, setEditingRecord] = useState(null);
 
-    const { data, isLoading, refetch } = useGetSizes({
-        onError: (err) => {
-            messageApi.open({
-                type: 'error',
-                content: err?.message || 'Failed to load sizes.',
-            });
-        }
-    });
+    const { data, isLoading, refetch } = useGetSizes();
 
     const { create, isCreating } = useCreateSize();
+    const { update, isUpdating } = useUpdateSize();
 
     const handleOpenCreate = useCallback(() => {
         setEditingRecord(null);
@@ -49,14 +49,8 @@ const SizePage = () => {
     const handleSubmit = useCallback(async (values) => {
         const isEdit = !!editingRecord;
         
-        const payload = values; 
-
-        const action = isEdit ? null : create; 
-
-        if (!action) {
-            messageApi.info("Update feature coming soon!");
-            return;
-        }
+        const action = isEdit ? update : create;
+        const payload = isEdit ? { ...values, id: editingRecord.id } : values;
 
         await action(payload, {
             onSuccess: () => {
@@ -74,7 +68,7 @@ const SizePage = () => {
                 });
             }
         });
-    }, [create, editingRecord, handleCloseModal, refetch, messageApi]);
+    }, [create, update, editingRecord, handleCloseModal, refetch, messageApi]);
 
     const handleDelete = useCallback((record) => {
         modal.confirm({
@@ -193,7 +187,7 @@ const SizePage = () => {
                 open={isModalOpen}
                 onCancel={handleCloseModal}
                 onSubmit={handleSubmit}
-                confirmLoading={isCreating}
+                confirmLoading={editingRecord ? isUpdating : isCreating}
                 initialValues={editingRecord}
             />
         </div>

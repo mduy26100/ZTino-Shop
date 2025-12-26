@@ -14,3 +14,12 @@ export const createSize = (payload) => {
 
     return axiosClient.post(URL_MANAGER, {dto});
 };
+
+export const updateSize = (payload) => {
+    const dto = {
+        id: payload.id,
+        name: payload.name
+    }
+
+    return axiosClient.put(`${URL_MANAGER}/${payload.id}`, {dto});
+};
