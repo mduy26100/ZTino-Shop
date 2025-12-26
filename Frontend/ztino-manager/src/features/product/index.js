@@ -38,4 +38,4 @@ export {useDeleteSize} from "./hooks/size/useDeleteSize";
 export {useGetProducts} from "./hooks/product/useGetProducts";
 export {useCreateProduct} from "./hooks/product/useCreateProduct";
 export {useUpdateProduct} from "./hooks/product/useUpdateProduct";
-
+export {useDeleteProduct} from "./hooks/product/useDeleteProduct";

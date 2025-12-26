@@ -51,3 +51,7 @@ export const updateProduct = (productData) => {
         },
     });
 };
+
+export const deleteProduct = (id) => {
+    return axiosClient.delete(`${URL_MANAGER}/${id}`);
+};

@@ -11,6 +11,7 @@ import {
     useGetProducts, 
     useCreateProduct,
     useUpdateProduct,
+    useDeleteProduct,
     useGetCategories,
     UpsertProductModal 
 } from '../../features/product';
@@ -35,6 +36,7 @@ const ProductPage = () => {
 
     const { create, isCreating } = useCreateProduct();
     const { update, isUpdating } = useUpdateProduct();
+    const { remove } = useDeleteProduct();
 
     const handleOpenCreate = useCallback(() => {
         setEditingRecord(null);
@@ -121,11 +123,24 @@ const ProductPage = () => {
             centered: true,
             maskClosable: true,
             onOk: async () => {
-                messageApi.success(`Deleted product: ${record.name}`);
-                refetch();
+                await remove(record.id, {
+                    onSuccess: () => {
+                        messageApi.open({
+                            type: 'success',
+                            content: `Deleted product: ${record.name}`,
+                        });
+                        refetch();
+                    },
+                    onError: (error) => {
+                        messageApi.open({
+                            type: 'error',
+                            content: error?.Error?.Message || error?.message || 'Delete failed',
+                        });
+                    }
+                });
             },
         });
-    }, [modal, messageApi, refetch]);
+    }, [modal, remove, messageApi, refetch]);
 
     return (
         <div className="animate-fade-in space-y-6">
