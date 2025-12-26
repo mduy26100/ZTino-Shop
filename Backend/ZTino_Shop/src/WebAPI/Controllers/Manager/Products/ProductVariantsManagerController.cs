@@ -24,8 +24,8 @@ namespace WebAPI.Controllers.Manager.Products
             return Ok(result);
         }
 
-        [HttpPut]
-        public async Task<IActionResult> UpdateProductVariant(UpdateProductVariantCommand command, CancellationToken cancellationToken)
+        [HttpPut("{Id:int}")]
+        public async Task<IActionResult> UpdateProductVariant(int Id, UpdateProductVariantCommand command, CancellationToken cancellationToken)
         {
             var result = await _mediator.Send(command, cancellationToken);
             return Ok(result);
