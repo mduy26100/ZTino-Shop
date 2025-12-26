@@ -11,22 +11,16 @@ namespace Application.Tests.Products.ProductImages.CreateProductImages
 {
     public class CreateProductImagesHandlerTests
     {
-        private readonly Mock<IProductImageRepository> _productImageRepository;
-        private readonly Mock<IProductVariantRepository> _productVariantRepository;
-        private readonly Mock<IFileUploadService> _fileUploadService;
-        private readonly Mock<IMapper> _mapper;
-        private readonly Mock<IApplicationDbContext> _context;
+        private readonly Mock<IProductImageRepository> _productImageRepository = new();
+        private readonly Mock<IProductVariantRepository> _productVariantRepository = new();
+        private readonly Mock<IFileUploadService> _fileUploadService = new();
+        private readonly Mock<IMapper> _mapper = new();
+        private readonly Mock<IApplicationDbContext> _context = new();
 
         private readonly CreateProductImagesHandler _handler;
 
         public CreateProductImagesHandlerTests()
         {
-            _productImageRepository = new Mock<IProductImageRepository>();
-            _productVariantRepository = new Mock<IProductVariantRepository>();
-            _fileUploadService = new Mock<IFileUploadService>();
-            _mapper = new Mock<IMapper>();
-            _context = new Mock<IApplicationDbContext>();
-
             _handler = new CreateProductImagesHandler(
                 _productImageRepository.Object,
                 _productVariantRepository.Object,
@@ -36,7 +30,7 @@ namespace Application.Tests.Products.ProductImages.CreateProductImages
         }
 
         [Fact]
-        public async Task Handle_DtosEmpty_ReturnsEmptyList()
+        public async Task Handle_DtosNullOrEmpty_ReturnsEmptyList()
         {
             var command = new CreateProductImagesCommand(new List<UpsertProductImageDto>());
 
@@ -44,19 +38,10 @@ namespace Application.Tests.Products.ProductImages.CreateProductImages
 
             Assert.NotNull(result);
             Assert.Empty(result);
-        }
 
-        [Fact]
-        public async Task Handle_DifferentVariantIds_ThrowsArgumentException()
-        {
-            var command = new CreateProductImagesCommand(new List<UpsertProductImageDto>
-            {
-                new() { ProductVariantId = 1 },
-                new() { ProductVariantId = 2 }
-            });
-
-            await Assert.ThrowsAsync<ArgumentException>(() =>
-                _handler.Handle(command, CancellationToken.None));
+            _productImageRepository.Verify(
+                x => x.AddRangeAsync(It.IsAny<List<ProductImage>>(), It.IsAny<CancellationToken>()),
+                Times.Never);
         }
 
         [Fact]
@@ -83,9 +68,7 @@ namespace Application.Tests.Products.ProductImages.CreateProductImages
             const int variantId = 1;
 
             _productVariantRepository
-                .Setup(x => x.AnyAsync(
-                    It.IsAny<Expression<Func<ProductVariantEntity, bool>>>(),
-                    It.IsAny<CancellationToken>()))
+                .Setup(x => x.AnyAsync(It.IsAny<Expression<Func<ProductVariantEntity, bool>>>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(true);
 
             _productImageRepository
@@ -109,9 +92,8 @@ namespace Application.Tests.Products.ProductImages.CreateProductImages
                 new()
                 {
                     ProductVariantId = variantId,
-                    ImgContent = new MemoryStream(new byte[] { 1, 2, 3 }),
-                    ImgFileName = "img.jpg",
-                    ImgContentType = "image/jpeg"
+                    ImgContent = new MemoryStream(new byte[] { 1, 2 }),
+                    ImgFileName = "img.jpg"
                 }
             });
 
@@ -121,30 +103,35 @@ namespace Application.Tests.Products.ProductImages.CreateProductImages
                 x.AddRangeAsync(
                     It.Is<List<ProductImage>>(list =>
                         list.Count == 1 &&
-                        list[0].IsMain == true &&
+                        list[0].IsMain &&
                         list[0].DisplayOrder == 1),
                     It.IsAny<CancellationToken>()),
                 Times.Once);
         }
 
         [Fact]
-        public async Task Handle_HasExistingImages_NewImagesAreNotMain()
+        public async Task Handle_HasExistingImages_AllNewImagesAreNotMain()
         {
             const int variantId = 1;
 
             _productVariantRepository
-                .Setup(x => x.AnyAsync(
-                    It.IsAny<Expression<Func<ProductVariantEntity, bool>>>(),
-                    It.IsAny<CancellationToken>()))
+                .Setup(x => x.AnyAsync(It.IsAny<Expression<Func<ProductVariantEntity, bool>>>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(true);
 
             _productImageRepository
                 .Setup(x => x.GetMaxDisplayOrderAsync(variantId, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(3);
 
+            _fileUploadService
+                .Setup(x => x.UploadAsync(It.IsAny<FileUploadRequest>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync("http://img.test/x.jpg");
+
             _mapper
                 .Setup(x => x.Map<ProductImage>(It.IsAny<UpsertProductImageDto>()))
-                .Returns(new ProductImage { ProductVariantId = variantId });
+                .Returns(() => new ProductImage
+                {
+                    ProductVariantId = variantId
+                });
 
             _mapper
                 .Setup(x => x.Map<List<UpsertProductImageDto>>(It.IsAny<List<ProductImage>>()))
@@ -152,7 +139,18 @@ namespace Application.Tests.Products.ProductImages.CreateProductImages
 
             var command = new CreateProductImagesCommand(new List<UpsertProductImageDto>
             {
-                new() { ProductVariantId = variantId }
+                new()
+                {
+                    ProductVariantId = variantId,
+                    ImgContent = new MemoryStream(new byte[] { 1 }),
+                    ImgFileName = "a.jpg"
+                },
+                new()
+                {
+                    ProductVariantId = variantId,
+                    ImgContent = new MemoryStream(new byte[] { 2 }),
+                    ImgFileName = "b.jpg"
+                }
             });
 
             await _handler.Handle(command, CancellationToken.None);
@@ -160,25 +158,28 @@ namespace Application.Tests.Products.ProductImages.CreateProductImages
             _productImageRepository.Verify(x =>
                 x.AddRangeAsync(
                     It.Is<List<ProductImage>>(list =>
-                        list.All(i => i.IsMain == false)),
+                        list.All(i => !i.IsMain) &&
+                        list.Select(i => i.DisplayOrder).SequenceEqual(new[] { 4, 5 })),
                     It.IsAny<CancellationToken>()),
                 Times.Once);
         }
 
         [Fact]
-        public async Task Handle_ValidRequest_SaveChangesCalled()
+        public async Task Handle_EntitiesAdded_SaveChangesCalled()
         {
             const int variantId = 1;
 
             _productVariantRepository
-                .Setup(x => x.AnyAsync(
-                    It.IsAny<Expression<Func<ProductVariantEntity, bool>>>(),
-                    It.IsAny<CancellationToken>()))
+                .Setup(x => x.AnyAsync(It.IsAny<Expression<Func<ProductVariantEntity, bool>>>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(true);
 
             _productImageRepository
                 .Setup(x => x.GetMaxDisplayOrderAsync(variantId, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(0);
+
+            _fileUploadService
+                .Setup(x => x.UploadAsync(It.IsAny<FileUploadRequest>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync("http://img.test/1.jpg");
 
             _mapper
                 .Setup(x => x.Map<ProductImage>(It.IsAny<UpsertProductImageDto>()))
@@ -190,7 +191,12 @@ namespace Application.Tests.Products.ProductImages.CreateProductImages
 
             var command = new CreateProductImagesCommand(new List<UpsertProductImageDto>
             {
-                new() { ProductVariantId = variantId }
+                new()
+                {
+                    ProductVariantId = variantId,
+                    ImgContent = new MemoryStream(new byte[] { 1 }),
+                    ImgFileName = "img.jpg"
+                }
             });
 
             await _handler.Handle(command, CancellationToken.None);

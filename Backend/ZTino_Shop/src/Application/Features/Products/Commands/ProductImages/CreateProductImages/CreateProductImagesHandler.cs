@@ -31,14 +31,10 @@ namespace Application.Features.Products.Commands.ProductImages.CreateProductImag
 
         public async Task<List<UpsertProductImageDto>> Handle(CreateProductImagesCommand request, CancellationToken cancellationToken)
         {
-            if (request.Dtos is null || !request.Dtos.Any())
+            if (request.Dtos is null || request.Dtos.Count == 0)
                 return new List<UpsertProductImageDto>();
 
-            var variantId = request.Dtos.First().ProductVariantId;
-            if (request.Dtos.Any(x => x.ProductVariantId != variantId))
-            {
-                throw new ArgumentException("All images must belong to the same Product Variant.");
-            }
+            var variantId = request.Dtos[0].ProductVariantId;
 
             bool variantExists = await _productVariantRepository
                 .AnyAsync(v => v.Id == variantId, cancellationToken);
@@ -48,39 +44,41 @@ namespace Application.Features.Products.Commands.ProductImages.CreateProductImag
 
             int currentMaxOrder = await _productImageRepository
                 .GetMaxDisplayOrderAsync(variantId, cancellationToken);
-            
+
             bool hasExistingImages = currentMaxOrder > 0;
 
             var uploadTasks = request.Dtos.Select(async dto =>
             {
-                string imgUrl = string.Empty;
-                if (dto.ImgContent != null && !string.IsNullOrWhiteSpace(dto.ImgFileName))
+                if (dto.ImgContent is null || string.IsNullOrWhiteSpace(dto.ImgFileName))
                 {
-                    var uploadRequest = new FileUploadRequest
-                    {
-                        Content = dto.ImgContent,
-                        FileName = dto.ImgFileName!,
-                        ContentType = dto.ImgContentType ?? "image/jpeg"
-                    };
-
-                    imgUrl = await _fileUploadService.UploadAsync(uploadRequest, cancellationToken);
+                    return (Dto: dto, Url: dto.ImageUrl ?? string.Empty);
                 }
-                
-                return new { Dto = dto, Url = imgUrl };
+
+                var uploadRequest = new FileUploadRequest
+                {
+                    Content = dto.ImgContent,
+                    FileName = dto.ImgFileName,
+                    ContentType = dto.ImgContentType ?? "image/jpeg"
+                };
+
+                string url = await _fileUploadService.UploadAsync(uploadRequest, cancellationToken);
+                return (Dto: dto, Url: url);
             });
 
             var uploadResults = await Task.WhenAll(uploadTasks);
 
-            var entitiesToAdd = new List<ProductImage>();
-            
-            foreach (var item in uploadResults)
+            var entitiesToAdd = new List<ProductImage>(uploadResults.Length);
+
+            foreach (var (dto, url) in uploadResults)
             {
-                var entity = _mapper.Map<ProductImage>(item.Dto);
-                
-                entity.ImageUrl = item.Url;
+                if (string.IsNullOrWhiteSpace(url)) continue;
+
+                var entity = _mapper.Map<ProductImage>(dto);
+
+                entity.ImageUrl = url;
                 entity.DisplayOrder = ++currentMaxOrder;
 
-                if (!hasExistingImages && entity.DisplayOrder == 1)
+                if (!hasExistingImages)
                 {
                     entity.IsMain = true;
                     hasExistingImages = true;
@@ -93,9 +91,11 @@ namespace Application.Features.Products.Commands.ProductImages.CreateProductImag
                 entitiesToAdd.Add(entity);
             }
 
-            await _productImageRepository.AddRangeAsync(entitiesToAdd, cancellationToken);
-
-            await _context.SaveChangesAsync(cancellationToken);
+            if (entitiesToAdd.Count > 0)
+            {
+                await _productImageRepository.AddRangeAsync(entitiesToAdd, cancellationToken);
+                await _context.SaveChangesAsync(cancellationToken);
+            }
 
             return _mapper.Map<List<UpsertProductImageDto>>(entitiesToAdd);
         }
