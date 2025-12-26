@@ -1,5 +1,7 @@
 ﻿using Application.Features.Products.Repositories;
+using Application.Features.Products.Services;
 using Infrastructure.Products.Repositories;
+using Infrastructure.Products.Services;
 
 namespace WebAPI.DependencyInjection.Features
 {
@@ -14,6 +16,9 @@ namespace WebAPI.DependencyInjection.Features
             services.AddScoped<ICategoryRepository, CategoryRepository>();
             services.AddScoped<ISizeRepository, SizeRepository>();
             services.AddScoped<IColorRepository, ColorRepository>();
+
+            //Service
+            services.AddScoped<IProductQueryService, ProductQueryService>();
 
             return services;
         }

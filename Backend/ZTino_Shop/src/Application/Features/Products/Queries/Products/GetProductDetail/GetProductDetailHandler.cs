@@ -1,21 +1,20 @@
 ﻿using Application.Features.Products.DTOs.Products;
-using Application.Features.Products.Repositories;
+using Application.Features.Products.Services;
 
 namespace Application.Features.Products.Queries.Products.GetProductDetail
 {
     public class GetProductDetailHandler : IRequestHandler<GetProductDetailQuery, ProductDetailDto?>
     {
-        private readonly IProductRepository _productRepository;
+        private readonly IProductQueryService _productQueryService;
 
-        public GetProductDetailHandler(IProductRepository productRepository)
+        public GetProductDetailHandler(IProductQueryService productQueryService)
         {
-            _productRepository = productRepository;
+            _productQueryService = productQueryService;
         }
 
         public async Task<ProductDetailDto?> Handle(GetProductDetailQuery request, CancellationToken cancellationToken)
         {
-            var entity = await _productRepository.GetProductDetailAsync(request.id, cancellationToken);
-            return entity;
+            return await _productQueryService.GetProductDetailAsync(request.id, cancellationToken);
         }
     }
 }

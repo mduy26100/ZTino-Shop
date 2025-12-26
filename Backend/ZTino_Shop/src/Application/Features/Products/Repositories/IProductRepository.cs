@@ -6,6 +6,5 @@ namespace Application.Features.Products.Repositories
 {
     public interface IProductRepository : IRepository<Product, int>
     {
-        Task<ProductDetailDto?> GetProductDetailAsync(int id, CancellationToken cancellationToken = default);
     }
 }
