@@ -24,8 +24,8 @@ namespace WebAPI.Controllers.Manager.Products
             return Ok(result);
         }
 
-        [HttpPut]
-        public async Task<IActionResult> UpdateSize(UpdateSizeCommand command, CancellationToken cancellationToken)
+        [HttpPut("{Id:int}")]
+        public async Task<IActionResult> UpdateSize(int Id, UpdateSizeCommand command, CancellationToken cancellationToken)
         {
             var result = await _mediator.Send(command, cancellationToken);
             return Ok(result);
