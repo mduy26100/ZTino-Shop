@@ -26,8 +26,8 @@ namespace WebAPI.Controllers.Manager.Products
             return Ok(result);
         }
 
-        [HttpPut]
-        public async Task<IActionResult> UpdateProductImage([FromForm] UpsertProductImageForm form, CancellationToken cancellationToken)
+        [HttpPut("{Id:int}")]
+        public async Task<IActionResult> UpdateProductImage(int Id, [FromForm] UpsertProductImageForm form, CancellationToken cancellationToken)
         {
             var command = new UpdateProductImageCommand(form.UpdateImage());
             var result = await _mediator.Send(command, cancellationToken);
