@@ -90,7 +90,6 @@ const ProductTable = ({
             key: 'action',
             width: 120,
             align: 'right',
-            fixed: 'right',
             render: (_, record) => (
                 <Space size="small">
                     <Tooltip title="Edit">

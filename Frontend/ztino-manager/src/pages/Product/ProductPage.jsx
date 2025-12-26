@@ -6,7 +6,13 @@ import {
 } from '@heroicons/react/24/outline';
 import { ExclamationCircleFilled } from "@ant-design/icons";
 
-import { ProductTable, useGetProducts } from '../../features/product';
+import { 
+    ProductTable, 
+    useGetProducts, 
+    useCreateProduct, 
+    useGetCategories,
+    UpsertProductModal 
+} from '../../features/product';
 
 const { Title, Text } = Typography;
 
@@ -14,17 +20,69 @@ const ProductPage = () => {
     const [messageApi, contextHolder] = message.useMessage();
     const [modal, modalContextHolder] = Modal.useModal();
 
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [editingRecord, setEditingRecord] = useState(null);
+
     const { data, isLoading, refetch } = useGetProducts();
+
+    const { 
+        data: categoriesData, 
+        isLoading: isLoadingCategories 
+    } = useGetCategories(); 
+
+    const { create, isCreating } = useCreateProduct();
+
+    const handleOpenCreate = useCallback(() => {
+        setEditingRecord(null);
+        setIsModalOpen(true);
+    }, []);
+
+    const handleCloseModal = useCallback(() => {
+        setIsModalOpen(false);
+        setEditingRecord(null);
+    }, []);
+
+    const handleSubmit = useCallback(async (values) => {
+        const payload = {
+            CategoryId: values.CategoryId,
+            Name: values.Name,
+            Slug: values.Slug,
+            BasePrice: values.BasePrice,
+            Description: values.Description || '',
+            IsActive: values.IsActive,
+            MainImageUrl: values.MainImageUrl?.[0]?.originFileObj || null 
+        };
+
+        const isEdit = !!editingRecord;
+        if (isEdit) {
+             messageApi.info("Update feature coming soon!");
+             return;
+        }
+
+        await create(payload, {
+            onSuccess: () => {
+                messageApi.open({
+                    type: 'success',
+                    content: `Product created successfully`,
+                });
+                handleCloseModal();
+                refetch();
+            },
+            onError: (error) => {
+                messageApi.open({
+                    type: 'error',
+                    content: error?.Error?.Message || error?.message || 'Operation failed',
+                });
+            }
+        });
+
+    }, [create, editingRecord, handleCloseModal, refetch, messageApi]);
 
     const handleRefresh = useCallback(() => {
         refetch({
             onSuccess: () => messageApi.success('Product list refreshed'),
         });
     }, [refetch, messageApi]);
-
-    const handleCreate = useCallback(() => {
-        messageApi.info('Create feature coming soon');
-    }, [messageApi]);
 
     const handleEdit = useCallback((record) => {
         messageApi.info(`Editing product: ${record.name}`);
@@ -48,6 +106,7 @@ const ProductPage = () => {
             okType: 'danger',
             cancelText: 'Cancel',
             centered: true,
+            maskClosable: true,
             onOk: async () => {
                 messageApi.success(`Deleted product: ${record.name}`);
                 refetch();
@@ -80,7 +139,7 @@ const ProductPage = () => {
                         type="primary"
                         icon={<PlusIcon className="w-5 h-5 stroke-2" />}
                         className="bg-indigo-600 hover:!bg-indigo-700 border-none h-10 rounded-xl flex items-center shadow-lg shadow-indigo-100 px-6"
-                        onClick={handleCreate}
+                        onClick={handleOpenCreate}
                     >
                         Add Product
                     </Button>
@@ -95,7 +154,16 @@ const ProductPage = () => {
                     onDelete={handleDelete}
                 />
             </div>
-            
+
+            <UpsertProductModal 
+                open={isModalOpen}
+                onCancel={handleCloseModal}
+                onSubmit={handleSubmit}
+                confirmLoading={isCreating}
+                initialValues={editingRecord}
+                categories={categoriesData}
+                isLoadingCategories={isLoadingCategories}
+            />
         </div>
     );
 };

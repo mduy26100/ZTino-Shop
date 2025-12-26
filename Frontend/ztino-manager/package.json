@@ -13,6 +13,7 @@
     "@heroicons/react": "2.2.0",
     "antd": "5.27.4",
     "axios": "1.13.2",
+    "jodit-react": "5.2.38",
     "jwt-decode": "4.0.0",
     "prop-types": "15.8.1",
     "react": "19.1.1",
