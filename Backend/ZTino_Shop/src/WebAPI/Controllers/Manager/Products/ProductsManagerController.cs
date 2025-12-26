@@ -19,6 +19,7 @@ namespace WebAPI.Controllers.Manager.Products
         }
 
         [HttpPost]
+        [Consumes("multipart/form-data")]
         public async Task<IActionResult> CreateProduct(
             [FromForm] UpsertProductForm form,
             CancellationToken cancellationToken)
@@ -29,6 +30,7 @@ namespace WebAPI.Controllers.Manager.Products
         }
 
         [HttpPut("{Id:int}")]
+        [Consumes("multipart/form-data")]
         public async Task<IActionResult> UpdateProduct(int Id,
             [FromForm] UpsertProductForm form,
             CancellationToken cancellationToken)

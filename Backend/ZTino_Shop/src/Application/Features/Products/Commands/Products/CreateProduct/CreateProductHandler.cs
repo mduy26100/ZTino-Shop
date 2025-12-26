@@ -32,9 +32,12 @@ namespace Application.Features.Products.Commands.Products.CreateProduct
         {
             var dto = request.Dto;
 
-            bool categoryExists = await _categoryRepository.AnyAsync(c => c.Id == dto.CategoryId, cancellationToken);
-            if (!categoryExists)
+            var categoryExists = await _categoryRepository.GetByIdAsync(dto.CategoryId, cancellationToken);
+            if (categoryExists == null)
                 throw new KeyNotFoundException($"Category with ID {dto.CategoryId} does not exist.");
+
+            if(categoryExists.ParentId == null)
+                throw new InvalidOperationException("Product must be assigned to a sub-category, not a root category.");
 
             bool nameExists = await _productRepository.AnyAsync(p => p.Name == dto.Name, cancellationToken);
             if (nameExists)

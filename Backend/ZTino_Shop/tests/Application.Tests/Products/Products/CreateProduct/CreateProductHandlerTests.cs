@@ -30,36 +30,62 @@ namespace Application.Tests.Products.Products.CreateProduct
                 _fileUploadServiceMock.Object,
                 _mapperMock.Object,
                 _contextMock.Object
-                );
+            );
         }
 
         [Fact]
-        public async Task Handle_ShouldThrow_WhenCategoryIdExists()
+        public async Task Handle_ShouldThrow_WhenCategoryNotExists()
         {
             var dto = new UpsertProductDto { CategoryId = 1, Name = "T-Shirt" };
             var command = new CreateProductCommand(dto);
 
             _categoryRepoMock
-                .Setup(r => r.AnyAsync(It.IsAny<Expression<Func<Category, bool>>>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(false);
+                .Setup(r => r.GetByIdAsync(dto.CategoryId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync((Category?)null);
 
             await Assert.ThrowsAsync<KeyNotFoundException>(
                 () => _handler.Handle(command, CancellationToken.None));
         }
 
         [Fact]
-        public async Task Handle_ShouldThrow_WhenNameExists()
+        public async Task Handle_ShouldThrow_WhenCategoryIsRoot()
         {
-            var dto = new UpsertProductDto {CategoryId = 1, Name = "T-Shirt" };
-            var command = new CreateProductCommand( dto );
+            var dto = new UpsertProductDto { CategoryId = 1, Name = "T-Shirt" };
+            var command = new CreateProductCommand(dto);
+
+            var rootCategory = new Category
+            {
+                Id = 1,
+                ParentId = null
+            };
 
             _categoryRepoMock
-                .Setup(r => r.AnyAsync(It.IsAny<Expression<Func<Category, bool>>>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(true);
+                .Setup(r => r.GetByIdAsync(dto.CategoryId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(rootCategory);
+
+            await Assert.ThrowsAsync<InvalidOperationException>(
+                () => _handler.Handle(command, CancellationToken.None));
+        }
+
+        [Fact]
+        public async Task Handle_ShouldThrow_WhenProductNameExists()
+        {
+            var dto = new UpsertProductDto { CategoryId = 1, Name = "T-Shirt" };
+            var command = new CreateProductCommand(dto);
+
+            var subCategory = new Category
+            {
+                Id = 1,
+                ParentId = 10
+            };
+
+            _categoryRepoMock
+                .Setup(r => r.GetByIdAsync(dto.CategoryId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(subCategory);
 
             _productRepoMock
                 .Setup(r => r.AnyAsync(It.IsAny<Expression<Func<Product, bool>>>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync( true );
+                .ReturnsAsync(true);
 
             await Assert.ThrowsAsync<InvalidOperationException>(
                 () => _handler.Handle(command, CancellationToken.None));
@@ -76,6 +102,12 @@ namespace Application.Tests.Products.Products.CreateProduct
                 ImgContent = null
             };
             var command = new CreateProductCommand(dto);
+
+            var subCategory = new Category
+            {
+                Id = 1,
+                ParentId = 10
+            };
 
             var entity = new Product
             {
@@ -94,8 +126,8 @@ namespace Application.Tests.Products.Products.CreateProduct
             };
 
             _categoryRepoMock
-                .Setup(r => r.AnyAsync(It.IsAny<Expression<Func<Category, bool>>>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(true);
+                .Setup(r => r.GetByIdAsync(dto.CategoryId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(subCategory);
 
             _productRepoMock
                 .Setup(r => r.AnyAsync(It.IsAny<Expression<Func<Product, bool>>>(), It.IsAny<CancellationToken>()))
