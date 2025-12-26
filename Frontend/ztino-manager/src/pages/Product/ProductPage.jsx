@@ -9,7 +9,8 @@ import { ExclamationCircleFilled } from "@ant-design/icons";
 import { 
     ProductTable, 
     useGetProducts, 
-    useCreateProduct, 
+    useCreateProduct,
+    useUpdateProduct,
     useGetCategories,
     UpsertProductModal 
 } from '../../features/product';
@@ -23,7 +24,9 @@ const ProductPage = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingRecord, setEditingRecord] = useState(null);
 
-    const { data, isLoading, refetch } = useGetProducts();
+    const { data, isLoading, refetch } = useGetProducts({
+        onError: (err) => messageApi.error(err?.message || 'Failed to fetch products')
+    });
 
     const { 
         data: categoriesData, 
@@ -31,6 +34,7 @@ const ProductPage = () => {
     } = useGetCategories(); 
 
     const { create, isCreating } = useCreateProduct();
+    const { update, isUpdating } = useUpdateProduct();
 
     const handleOpenCreate = useCallback(() => {
         setEditingRecord(null);
@@ -43,7 +47,9 @@ const ProductPage = () => {
     }, []);
 
     const handleSubmit = useCallback(async (values) => {
-        const payload = {
+        const isEdit = !!editingRecord;
+
+        const formValues = {
             CategoryId: values.CategoryId,
             Name: values.Name,
             Slug: values.Slug,
@@ -53,17 +59,14 @@ const ProductPage = () => {
             MainImageUrl: values.MainImageUrl?.[0]?.originFileObj || null 
         };
 
-        const isEdit = !!editingRecord;
-        if (isEdit) {
-             messageApi.info("Update feature coming soon!");
-             return;
-        }
+        const action = isEdit ? update : create;
+        const payload = isEdit ? { ...formValues, Id: editingRecord.id } : formValues;
 
-        await create(payload, {
+        await action(payload, {
             onSuccess: () => {
                 messageApi.open({
                     type: 'success',
-                    content: `Product created successfully`,
+                    content: `Product ${isEdit ? 'updated' : 'created'} successfully`,
                 });
                 handleCloseModal();
                 refetch();
@@ -76,7 +79,7 @@ const ProductPage = () => {
             }
         });
 
-    }, [create, editingRecord, handleCloseModal, refetch, messageApi]);
+    }, [create, update, editingRecord, handleCloseModal, refetch, messageApi]);
 
     const handleRefresh = useCallback(() => {
         refetch({
@@ -85,8 +88,18 @@ const ProductPage = () => {
     }, [refetch, messageApi]);
 
     const handleEdit = useCallback((record) => {
-        messageApi.info(`Editing product: ${record.name}`);
-    }, [messageApi]);
+        setEditingRecord({
+            ...record,
+            CategoryId: record.categoryId,
+            Name: record.name,
+            Slug: record.slug,
+            BasePrice: record.basePrice,
+            Description: record.description,
+            IsActive: record.isActive,
+            mainImageUrl: record.mainImageUrl 
+        });
+        setIsModalOpen(true);
+    }, []);
 
     const handleDelete = useCallback((record) => {
         modal.confirm({
@@ -159,7 +172,7 @@ const ProductPage = () => {
                 open={isModalOpen}
                 onCancel={handleCloseModal}
                 onSubmit={handleSubmit}
-                confirmLoading={isCreating}
+                confirmLoading={isCreating || isUpdating}
                 initialValues={editingRecord}
                 categories={categoriesData}
                 isLoadingCategories={isLoadingCategories}
