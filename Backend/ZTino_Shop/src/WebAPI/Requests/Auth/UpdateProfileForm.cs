@@ -1,6 +1,6 @@
 ﻿using Application.Features.Auth.DTOs;
 
-namespace WebAPI.Models.Auth
+namespace WebAPI.Requests.Auth
 {
     public class UpdateProfileForm
     {

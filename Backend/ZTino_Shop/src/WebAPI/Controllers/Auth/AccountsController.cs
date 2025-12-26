@@ -2,7 +2,7 @@
 using Application.Features.Auth.Commands.UpdateProfile;
 using Application.Features.Auth.Queries.CurrentUser;
 using Microsoft.AspNetCore.Authorization;
-using WebAPI.Models.Auth;
+using WebAPI.Requests.Auth;
 
 namespace WebAPI.Controllers.Auth
 {

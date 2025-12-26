@@ -2,7 +2,7 @@
 using Application.Features.Products.Commands.ProductImages.DeleteProductImage;
 using Application.Features.Products.Commands.ProductImages.UpdateProductImage;
 using Domain.Consts;
-using WebAPI.Models.Products.Product;
+using WebAPI.Requests.Products.Product;
 
 namespace WebAPI.Controllers.Manager.Products
 {

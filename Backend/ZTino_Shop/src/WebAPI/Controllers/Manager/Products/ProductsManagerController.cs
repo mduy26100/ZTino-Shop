@@ -2,7 +2,7 @@
 using Application.Features.Products.Commands.Products.DeleteProduct;
 using Application.Features.Products.Commands.Products.UpdateProduct;
 using Domain.Consts;
-using WebAPI.Models.Products.Product;
+using WebAPI.Requests.Products.Product;
 
 namespace WebAPI.Controllers.Manager.Products
 {

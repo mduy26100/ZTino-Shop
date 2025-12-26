@@ -1,6 +1,6 @@
 ﻿using Application.Features.Products.DTOs.Products;
 
-namespace WebAPI.Models.Products.Product
+namespace WebAPI.Requests.Products.Product
 {
     public class UpsertProductForm
     {

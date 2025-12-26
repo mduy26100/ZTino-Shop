@@ -1,6 +1,6 @@
 ﻿using Application.Features.Products.DTOs.ProductImages;
 
-namespace WebAPI.Models.Products.Product
+namespace WebAPI.Requests.Products.Product
 {
     public class UpsertProductImageForm
     {
