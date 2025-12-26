@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Modal, Form, Input, Button } from 'antd';
+import { Modal, Form, Input, Button, ColorPicker, Row, Col } from 'antd';
 
 const UpsertColorModal = ({ 
     open, 
@@ -28,6 +28,10 @@ const UpsertColorModal = ({
         } catch (error) {
             console.error('Validate Failed:', error);
         }
+    };
+
+    const handleColorChange = (color) => {
+        form.setFieldValue('name', color.toHexString());
     };
 
     return (
@@ -61,16 +65,32 @@ const UpsertColorModal = ({
                 form={form}
                 layout="vertical"
                 className="pt-4"
+                initialValues={{ name: '#1677ff' }}
             >
-                <Form.Item
-                    name="name"
-                    label={<span className="font-medium text-gray-700">Color Name</span>}
-                    rules={[{ required: true, message: 'Please enter color name' }]}
-                >
-                    <Input 
-                        placeholder="e.g. Red, Blue,.." 
-                        className="rounded-lg py-2" 
-                    />
+                <Form.Item label={<span className="font-medium text-gray-700">Color Name or Hex</span>}>
+                    <Row gutter={8}>
+                        <Col flex="auto">
+                            <Form.Item
+                                name="name"
+                                noStyle
+                                rules={[{ required: true, message: 'Please enter color name or pick a color' }]}
+                            >
+                                <Input 
+                                    placeholder="e.g. Red, Blue, #1677ff" 
+                                    className="rounded-lg py-2" 
+                                />
+                            </Form.Item>
+                        </Col>
+                        <Col flex="none">
+                            <Form.Item
+                                name="name"
+                                noStyle
+                                getValueFromEvent={(color) => color.toHexString()}
+                            >
+                                <ColorPicker onChange={handleColorChange} />
+                            </Form.Item>
+                        </Col>
+                    </Row>
                 </Form.Item>
             </Form>
         </Modal>
