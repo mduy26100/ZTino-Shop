@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import { 
-    Button, Typography, Space, message, Row, Col, 
+    Button, Typography, message, Row, Col, 
     Empty, Skeleton, Modal 
 } from 'antd';
 import { 
@@ -8,7 +8,8 @@ import {
     ArrowPathIcon, 
     ExclamationCircleIcon 
 } from '@heroicons/react/24/outline';
-import { SizeCard, useGetSizes } from '../../features/product';
+
+import { SizeCard, useGetSizes, useCreateSize, UpsertSizeModal } from '../../features/product';
 
 const { Title, Text } = Typography;
 
@@ -23,12 +24,12 @@ const SizePage = () => {
         onError: (err) => {
             messageApi.open({
                 type: 'error',
-                content: err?.message || 'Failed to load sizes. Please try again.',
+                content: err?.message || 'Failed to load sizes.',
             });
-        },
-        onSuccess: () => {
         }
     });
+
+    const { create, isCreating } = useCreateSize();
 
     const handleOpenCreate = useCallback(() => {
         setEditingRecord(null);
@@ -39,6 +40,41 @@ const SizePage = () => {
         setEditingRecord(record);
         setIsModalOpen(true);
     }, []);
+
+    const handleCloseModal = useCallback(() => {
+        setIsModalOpen(false);
+        setEditingRecord(null);
+    }, []);
+
+    const handleSubmit = useCallback(async (values) => {
+        const isEdit = !!editingRecord;
+        
+        const payload = values; 
+
+        const action = isEdit ? null : create; 
+
+        if (!action) {
+            messageApi.info("Update feature coming soon!");
+            return;
+        }
+
+        await action(payload, {
+            onSuccess: () => {
+                messageApi.open({
+                    type: 'success',
+                    content: `Size ${isEdit ? 'updated' : 'created'} successfully`,
+                });
+                handleCloseModal();
+                refetch();
+            },
+            onError: (error) => {
+                messageApi.open({
+                    type: 'error',
+                    content: error?.Error?.Message || error?.message || 'Operation failed',
+                });
+            }
+        });
+    }, [create, editingRecord, handleCloseModal, refetch, messageApi]);
 
     const handleDelete = useCallback((record) => {
         modal.confirm({
@@ -67,7 +103,9 @@ const SizePage = () => {
     }, [modal, messageApi, refetch]);
 
     const handleRefresh = useCallback(() => {
-        refetch();
+        refetch({
+            onSuccess: () => messageApi.success('Data refreshed'),
+        });
     }, [refetch, messageApi]);
 
     const renderContent = () => {
@@ -151,16 +189,13 @@ const SizePage = () => {
                 {renderContent()}
             </div>
 
-            {/* Modals */}
-            {/* <UpsertSizeModal 
+            <UpsertSizeModal 
                 open={isModalOpen}
-                onCancel={() => setIsModalOpen(false)}
-                record={editingRecord}
-                onSuccess={() => {
-                    setIsModalOpen(false);
-                    refetch();
-                }}
-            /> */}
+                onCancel={handleCloseModal}
+                onSubmit={handleSubmit}
+                confirmLoading={isCreating}
+                initialValues={editingRecord}
+            />
         </div>
     );
 };

@@ -9,7 +9,7 @@ export {default as UpsertColorModal} from "./components/color/UpsertColorModal";
 
 //Size
 export {default as SizeCard} from "./components/size/SizeCard";
-
+export {default as UpsertSizeModal} from "./components/size/UpsertSizeModal";
 
 //hooks
 //Category
@@ -26,3 +26,5 @@ export {useDeleteColor} from "./hooks/color/useDeleteColor";
 
 //Size
 export {useGetSizes} from "./hooks/size/useGetSizes";
+export {useCreateSize} from "./hooks/size/useCreateSize";
+
