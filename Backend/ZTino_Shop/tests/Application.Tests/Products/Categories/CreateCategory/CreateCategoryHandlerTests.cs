@@ -36,7 +36,7 @@ namespace Application.Tests.Products.Categories.CreateCategory
                 .Setup(r => r.GetByIdAsync(1, It.IsAny<CancellationToken>()))
                 .ReturnsAsync((Category?)null);
 
-            await Assert.ThrowsAsync<InvalidOperationException>(
+            await Assert.ThrowsAsync<NotFoundException>(
                 () => _handler.Handle(command, CancellationToken.None));
         }
 
@@ -52,7 +52,7 @@ namespace Application.Tests.Products.Categories.CreateCategory
                 .Setup(r => r.GetByIdAsync(2, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(parent);
 
-            await Assert.ThrowsAsync<InvalidOperationException>(
+            await Assert.ThrowsAsync<BusinessRuleException>(
                 () => _handler.Handle(command, CancellationToken.None));
         }
 
@@ -66,7 +66,7 @@ namespace Application.Tests.Products.Categories.CreateCategory
                 .Setup(r => r.AnyAsync(It.IsAny<Expression<Func<Category, bool>>>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(true);
 
-            await Assert.ThrowsAsync<InvalidOperationException>(
+            await Assert.ThrowsAsync<ConflictException>(
                 () => _handler.Handle(command, CancellationToken.None));
         }
 

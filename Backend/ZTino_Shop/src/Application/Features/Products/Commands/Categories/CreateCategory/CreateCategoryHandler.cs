@@ -29,15 +29,15 @@ namespace Application.Features.Products.Commands.Categories.CreateCategory
             {
                 var parentCategory = await _categoryRepository.GetByIdAsync(dto.ParentId.Value, cancellationToken);
                 if (parentCategory == null)
-                    throw new InvalidOperationException("Parent category does not exist.");
+                    throw new NotFoundException("Parent category does not exist.");
 
                 if (parentCategory.ParentId != null)
-                    throw new InvalidOperationException("Cannot assign a parent that is already a child. Only 1 level of hierarchy allowed.");
+                    throw new BusinessRuleException("Cannot assign a parent that is already a child. Only 1 level of hierarchy allowed.");
             }
 
             bool nameExists = await _categoryRepository.AnyAsync(c => c.Name == dto.Name, cancellationToken);
             if (nameExists)
-                throw new InvalidOperationException("Category with the same name already exists.");
+                throw new ConflictException("Category with the same name already exists.");
 
             var entity = _mapper.Map<Category>(dto);
             await _categoryRepository.AddAsync(entity, cancellationToken);
