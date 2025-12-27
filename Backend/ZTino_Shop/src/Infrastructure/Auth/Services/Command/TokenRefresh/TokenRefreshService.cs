@@ -1,4 +1,5 @@
-﻿using Application.Features.Auth.DTOs;
+﻿using Application.Common.Exceptions;
+using Application.Features.Auth.DTOs;
 using Application.Features.Auth.Services.Command.TokenRefresh;
 using Application.Features.Auth.Services.Jwt;
 using Infrastructure.Auth.Models;
@@ -24,11 +25,11 @@ namespace Infrastructure.Auth.Services.Command.TokenRefresh
                 .FirstOrDefaultAsync(t => t.Token == refreshToken, cancellationToken);
 
             if (tokenEntity == null || tokenEntity.IsRevoked || tokenEntity.ExpiresAt <= DateTime.UtcNow)
-                throw new UnauthorizedAccessException("Refresh token is invalid or expired.");
+                throw new ForbiddenException("Refresh token is invalid or expired.");
 
             var user = tokenEntity.User;
             if (user == null)
-                throw new UnauthorizedAccessException("User not found for this refresh token.");
+                throw new ForbiddenException("Invalid refresh token context.");
 
             tokenEntity.IsRevoked = true;
             tokenEntity.RevokedAt = DateTime.UtcNow;
