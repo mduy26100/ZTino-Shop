@@ -1,4 +1,5 @@
-﻿using Application.Features.Auth.DTOs;
+﻿using Application.Common.Exceptions;
+using Application.Features.Auth.DTOs;
 using Application.Features.Auth.Services.Query.CurrentUser;
 using Infrastructure.Auth.Models;
 
@@ -19,7 +20,7 @@ namespace Infrastructure.Auth.Services.Query.CurrentUser
                 .FirstOrDefaultAsync(u => u.Id == userId, cancellationToken);
 
             if (user == null)
-                throw new InvalidOperationException("User not found.");
+                throw new NotFoundException("User not found.");
 
             var roles = await _userManager.GetRolesAsync(user);
 
