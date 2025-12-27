@@ -63,6 +63,24 @@ namespace WebAPI.Middleware.ExceptionHandling
                     Details = null
                 });
             }
+            catch (ForbiddenException ex)
+            {
+                await WriteErrorResponse(context, HttpStatusCode.Forbidden, new ApiError
+                {
+                    Type = "forbidden",
+                    Message = ex.Message,
+                    Details = null
+                });
+            }
+            catch (BusinessRuleException ex)
+            {
+                await WriteErrorResponse(context, HttpStatusCode.BadRequest, new ApiError
+                {
+                    Type = "business-rule-violation",
+                    Message = ex.Message,
+                    Details = null
+                });
+            }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Unhandled Exception");
