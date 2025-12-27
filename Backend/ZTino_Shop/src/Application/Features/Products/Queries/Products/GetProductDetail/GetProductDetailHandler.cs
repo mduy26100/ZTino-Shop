@@ -14,7 +14,14 @@ namespace Application.Features.Products.Queries.Products.GetProductDetail
 
         public async Task<ProductDetailDto?> Handle(GetProductDetailQuery request, CancellationToken cancellationToken)
         {
-            return await _productQueryService.GetProductDetailAsync(request.id, cancellationToken);
+            var product = await _productQueryService.GetProductDetailAsync(request.id, cancellationToken);
+
+            if(product == null)
+            {
+                throw new NotFoundException($"Product with Id {request.id} not found.");
+            }
+
+            return product;
         }
     }
 }
