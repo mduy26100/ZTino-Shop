@@ -28,7 +28,7 @@ namespace Application.Features.Products.Commands.Categories.DeleteCategory
 
             bool hasProducts = await _productRepository.AnyAsync(x => x.CategoryId == request.Id, cancellationToken);
             if (hasProducts)
-                throw new InvalidOperationException("Cannot delete category because it has associated products.");
+                throw new BusinessRuleException("Cannot delete category because it has associated products.");
 
             _categoryRepository.Remove(entity);
             await _context.SaveChangesAsync(cancellationToken);

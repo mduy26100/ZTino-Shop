@@ -55,7 +55,7 @@ namespace Application.Tests.Products.Categories.DeleteCategory
                 .Setup(r => r.AnyAsync(It.IsAny<Expression<Func<Product, bool>>>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(true);
 
-            await Assert.ThrowsAsync<InvalidOperationException>(
+            await Assert.ThrowsAsync<BusinessRuleException>(
                 () => _handler.Handle(command, CancellationToken.None)
             );
         }
