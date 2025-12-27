@@ -8,12 +8,14 @@ import { ExclamationCircleFilled } from "@ant-design/icons";
 
 import { 
     ProductTable, 
-    useGetProducts, 
+    useGetProducts,
+    useGetProductDetailById,
     useCreateProduct,
     useUpdateProduct,
     useDeleteProduct,
     useGetCategories,
-    UpsertProductModal 
+    UpsertProductModal,
+    ProductDetailModal
 } from '../../features/product';
 
 const { Title, Text } = Typography;
@@ -28,6 +30,27 @@ const ProductPage = () => {
     const { data, isLoading, refetch } = useGetProducts({
         onError: (err) => messageApi.error(err?.message || 'Failed to fetch products')
     });
+
+    const [detailModalState, setDetailModalState] = useState({
+        open: false,
+        id: null
+    });
+
+    const { 
+        data: productDetail, 
+        isLoading: isLoadingDetail 
+    } = useGetProductDetailById(detailModalState.id);
+
+    const handleViewDetail = useCallback((record) => {
+        setDetailModalState({
+            open: true,
+            id: record.id
+        });
+    }, []);
+
+    const handleCloseDetail = useCallback(() => {
+        setDetailModalState({ open: false, id: null });
+    }, []);
 
     const { 
         data: categoriesData, 
@@ -180,6 +203,7 @@ const ProductPage = () => {
                     isLoading={isLoading}
                     onEdit={handleEdit}
                     onDelete={handleDelete}
+                    onViewDetail={handleViewDetail}
                 />
             </div>
 
@@ -191,6 +215,13 @@ const ProductPage = () => {
                 initialValues={editingRecord}
                 categories={categoriesData}
                 isLoadingCategories={isLoadingCategories}
+            />
+
+            <ProductDetailModal 
+                open={detailModalState.open}
+                onCancel={handleCloseDetail}
+                product={productDetail}
+                loading={isLoadingDetail}
             />
         </div>
     );

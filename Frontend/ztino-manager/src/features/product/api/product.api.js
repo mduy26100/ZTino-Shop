@@ -7,6 +7,10 @@ export const getProducts = () => {
     return axiosClient.get(URL_BASE);
 };
 
+export const getProductDetailById = (id) => {
+    return axiosClient.get(`${URL_BASE}/${id}`);
+};
+
 export const createProduct = (productData) => {
     const formData = new FormData();
 

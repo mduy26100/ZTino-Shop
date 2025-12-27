@@ -9,7 +9,8 @@ const ProductTable = ({
     dataSource, 
     isLoading, 
     onEdit, 
-    onDelete 
+    onDelete,
+    onViewDetail
 }) => {
     
     const columns = useMemo(() => [
@@ -19,8 +20,8 @@ const ProductTable = ({
             key: 'name',
             width: 300,
             render: (text, record) => (
-                <div className="flex items-center gap-3">
-                    <div className="flex-shrink-0 border border-gray-100 rounded-lg overflow-hidden w-12 h-12">
+                <div className="flex items-center gap-3 group cursor-pointer" onClick={() => onViewDetail?.(record)}>
+                    <div className="flex-shrink-0 border border-gray-100 rounded-lg overflow-hidden w-12 h-12 relative">
                         <Image
                             src={record.mainImageUrl}
                             alt={text}
@@ -28,11 +29,14 @@ const ProductTable = ({
                             height={48}
                             className="object-cover"
                             fallback="https://via.placeholder.com/48x48?text=No+Img"
-                            preview={{ mask: <EyeOutlined /> }}
+                            preview={false}
                         />
+                        <div className="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                            <EyeOutlined className="text-white text-xs" />
+                        </div>
                     </div>
                     <div className="flex flex-col">
-                        <Text strong className="text-sm line-clamp-1" title={text}>
+                        <Text strong className="text-sm line-clamp-1 group-hover:text-indigo-600 transition-colors" title={text}>
                             {text}
                         </Text>
                         <Text type="secondary" className="text-xs">
@@ -98,7 +102,7 @@ const ProductTable = ({
                             size="small"
                             icon={<PencilSquareIcon className="w-4 h-4 text-indigo-600" />}
                             className="flex items-center justify-center hover:bg-indigo-50"
-                            onClick={() => onEdit?.(record)}
+                            onClick={(e) => { e.stopPropagation(); onEdit?.(record); }}
                         />
                     </Tooltip>
                     <Tooltip title="Delete">
@@ -108,13 +112,13 @@ const ProductTable = ({
                             danger
                             icon={<TrashIcon className="w-4 h-4" />}
                             className="flex items-center justify-center hover:bg-rose-50"
-                            onClick={() => onDelete?.(record)}
+                            onClick={(e) => { e.stopPropagation(); onDelete?.(record); }}
                         />
                     </Tooltip>
                 </Space>
             ),
         },
-    ], [onEdit, onDelete]);
+    ], [onEdit, onDelete, onViewDetail]);
 
     return (
         <Table

@@ -14,6 +14,7 @@ export {default as UpsertSizeModal} from "./components/size/UpsertSizeModal";
 //Product
 export {default as ProductTable} from "./components/product/ProductTable";
 export {default as UpsertProductModal} from "./components/product/UpsertProductModal";
+export {default as ProductDetailModal} from "./components/product/ProductDetailModal";
 
 //hooks
 //Category
@@ -36,6 +37,7 @@ export {useDeleteSize} from "./hooks/size/useDeleteSize";
 
 //Product
 export {useGetProducts} from "./hooks/product/useGetProducts";
+export {useGetProductDetailById} from "./hooks/product/useGetProductDetailById";
 export {useCreateProduct} from "./hooks/product/useCreateProduct";
 export {useUpdateProduct} from "./hooks/product/useUpdateProduct";
 export {useDeleteProduct} from "./hooks/product/useDeleteProduct";
