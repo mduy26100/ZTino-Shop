@@ -17,6 +17,7 @@ export {default as UpsertProductModal} from "./components/product/UpsertProductM
 
 //Product Variant
 export {default as VariantTable} from "./components/productVariant/VariantTable";
+export {default as UpsertProductVariantModal} from "./components/productVariant/UpsertProductVariantModal";
 
 //hooks
 //Category
@@ -43,3 +44,6 @@ export {useGetProductDetailById} from "./hooks/product/useGetProductDetailById";
 export {useCreateProduct} from "./hooks/product/useCreateProduct";
 export {useUpdateProduct} from "./hooks/product/useUpdateProduct";
 export {useDeleteProduct} from "./hooks/product/useDeleteProduct";
+
+//Product Variant
+export {useCreateVariant} from "./hooks/productVariant/useCreateVariant";

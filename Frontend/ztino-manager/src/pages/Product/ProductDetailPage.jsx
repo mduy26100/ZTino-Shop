@@ -1,24 +1,46 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { 
     Button, Typography, Spin, Breadcrumb, 
     Tabs, Tag, Descriptions, Empty, Card, 
-    Space, Alert 
+    Space, Alert, message 
 } from 'antd';
 import { 
     ArrowLeftIcon, 
     CubeIcon, 
-    SwatchIcon 
+    SwatchIcon,
+    PlusIcon 
 } from '@heroicons/react/24/outline';
-import { useGetProductDetailById, VariantTable } from '../../features/product';
+
+import { 
+    UpsertProductVariantModal, 
+    useGetProductDetailById, 
+    VariantTable, 
+    useGetColors, 
+    useGetSizes, 
+    useCreateVariant 
+} from '../../features/product';
 
 const { Title, Text } = Typography;
 
 const ProductDetailPage = () => {
     const { id } = useParams();
     const navigate = useNavigate();
+    
+    const [messageApi, contextHolder] = message.useMessage();
 
-    const { data: product, isLoading, error } = useGetProductDetailById(id);
+    const { data: product, isLoading, error, refetch } = useGetProductDetailById(id, {
+        onError: (err) => messageApi.open({
+            type: 'error',
+            content: err?.message || 'Failed to load product details'
+        })
+    });
+
+    const { data: colors, isLoading: isLoadingColors } = useGetColors();
+    const { data: sizes, isLoading: isLoadingSizes } = useGetSizes();
+    const { create: createVariant, isCreating: isCreatingVariant } = useCreateVariant();
+
+    const [isCreateVariantOpen, setIsCreateVariantOpen] = useState(false);
 
     const breadcrumbItems = useMemo(() => [
         { title: <a onClick={() => navigate('/dashboard')}>Dashboard</a> },
@@ -26,7 +48,39 @@ const ProductDetailPage = () => {
         { title: product?.name || 'Loading...' },
     ], [navigate, product]);
 
-    const handleBack = () => navigate('/products');
+    const handleBack = useCallback(() => navigate('/products'), [navigate]);
+    const handleOpenCreateVariant = useCallback(() => setIsCreateVariantOpen(true), []);
+    const handleCloseCreateVariant = useCallback(() => setIsCreateVariantOpen(false), []);
+
+    const handleSubmitVariant = useCallback(async (values) => {
+        if (!id) return;
+
+        const payload = {
+            productId: parseInt(id),
+            colorId: values.colorId,
+            sizeId: values.sizeId,
+            stockQuantity: values.stockQuantity,
+            price: values.price,
+            isActive: values.isActive
+        };
+
+        await createVariant(payload, {
+            onSuccess: (res) => {
+                messageApi.open({
+                    type: 'success',
+                    content: 'Variant created successfully',
+                });
+                handleCloseCreateVariant();
+                refetch();
+            },
+            onError: (error) => {
+                messageApi.open({
+                    type: 'error',
+                    content: error?.Error?.Message || error?.message || 'Failed to create variant',
+                });
+            }
+        });
+    }, [id, createVariant, handleCloseCreateVariant, refetch, messageApi]);
 
     if (isLoading) {
         return (
@@ -39,6 +93,7 @@ const ProductDetailPage = () => {
     if (error || !product) {
         return (
             <div className="flex flex-col items-center justify-center h-[60vh] gap-4">
+                {contextHolder}
                 <Empty description={error?.Error?.Message || "Product not found"} />
                 <Button onClick={handleBack}>Back to List</Button>
             </div>
@@ -77,6 +132,15 @@ const ProductDetailPage = () => {
                                     {product.isActive ? 'Active' : 'Inactive'}
                                 </Tag>
                             </Descriptions.Item>
+                            <Descriptions.Item label="Created At">
+                                {(product.createdAt || product.CreatedAt) ? (
+                                    <Text type="secondary" className="text-xs">
+                                        {new Date(product.createdAt || product.CreatedAt).toLocaleDateString('vi-VN')}
+                                    </Text>
+                                ) : (
+                                    <Text type="secondary" className="text-xs italic">N/A</Text>
+                                )}
+                            </Descriptions.Item>
                             <Descriptions.Item label="Description" span={2}>
                                 <div 
                                     className="prose prose-sm max-w-none text-slate-600"
@@ -98,13 +162,24 @@ const ProductDetailPage = () => {
             ),
             children: (
                 <div className="animate-fade-in">
-                    <Alert 
-                        message="Product Variants Management" 
-                        description="Manage size, color, pricing, and stock for each product variation."
-                        type="info" 
-                        showIcon 
-                        className="mb-4 rounded-lg border-blue-100 bg-blue-50"
-                    />
+                    <div className="flex justify-between items-center mb-4">
+                        <Alert 
+                            message="Product Variants Management" 
+                            description="Manage size, color, pricing, and stock for each product variation."
+                            type="info" 
+                            showIcon 
+                            className="flex-1 mr-4 rounded-lg border-blue-100 bg-blue-50"
+                        />
+                        <Button 
+                            type="primary" 
+                            icon={<PlusIcon className="w-4 h-4 stroke-2" />}
+                            onClick={handleOpenCreateVariant}
+                            className="h-10 px-6 rounded-lg bg-indigo-600 hover:!bg-indigo-700 border-none shadow-md shadow-indigo-100"
+                        >
+                            Add Variant
+                        </Button>
+                    </div>
+                    
                     <Card bordered={false} className="shadow-sm rounded-xl !p-0" bodyStyle={{ padding: 0 }}>
                         <VariantTable variants={product.variants} productId={product.id} />
                     </Card>
@@ -115,6 +190,8 @@ const ProductDetailPage = () => {
 
     return (
         <div className="space-y-4 pb-10">
+            {contextHolder}
+
             <div className="flex flex-col gap-2">
                 <Breadcrumb items={breadcrumbItems} />
                 <div className="flex items-center justify-between mt-2">
@@ -122,7 +199,7 @@ const ProductDetailPage = () => {
                         <Button 
                             icon={<ArrowLeftIcon className="w-4 h-4" />} 
                             onClick={handleBack}
-                            className="border-none shadow-none bg-transparent hover:bg-slate-100"
+                            className="border-none shadow-none bg-transparent hover:bg-slate-100 rounded-full w-8 h-8 flex items-center justify-center p-0"
                         />
                         <div>
                             <Title level={2} className="!mb-0 !text-2xl text-slate-800">
@@ -131,10 +208,6 @@ const ProductDetailPage = () => {
                             <Text type="secondary" className="text-xs">ID: {product.id}</Text>
                         </div>
                     </div>
-                    <Space>
-                        {/* Placeholder buttons for future actions */}
-                        {/* <Button>Edit Product</Button> */}
-                    </Space>
                 </div>
             </div>
 
@@ -143,6 +216,17 @@ const ProductDetailPage = () => {
                 items={tabItems} 
                 type="card" 
                 className="custom-tabs"
+            />
+
+            <UpsertProductVariantModal
+                open={isCreateVariantOpen}
+                onCancel={handleCloseCreateVariant}
+                onSubmit={handleSubmitVariant}
+                confirmLoading={isCreatingVariant}
+                colors={colors}
+                sizes={sizes}
+                isLoadingColors={isLoadingColors}
+                isLoadingSizes={isLoadingSizes}
             />
         </div>
     );
