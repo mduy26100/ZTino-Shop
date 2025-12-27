@@ -102,10 +102,17 @@ namespace WebAPI.Middleware.ExceptionHandling
             var meta = new Meta
             {
                 Timestamp = DateTime.UtcNow,
-                Path = context.Request.Path
+                Path = context.Request.Path,
+                Method = context.Request.Method,
+                StatusCode = (int)statusCode,
+
+                TraceId = context.TraceIdentifier,
+                RequestId = context.Items["RequestId"]?.ToString(),
+
+                ClientIp = context.Connection.RemoteIpAddress?.ToString()
             };
 
-            var responseWrapped = ApiResponse.Fail(error, (int)statusCode);
+            var responseWrapped = ApiResponse.Fail(error);
             responseWrapped.Meta = meta;
 
             string json = JsonSerializer.Serialize(responseWrapped, new JsonSerializerOptions

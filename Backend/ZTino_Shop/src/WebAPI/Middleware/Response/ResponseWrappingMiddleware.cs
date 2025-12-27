@@ -16,19 +16,24 @@ namespace WebAPI.Middleware.Response
         {
             var originalBody = context.Response.Body;
 
+            using var newBody = new MemoryStream();
+            context.Response.Body = newBody;
+
             try
             {
-                using var newBody = new MemoryStream();
-                context.Response.Body = newBody;
-
                 await _next(context);
 
                 if (context.Response.HasStarted)
+                    return;
+
+                var statusCode = context.Response.StatusCode;
+
+                if (statusCode < 200 || statusCode >= 300)
                 {
+                    newBody.Seek(0, SeekOrigin.Begin);
+                    await newBody.CopyToAsync(originalBody);
                     return;
                 }
-
-                int statusCode = context.Response.StatusCode;
 
                 if (statusCode == StatusCodes.Status204NoContent)
                 {
@@ -38,47 +43,27 @@ namespace WebAPI.Middleware.Response
                 }
 
                 newBody.Seek(0, SeekOrigin.Begin);
-                string bodyText = await new StreamReader(newBody).ReadToEndAsync();
-                object? data;
+                var bodyText = await new StreamReader(newBody).ReadToEndAsync();
 
-                try
-                {
-                    data = string.IsNullOrWhiteSpace(bodyText)
-                        ? null
-                        : JsonSerializer.Deserialize<object>(bodyText);
-                }
-                catch
-                {
-                    data = bodyText;
-                }
+                object? data = string.IsNullOrWhiteSpace(bodyText)
+                    ? null
+                    : JsonSerializer.Deserialize<object>(bodyText);
 
                 var meta = new Meta
                 {
                     Timestamp = DateTime.UtcNow,
-                    Path = context.Request.Path
+                    Path = context.Request.Path,
+                    Method = context.Request.Method,
+                    StatusCode = statusCode,
+
+                    TraceId = context.TraceIdentifier,
+                    RequestId = context.Items["RequestId"]?.ToString(),
+                    ClientIp = context.Connection.RemoteIpAddress?.ToString()
                 };
 
-                ApiResponse responseWrapped;
+                var responseWrapped = ApiResponse.Success(data, meta);
 
-                if (statusCode >= 400)
-                {
-                    var error = new ApiError
-                    {
-                        Type = statusCode.ToString(),
-                        Message = string.IsNullOrWhiteSpace(bodyText)
-                            ? "An error occurred."
-                            : bodyText,
-                        Details = null
-                    };
-
-                    responseWrapped = ApiResponse.Fail(error, statusCode);
-                }
-                else
-                {
-                    responseWrapped = ApiResponse.Success(data, statusCode, meta);
-                }
-
-                string json = JsonSerializer.Serialize(
+                var json = JsonSerializer.Serialize(
                     responseWrapped,
                     new JsonSerializerOptions { WriteIndented = true }
                 );
