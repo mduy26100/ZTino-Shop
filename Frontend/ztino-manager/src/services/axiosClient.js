@@ -33,28 +33,29 @@ axiosClient.interceptors.response.use(
 
     const res = response.data;
 
-    if (res && typeof res.StatusCode === 'number') {
-      if (res.StatusCode >= 200 && res.StatusCode < 300) {
-        return res.Data;
-      }
+    if (res && res.Error) {
       return Promise.reject(res);
     }
 
-    if (response.status >= 200 && response.status < 300) {
-      return res;
+    if (res && res.Data !== undefined) {
+      return res.Data;
     }
 
-    return Promise.reject(res);
+    return res;
   },
   (error) => {
     if (error.code === 'ECONNABORTED') {
       return Promise.reject({
         Error: {
+          Type: 'timeout',
           Message: "Connection timed out. Please check your network or try again later.",
+          Details: null
         },
         isTimeout: true,
       });
     }
+
+    const serverError = error.response?.data;
 
     if (error.response?.status === 401) {
       if (window.location.pathname !== '/login') {
@@ -62,23 +63,30 @@ axiosClient.interceptors.response.use(
         window.location.href = '/login';
         return new Promise(() => {}); 
       }
+      if (serverError) return Promise.reject(serverError);
     }
 
     if (error.response?.status === 403) {
+      if (serverError) return Promise.reject(serverError);
+
       return Promise.reject({
         Error: {
+          Type: 'forbidden',
           Message: "You do not have permission to perform this action.",
+          Details: null
         },
       });
     }
 
-    if (error.response?.data) {
-      return Promise.reject(error.response.data);
+    if (serverError) {
+      return Promise.reject(serverError);
     }
 
     return Promise.reject({
       Error: {
+        Type: 'network-error',
         Message: "Unable to connect to the server. Please check your internet connection.",
+        Details: null
       },
       isNetworkError: true,
     });
