@@ -26,7 +26,7 @@ namespace Application.Features.Products.Commands.Colors.CreateColor
 
             bool nameExists = await _colorRepository.AnyAsync(c => c.Name == dto.Name, cancellationToken);
             if (nameExists)
-                throw new InvalidOperationException("Color with the same name already exists.");
+                throw new ConflictException("Color with the same name already exists.");
 
             var entity = _mapper.Map<Color>(dto);
             await _colorRepository.AddAsync(entity, cancellationToken);

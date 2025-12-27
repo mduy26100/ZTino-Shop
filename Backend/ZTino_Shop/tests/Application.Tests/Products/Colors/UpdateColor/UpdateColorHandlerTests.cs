@@ -40,7 +40,7 @@ namespace Application.Tests.Products.Colors.UpdateColor
 
             _colorRepositoryMock
                 .Setup(r => r.AnyAsync(
-                    It.IsAny<System.Linq.Expressions.Expression<Func<Color, bool>>>(),
+                    It.IsAny<Expression<Func<Color, bool>>>(),
                     It.IsAny<CancellationToken>()))
                 .ReturnsAsync(false);
 
@@ -89,11 +89,11 @@ namespace Application.Tests.Products.Colors.UpdateColor
 
             _colorRepositoryMock
                 .Setup(r => r.AnyAsync(
-                    It.IsAny<System.Linq.Expressions.Expression<Func<Color, bool>>>(),
+                    It.IsAny<Expression<Func<Color, bool>>>(),
                     It.IsAny<CancellationToken>()))
                 .ReturnsAsync(true);
 
-            await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            await Assert.ThrowsAsync<ConflictException>(() =>
                 _handler.Handle(command, CancellationToken.None));
 
             _colorRepositoryMock.Verify(r => r.Update(It.IsAny<Color>()), Times.Never);

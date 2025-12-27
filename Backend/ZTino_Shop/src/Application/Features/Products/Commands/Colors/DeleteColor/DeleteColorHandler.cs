@@ -26,7 +26,7 @@ namespace Application.Features.Products.Commands.Colors.DeleteColor
 
             bool hasVariants = await _productVariantRepository.AnyAsync(c => c.ColorId == request.Id, cancellationToken);
             if (hasVariants)
-                throw new InvalidOperationException("Cannot delete color that is associated with product variants.");
+                throw new BusinessRuleException("Cannot delete color that is associated with product variants.");
 
             _colorRepository.Remove(entity);
             await _context.SaveChangesAsync(cancellationToken);

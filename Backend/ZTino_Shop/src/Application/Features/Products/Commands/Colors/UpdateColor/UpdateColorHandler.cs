@@ -32,7 +32,7 @@ namespace Application.Features.Products.Commands.Colors.UpdateColor
                 c => c.Name == dto.Name && c.Id != dto.Id,
                 cancellationToken);
             if (nameExists)
-                throw new InvalidOperationException("Color with the same name already exists.");
+                throw new ConflictException("Color with the same name already exists.");
 
             _mapper.Map(dto, entity);
 

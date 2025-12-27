@@ -79,7 +79,7 @@ namespace Application.Tests.Products.Colors.DeleteColor
                 ))
                 .ReturnsAsync(true);
 
-            await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            await Assert.ThrowsAsync<BusinessRuleException>(() =>
                 _handler.Handle(new DeleteColorCommand(id), CancellationToken.None)
             );
 

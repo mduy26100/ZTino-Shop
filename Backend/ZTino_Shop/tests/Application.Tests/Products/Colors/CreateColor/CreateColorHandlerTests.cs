@@ -36,7 +36,7 @@ namespace Application.Tests.Products.Colors.CreateColor
             var colorEntity = new Color { Id = 1, Name = "Red" };
 
             _colorRepositoryMock
-                .Setup(repo => repo.AnyAsync(It.IsAny<System.Linq.Expressions.Expression<System.Func<Color, bool>>>(), It.IsAny<CancellationToken>()))
+                .Setup(repo => repo.AnyAsync(It.IsAny<Expression<Func<Color, bool>>>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(false);
 
             _mapperMock
@@ -69,10 +69,10 @@ namespace Application.Tests.Products.Colors.CreateColor
             var command = new CreateColorCommand(dto);
 
             _colorRepositoryMock
-                .Setup(repo => repo.AnyAsync(It.IsAny<System.Linq.Expressions.Expression<System.Func<Color, bool>>>(), It.IsAny<CancellationToken>()))
+                .Setup(repo => repo.AnyAsync(It.IsAny<Expression<Func<Color, bool>>>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(true);
 
-            await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            await Assert.ThrowsAsync<ConflictException>(() =>
                 _handler.Handle(command, CancellationToken.None)
             );
 
