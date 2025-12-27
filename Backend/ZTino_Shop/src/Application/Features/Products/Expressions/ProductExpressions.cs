@@ -20,6 +20,9 @@ namespace Application.Features.Products.Expressions
                 BasePrice = p.BasePrice,
                 Description = p.Description,
                 MainImageUrl = p.MainImageUrl,
+                IsActive = p.IsActive,
+                CreatedAt = p.CreatedAt,
+                UpdatedAt = p.UpdatedAt,
 
                 Category = new CategoryDto
                 {
