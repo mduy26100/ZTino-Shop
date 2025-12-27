@@ -9,18 +9,19 @@ import { ExclamationCircleFilled } from "@ant-design/icons";
 import { 
     ProductTable, 
     useGetProducts,
-    useGetProductDetailById,
     useCreateProduct,
     useUpdateProduct,
     useDeleteProduct,
     useGetCategories,
     UpsertProductModal,
-    ProductDetailModal
 } from '../../features/product';
+import { useNavigate } from 'react-router-dom';
 
 const { Title, Text } = Typography;
 
 const ProductPage = () => {
+    const navigate = useNavigate();
+
     const [messageApi, contextHolder] = message.useMessage();
     const [modal, modalContextHolder] = Modal.useModal();
 
@@ -31,26 +32,9 @@ const ProductPage = () => {
         onError: (err) => messageApi.error(err?.message || 'Failed to fetch products')
     });
 
-    const [detailModalState, setDetailModalState] = useState({
-        open: false,
-        id: null
-    });
-
-    const { 
-        data: productDetail, 
-        isLoading: isLoadingDetail 
-    } = useGetProductDetailById(detailModalState.id);
-
     const handleViewDetail = useCallback((record) => {
-        setDetailModalState({
-            open: true,
-            id: record.id
-        });
-    }, []);
-
-    const handleCloseDetail = useCallback(() => {
-        setDetailModalState({ open: false, id: null });
-    }, []);
+        navigate(`/products/${record.id}`);
+    }, [navigate]);
 
     const { 
         data: categoriesData, 
@@ -215,13 +199,6 @@ const ProductPage = () => {
                 initialValues={editingRecord}
                 categories={categoriesData}
                 isLoadingCategories={isLoadingCategories}
-            />
-
-            <ProductDetailModal 
-                open={detailModalState.open}
-                onCancel={handleCloseDetail}
-                product={productDetail}
-                loading={isLoadingDetail}
             />
         </div>
     );
