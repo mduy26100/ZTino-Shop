@@ -82,7 +82,7 @@ namespace Application.Tests.Products.Sizes.DeleteSize
                 .Setup(x => x.AnyAsync(It.IsAny<Expression<Func<Domain.Models.Products.ProductVariant, bool>>>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(true);
 
-            var exception = await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            var exception = await Assert.ThrowsAsync<BusinessRuleException>(() =>
                 _handler.Handle(command, CancellationToken.None));
 
             Assert.Equal(

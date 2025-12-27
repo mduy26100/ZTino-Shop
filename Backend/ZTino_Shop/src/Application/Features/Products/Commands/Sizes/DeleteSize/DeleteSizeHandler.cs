@@ -26,7 +26,7 @@ namespace Application.Features.Products.Commands.Sizes.DeleteSize
 
             var isSizeInUse = await _productVariantRepository.AnyAsync(pv => pv.SizeId == request.Id, cancellationToken);
             if (isSizeInUse)
-                throw new InvalidOperationException("Cannot delete size as it is associated with existing product variants.");
+                throw new BusinessRuleException("Cannot delete size as it is associated with existing product variants.");
 
             _sizeRepository.Remove(entity);
             await _context.SaveChangesAsync(cancellationToken);

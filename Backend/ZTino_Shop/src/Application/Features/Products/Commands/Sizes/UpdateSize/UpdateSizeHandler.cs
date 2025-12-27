@@ -29,7 +29,7 @@ namespace Application.Features.Products.Commands.Sizes.UpdateSize
 
             bool nameExists = await _sizeRepository.AnyAsync(s => s.Name == dto.Name && s.Id != dto.Id, cancellationToken);
             if (nameExists)
-                throw new InvalidOperationException("Size with the same name already exists.");
+                throw new ConflictException("Size with the same name already exists.");
 
             _mapper.Map(dto, entity);
 

@@ -90,7 +90,7 @@ namespace Application.Tests.Products.Sizes.UpdateSize
                 .Setup(x => x.AnyAsync(It.IsAny<Expression<Func<Size, bool>>>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(true);
 
-            var exception = await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            var exception = await Assert.ThrowsAsync<ConflictException>(() =>
                 _handler.Handle(command, CancellationToken.None));
 
             Assert.Equal("Size with the same name already exists.", exception.Message);

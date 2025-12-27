@@ -24,7 +24,7 @@ namespace Application.Features.Products.Commands.Sizes.CreateSize
         {
             var nameExists = await _sizeRepository.AnyAsync(s => s.Name == request.Dto.Name, cancellationToken);
             if (nameExists)
-                throw new InvalidOperationException("Size with the same name already exists.");
+                throw new ConflictException("Size with the same name already exists.");
 
             var entity = _mapper.Map<Size>(request.Dto);
 
