@@ -103,6 +103,18 @@ const VariantTable = ({ variants = [], productId }) => {
             )
         },
         {
+            title: 'Status',
+            dataIndex: 'isActive',
+            key: 'isActive',
+            width: 120,
+            align: 'center',
+            render: (isActive) => (
+                <Tag color={isActive ? 'success' : 'error'} className="m-0 min-w-[80px] text-center">
+                    {isActive ? 'Active' : 'Inactive'}
+                </Tag>
+            ),
+        },
+        {
             title: 'Images',
             dataIndex: 'images',
             key: 'images',
