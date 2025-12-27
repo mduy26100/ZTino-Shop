@@ -70,7 +70,9 @@ export const useGetProductDetailById = (id, options = {}) => {
         abortControllerRef.current = controller;
 
         if (isMounted.current) {
-            setIsLoading(true);
+            if (!CACHE[id]?.data) {
+                setIsLoading(true);
+            }
             setError(null);
         }
 
