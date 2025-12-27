@@ -1,4 +1,5 @@
-﻿using Application.Common.Interfaces.Identity;
+﻿using Application.Common.Exceptions;
+using Application.Common.Interfaces.Identity;
 using Application.Features.Auth.DTOs;
 using Application.Features.Auth.Services.Command.UpdateProfile;
 using Application.Features.Auth.Services.Command.UpdateProfile.Factory;
@@ -26,7 +27,7 @@ namespace Infrastructure.Auth.Services.Command.UpdateProfile
             var currentUserRoles = _currentUserContext.Roles;
 
             if (!currentUserRoles.Contains(Roles.Manager) && currentUserId != dto.Id)
-                throw new UnauthorizedAccessException("You can only update your own profile.");
+                throw new ForbiddenException("You can only update your own profile.");
 
             IUpdateProfileStrategy strategy = currentUserId == dto.Id
                 ? _strategyFactory.GetSelfStrategy()

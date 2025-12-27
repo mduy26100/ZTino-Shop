@@ -1,4 +1,5 @@
-﻿using Application.Common.Interfaces.Services.FileUpLoad;
+﻿using Application.Common.Exceptions;
+using Application.Common.Interfaces.Services.FileUpLoad;
 using Application.Common.Models.Requests;
 using Application.Features.Auth.DTOs;
 using Application.Features.Auth.Services.Command.UpdateProfile.Strategy;
@@ -25,7 +26,7 @@ namespace Infrastructure.Auth.Services.Command.UpdateProfile.Strategies
         {
             var user = await _userManager.FindByIdAsync(dto.Id.ToString());
             if (user == null)
-                throw new InvalidOperationException("User not found.");
+                throw new NotFoundException("User not found.");
 
             if (dto.AvatarImageContent != null && !string.IsNullOrWhiteSpace(dto.AvatarImageFileName))
             {
@@ -49,7 +50,7 @@ namespace Infrastructure.Auth.Services.Command.UpdateProfile.Strategies
 
             var result = await _userManager.UpdateAsync(user);
             if (!result.Succeeded)
-                throw new InvalidOperationException("Failed to update user.");
+                throw new BusinessRuleException("Failed to update user.");
 
             if (!string.IsNullOrWhiteSpace(dto.Role))
             {
@@ -57,7 +58,7 @@ namespace Infrastructure.Auth.Services.Command.UpdateProfile.Strategies
                 await _userManager.RemoveFromRolesAsync(user, roles);
 
                 if (!await _roleManager.RoleExistsAsync(dto.Role))
-                    throw new InvalidOperationException("Role not found");
+                    throw new BusinessRuleException("Role not found");
 
                 await _userManager.AddToRoleAsync(user, dto.Role);
             }

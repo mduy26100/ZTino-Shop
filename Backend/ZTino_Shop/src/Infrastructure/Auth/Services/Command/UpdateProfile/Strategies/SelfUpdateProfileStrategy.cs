@@ -1,4 +1,5 @@
-﻿using Application.Common.Interfaces.Services.FileUpLoad;
+﻿using Application.Common.Exceptions;
+using Application.Common.Interfaces.Services.FileUpLoad;
 using Application.Common.Models.Requests;
 using Application.Features.Auth.DTOs;
 using Application.Features.Auth.Services.Command.UpdateProfile.Strategy;
@@ -22,7 +23,7 @@ namespace Infrastructure.Auth.Services.Command.UpdateProfile.Strategies
         {
             var user = await _userManager.FindByIdAsync(dto.Id.ToString());
             if (user == null)
-                throw new InvalidOperationException("User not found.");
+                throw new NotFoundException("User not found.");
 
             if (dto.AvatarImageContent != null && !string.IsNullOrWhiteSpace(dto.AvatarImageFileName))
             {
@@ -44,10 +45,9 @@ namespace Infrastructure.Auth.Services.Command.UpdateProfile.Strategies
             if (!string.IsNullOrWhiteSpace(dto.PhoneNumber))
                 user.PhoneNumber = dto.PhoneNumber;
 
-            // Cập nhật entity
             var result = await _userManager.UpdateAsync(user);
             if (!result.Succeeded)
-                throw new InvalidOperationException("Failed to update user.");
+                throw new BusinessRuleException("Failed to update user.");
 
             var roles = await _userManager.GetRolesAsync(user);
 
