@@ -1,4 +1,5 @@
-﻿using Application.Common.Interfaces.Identity;
+﻿using Application.Common.Exceptions;
+using Application.Common.Interfaces.Identity;
 using Application.Features.Auth.DTOs;
 using Application.Features.Auth.Services.Command.Register;
 using Domain.Consts;
@@ -22,12 +23,12 @@ namespace Infrastructure.Auth.Services.Command.Register
         {
             if(await _userManager.FindByEmailAsync(dto.Email) is not null)
             {
-                throw new InvalidOperationException("Email is already in use.");
+                throw new ConflictException("Email is already in use.");
             }
 
             if(dto.Password != dto.ConfirmPassword)
             {
-                throw new InvalidOperationException("Password confirmation does not match.");
+                throw new BusinessRuleException("Password confirmation does not match.");
             }
 
             var user = new ApplicationUser
@@ -44,15 +45,20 @@ namespace Infrastructure.Auth.Services.Command.Register
             if (!result.Succeeded)
             {
                 var errors = string.Join("; ", result.Errors.Select(e => e.Description));
-                throw new InvalidOperationException($"Failed to create user: {errors}");
+                throw new BusinessRuleException($"Failed to create user: {errors}");
             }
 
             var currentRoles = _currentUserContext.Roles;
             var isManager = currentRoles.Contains(Roles.Manager);
 
-            var roleToAssign = isManager && !string.IsNullOrWhiteSpace(dto.Role)
-                ? dto.Role
-                : Roles.User;
+            if (!isManager && !string.IsNullOrWhiteSpace(dto.Role))
+            {
+                throw new ForbiddenException("You are not allowed to assign roles.");
+            }
+
+            var roleToAssign = string.IsNullOrWhiteSpace(dto.Role)
+                ? Roles.User
+                : dto.Role;
 
             await _userManager.AddToRoleAsync(user, roleToAssign);
 
