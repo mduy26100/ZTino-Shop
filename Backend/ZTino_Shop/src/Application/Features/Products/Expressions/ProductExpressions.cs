@@ -32,12 +32,12 @@ namespace Application.Features.Products.Expressions
                 },
 
                 Variants = p.Variants
-                    .Where(v => v.IsActive)
                     .Select(v => new ProductVariantDto
                     {
                         Id = v.Id,
                         Price = v.Price,
                         StockQuantity = v.StockQuantity,
+                        IsActive = v.IsActive,
 
                         Color = new ColorDto
                         {

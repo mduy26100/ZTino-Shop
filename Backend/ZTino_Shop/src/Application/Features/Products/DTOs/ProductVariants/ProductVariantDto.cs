@@ -9,6 +9,7 @@ namespace Application.Features.Products.DTOs.ProductVariants
         public int Id { get; set; }
         public decimal Price { get; set; }
         public int StockQuantity { get; set; }
+        public bool IsActive { get; set; } = true;
         public ColorDto Color { get; set; } = default!;
         public SizeDto Size { get; set; } = default!;
         public List<ProductImageDto> Images { get; set; } = new();
