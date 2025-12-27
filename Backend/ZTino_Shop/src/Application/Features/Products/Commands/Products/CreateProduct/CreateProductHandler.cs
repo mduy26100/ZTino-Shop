@@ -37,11 +37,11 @@ namespace Application.Features.Products.Commands.Products.CreateProduct
                 throw new NotFoundException($"Category with ID {dto.CategoryId} does not exist.");
 
             if(categoryExists.ParentId == null)
-                throw new InvalidOperationException("Product must be assigned to a sub-category, not a root category.");
+                throw new BusinessRuleException("Product must be assigned to a sub-category, not a root category.");
 
             bool nameExists = await _productRepository.AnyAsync(p => p.Name == dto.Name, cancellationToken);
             if (nameExists)
-                throw new InvalidOperationException("Product with the same name already exists.");
+                throw new ConflictException("Product with the same name already exists.");
 
             string imgUrl = string.Empty;
             if (dto.ImgContent != null && !string.IsNullOrWhiteSpace(dto.ImgFileName))
