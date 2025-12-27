@@ -55,7 +55,7 @@ namespace Application.Features.Products.Commands.ProductVariants.UpdateProductVa
                 cancellationToken);
 
             if (variantExists)
-                throw new InvalidOperationException("Another product variant with the same product, size, and color already exists.");
+                throw new ConflictException("Another product variant with the same product, size, and color already exists.");
 
             _mapper.Map(request.Dto, entity);
 

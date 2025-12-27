@@ -142,7 +142,7 @@ namespace Application.Tests.Products.ProductVariant.CreateProductVariant
             _productVariantRepositoryMock.Setup(r => r.AnyAsync(It.IsAny<Expression<Func<ProductVariantEntity, bool>>>(), It.IsAny<CancellationToken>()))
                                          .ReturnsAsync(true);
 
-            await Assert.ThrowsAsync<InvalidOperationException>(() => _handler.Handle(command, CancellationToken.None));
+            await Assert.ThrowsAsync<ConflictException>(() => _handler.Handle(command, CancellationToken.None));
         }
     }
 }

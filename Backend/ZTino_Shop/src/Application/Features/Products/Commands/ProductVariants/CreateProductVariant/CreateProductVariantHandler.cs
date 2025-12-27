@@ -48,7 +48,7 @@ namespace Application.Features.Products.Commands.ProductVariants.CreateProductVa
                                                                              pv.ColorId == request.Dto.ColorId,
                                                                              cancellationToken);
             if (variantExists)
-                throw new InvalidOperationException("Product variant with the same product, size, and color already exists.");
+                throw new ConflictException("Product variant with the same product, size, and color already exists.");
 
             var entity = _mapper.Map<ProductVariant>(request.Dto);
 
