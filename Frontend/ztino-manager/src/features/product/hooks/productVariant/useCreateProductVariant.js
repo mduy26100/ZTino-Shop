@@ -1,7 +1,7 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { createProductVariant } from '../../api/productVariant.api';
 
-export const useCreateVariant = (options = {}) => {
+export const useCreateProductVariant = (options = {}) => {
     const { onSuccess, onError } = options;
     const [isCreating, setIsCreating] = useState(false);
     const isMounted = useRef(true);

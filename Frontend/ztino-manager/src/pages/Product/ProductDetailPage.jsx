@@ -16,7 +16,7 @@ import { ExclamationCircleFilled } from '@ant-design/icons';
 
 import { 
     UpsertProductVariantModal, 
-    useCreateVariant, 
+    useCreateProductVariant, 
     useUpdateProductVariant,
     useDeleteProductVariant,
     useGetColors, 
@@ -43,7 +43,7 @@ const ProductDetailPage = () => {
     const { data: colors, isLoading: isLoadingColors } = useGetColors();
     const { data: sizes, isLoading: isLoadingSizes } = useGetSizes();
     
-    const { create: createVariant, isCreating } = useCreateVariant();
+    const { create: createVariant, isCreating } = useCreateProductVariant();
     const { update: updateVariant, isUpdating } = useUpdateProductVariant();
     const { remove: removeVariant } = useDeleteProductVariant();
 
