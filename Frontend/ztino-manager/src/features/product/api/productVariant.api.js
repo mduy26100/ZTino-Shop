@@ -28,3 +28,7 @@ export const updateProductVariant = (payload) => {
 
     return axiosClient.put(`${URL_MANAGER}/${payload.id}`, {dto});
 };
+
+export const deleteProductVariant = (id) => {
+    return axiosClient.delete(`${URL_MANAGER}/${id}`);
+};

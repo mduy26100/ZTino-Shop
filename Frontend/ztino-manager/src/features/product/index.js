@@ -48,3 +48,4 @@ export {useDeleteProduct} from "./hooks/product/useDeleteProduct";
 //Product Variant
 export {useCreateVariant} from "./hooks/productVariant/useCreateVariant";
 export {useUpdateProductVariant} from "./hooks/productVariant/useUpdateProductVariant";
+export {useDeleteProductVariant} from "./hooks/productVariant/useDeleteProductVariant";

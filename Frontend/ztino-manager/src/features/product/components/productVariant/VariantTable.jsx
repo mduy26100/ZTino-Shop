@@ -1,7 +1,7 @@
 import React from 'react';
 import { Table, Tag, Typography, Image, Space, Empty, Button, Tooltip, theme } from 'antd';
 import { EyeOutlined } from '@ant-design/icons';
-import { PencilSquareIcon } from '@heroicons/react/24/outline';
+import { PencilSquareIcon, TrashIcon } from '@heroicons/react/24/outline';
 
 const { Text } = Typography;
 
@@ -54,7 +54,7 @@ const VariantImages = ({ images = [] }) => {
     );
 };
 
-const VariantTable = ({ variants = [], productId, onEdit }) => {
+const VariantTable = ({ variants = [], productId, onEdit, onDelete }) => {
     
     const dataSource = variants.map(v => ({
         key: v.id,
@@ -123,18 +123,30 @@ const VariantTable = ({ variants = [], productId, onEdit }) => {
         {
             title: 'Action',
             key: 'action',
-            width: 80,
+            width: 100, 
             align: 'center',
             render: (_, record) => (
-                <Tooltip title="Edit Variant">
-                    <Button 
-                        type="text" 
-                        size="small"
-                        icon={<PencilSquareIcon className="w-4 h-4 text-indigo-600" />} 
-                        className="flex items-center justify-center hover:bg-indigo-50"
-                        onClick={() => onEdit?.(record)}
-                    />
-                </Tooltip>
+                <Space>
+                    <Tooltip title="Edit Variant">
+                        <Button 
+                            type="text" 
+                            size="small"
+                            icon={<PencilSquareIcon className="w-4 h-4 text-indigo-600" />} 
+                            className="flex items-center justify-center hover:bg-indigo-50"
+                            onClick={() => onEdit?.(record)}
+                        />
+                    </Tooltip>
+                    <Tooltip title="Delete Variant">
+                        <Button 
+                            type="text" 
+                            size="small"
+                            danger
+                            icon={<TrashIcon className="w-4 h-4" />} 
+                            className="flex items-center justify-center hover:bg-red-50"
+                            onClick={() => onDelete?.(record.id)}
+                        />
+                    </Tooltip>
+                </Space>
             )
         }
     ];

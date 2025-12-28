@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { 
     Button, Typography, Spin, Breadcrumb, 
     Tabs, Tag, Descriptions, Empty, Card, 
-    Space, Alert, message, Image 
+    Space, Alert, message, Image, Modal 
 } from 'antd';
 import { 
     ArrowLeftIcon, 
@@ -12,11 +12,13 @@ import {
     PlusIcon,
     PhotoIcon
 } from '@heroicons/react/24/outline';
+import { ExclamationCircleFilled } from '@ant-design/icons';
 
 import { 
     UpsertProductVariantModal, 
     useCreateVariant, 
     useUpdateProductVariant,
+    useDeleteProductVariant,
     useGetColors, 
     useGetProductDetailById, 
     useGetSizes, 
@@ -29,6 +31,7 @@ const ProductDetailPage = () => {
     const { id } = useParams();
     const navigate = useNavigate();
     const [messageApi, contextHolder] = message.useMessage();
+    const [modal, modalContextHolder] = Modal.useModal();
 
     const { data: product, isLoading, error, refetch } = useGetProductDetailById(id, {
         onError: (err) => messageApi.open({
@@ -40,8 +43,9 @@ const ProductDetailPage = () => {
     const { data: colors, isLoading: isLoadingColors } = useGetColors();
     const { data: sizes, isLoading: isLoadingSizes } = useGetSizes();
     
-    const { create: createVariant, isCreating: isCreatingVariant } = useCreateVariant();
-    const { update: updateVariant, isUpdating: isUpdatingVariant } = useUpdateProductVariant();
+    const { create: createVariant, isCreating } = useCreateVariant();
+    const { update: updateVariant, isUpdating } = useUpdateProductVariant();
+    const { remove: removeVariant } = useDeleteProductVariant();
 
     const [isCreateVariantOpen, setIsCreateVariantOpen] = useState(false);
     const [editingVariant, setEditingVariant] = useState(null);
@@ -68,6 +72,44 @@ const ProductDetailPage = () => {
         setIsCreateVariantOpen(false);
         setEditingVariant(null);
     }, []);
+
+    const handleDeleteVariant = useCallback((variantId) => {
+        modal.confirm({
+            title: 'Delete Variant',
+            icon: <ExclamationCircleFilled />,
+            content: (
+                <div className="pt-2">
+                    <Text>Are you sure you want to delete this variant?</Text>
+                    <br />
+                    <Text type="secondary" className="text-xs">
+                        This action cannot be undone.
+                    </Text>
+                </div>
+            ),
+            okText: 'Delete',
+            okType: 'danger',
+            cancelText: 'Cancel',
+            centered: true,
+            maskClosable: true,
+            onOk: async () => {
+                await removeVariant(variantId, {
+                    onSuccess: () => {
+                        messageApi.open({
+                            type: 'success',
+                            content: 'Variant deleted successfully',
+                        });
+                        refetch();
+                    },
+                    onError: (error) => {
+                        messageApi.open({
+                            type: 'error',
+                            content: error?.error?.message || error?.message || 'Delete failed',
+                        });
+                    }
+                });
+            },
+        });
+    }, [modal, removeVariant, messageApi, refetch]);
 
     const handleSubmitVariant = useCallback(async (values) => {
         if (!id) return;
@@ -238,6 +280,7 @@ const ProductDetailPage = () => {
                             variants={product.variants} 
                             productId={product.id} 
                             onEdit={handleOpenEditVariant}
+                            onDelete={handleDeleteVariant}
                         />
                     </Card>
                 </div>
@@ -248,6 +291,7 @@ const ProductDetailPage = () => {
     return (
         <div className="space-y-4 pb-10">
             {contextHolder}
+            {modalContextHolder}
             
             <div className="flex flex-col gap-2">
                 <Breadcrumb items={breadcrumbItems} />
@@ -279,7 +323,7 @@ const ProductDetailPage = () => {
                 open={isCreateVariantOpen}
                 onCancel={handleCloseCreateVariant}
                 onSubmit={handleSubmitVariant}
-                confirmLoading={isCreatingVariant || isUpdatingVariant}
+                confirmLoading={isCreating || isUpdating}
                 initialValues={editingVariant}
                 colors={colors}
                 sizes={sizes}
