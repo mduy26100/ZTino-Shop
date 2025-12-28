@@ -22,82 +22,65 @@ namespace WebAPI.Middleware.ExceptionHandling
             {
                 await _next(context);
             }
-            catch (ValidationException ex)
-            {
-                await WriteErrorResponse(context, HttpStatusCode.BadRequest, new ApiError
-                {
-                    Type = "validation-error",
-                    Message = "Validation failed.",
-                    Details = ex.Errors
-                        .GroupBy(e => e.PropertyName)
-                        .ToDictionary(
-                            g => g.Key,
-                            g => g.Select(e => e.ErrorMessage).ToArray()
-                        )
-                });
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                await WriteErrorResponse(context, HttpStatusCode.Unauthorized, new ApiError
-                {
-                    Type = "unauthorized",
-                    Message = ex.Message,
-                    Details = null
-                });
-            }
-            catch (NotFoundException ex)
-            {
-                await WriteErrorResponse(context, HttpStatusCode.NotFound, new ApiError
-                {
-                    Type = "not-found",
-                    Message = ex.Message,
-                    Details = null
-                });
-            }
-            catch (ConflictException ex)
-            {
-                await WriteErrorResponse(context, HttpStatusCode.Conflict, new ApiError
-                {
-                    Type = "conflict",
-                    Message = ex.Message,
-                    Details = null
-                });
-            }
-            catch (ForbiddenException ex)
-            {
-                await WriteErrorResponse(context, HttpStatusCode.Forbidden, new ApiError
-                {
-                    Type = "forbidden",
-                    Message = ex.Message,
-                    Details = null
-                });
-            }
-            catch (BusinessRuleException ex)
-            {
-                await WriteErrorResponse(context, HttpStatusCode.BadRequest, new ApiError
-                {
-                    Type = "business-rule-violation",
-                    Message = ex.Message,
-                    Details = null
-                });
-            }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Unhandled Exception");
-
-                await WriteErrorResponse(context, HttpStatusCode.InternalServerError, new ApiError
-                {
-                    Type = "internal-server-error",
-                    Message = ex.Message,
-                    Details = null
-                });
+                await HandleExceptionAsync(context, ex);
             }
         }
 
-        private static async Task WriteErrorResponse(HttpContext context, HttpStatusCode statusCode, ApiError error)
+        private async Task HandleExceptionAsync(HttpContext context, Exception ex)
         {
-            context.Response.StatusCode = (int)statusCode;
+            HttpStatusCode statusCode;
+            ApiError apiError;
+
+            switch (ex)
+            {
+                case ValidationException validationEx:
+                    statusCode = HttpStatusCode.BadRequest;
+                    apiError = new ApiError
+                    {
+                        Type = "validation-error",
+                        Message = "Validation failed.",
+                        Details = validationEx.Errors
+                            .GroupBy(e => e.PropertyName)
+                            .ToDictionary(g => g.Key, g => g.Select(e => e.ErrorMessage).ToArray())
+                    };
+                    break;
+
+                case UnauthorizedAccessException:
+                    statusCode = HttpStatusCode.Unauthorized;
+                    apiError = new ApiError { Type = "unauthorized", Message = ex.Message };
+                    break;
+                
+                case ForbiddenException:
+                    statusCode = HttpStatusCode.Forbidden;
+                    apiError = new ApiError { Type = "forbidden", Message = ex.Message };
+                    break;
+
+                case NotFoundException:
+                    statusCode = HttpStatusCode.NotFound;
+                    apiError = new ApiError { Type = "not-found", Message = ex.Message };
+                    break;
+
+                case ConflictException:
+                    statusCode = HttpStatusCode.Conflict;
+                    apiError = new ApiError { Type = "conflict", Message = ex.Message };
+                    break;
+
+                case BusinessRuleException:
+                    statusCode = HttpStatusCode.BadRequest;
+                    apiError = new ApiError { Type = "business-rule-violation", Message = ex.Message };
+                    break;
+
+                default:
+                    _logger.LogError(ex, "Unhandled Exception");
+                    statusCode = HttpStatusCode.InternalServerError;
+                    apiError = new ApiError { Type = "internal-server-error", Message = "An internal error occurred." };
+                    break;
+            }
+            
             context.Response.ContentType = "application/json";
+            context.Response.StatusCode = (int)statusCode;
 
             var meta = new Meta
             {
@@ -105,18 +88,17 @@ namespace WebAPI.Middleware.ExceptionHandling
                 Path = context.Request.Path,
                 Method = context.Request.Method,
                 StatusCode = (int)statusCode,
-
                 TraceId = context.TraceIdentifier,
                 RequestId = context.Items["RequestId"]?.ToString(),
-
                 ClientIp = context.Connection.RemoteIpAddress?.ToString()
             };
 
-            var responseWrapped = ApiResponse.Fail(error);
-            responseWrapped.Meta = meta;
-
-            string json = JsonSerializer.Serialize(responseWrapped, new JsonSerializerOptions
+            var response = ApiResponse.Fail(apiError);
+            response.Meta = meta;
+            
+            var json = JsonSerializer.Serialize(response, new JsonSerializerOptions
             {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
                 WriteIndented = true
             });
 

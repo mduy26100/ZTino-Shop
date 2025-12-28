@@ -1,13 +1,16 @@
 using Infrastructure.Data.Seeds;
 using WebAPI.DependencyInjection;
+using WebAPI.Filters.Response;
 using WebAPI.Middleware.ExceptionHandling;
-using WebAPI.Middleware.Response;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-builder.Services.AddControllers();
+builder.Services.AddControllers(options =>
+{
+    options.Filters.Add<ApiResponseFilter>();
+});
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -34,7 +37,6 @@ app.UseCors("AllowAll");
 
 //Middleware
 app.UseMiddleware<ExceptionHandlingMiddleware>();
-app.UseMiddleware<ResponseWrappingMiddleware>();
 
 app.UseAuthorization();
 
