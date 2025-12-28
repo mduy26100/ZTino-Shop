@@ -10,6 +10,12 @@ namespace WebAPI.Middleware.ExceptionHandling
         private readonly RequestDelegate _next;
         private readonly ILogger<ExceptionHandlingMiddleware> _logger;
 
+        private static readonly JsonSerializerOptions JsonOptions = new()
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            WriteIndented = false 
+        };
+
         public ExceptionHandlingMiddleware(RequestDelegate next, ILogger<ExceptionHandlingMiddleware> logger)
         {
             _next = next;
@@ -21,6 +27,25 @@ namespace WebAPI.Middleware.ExceptionHandling
             try
             {
                 await _next(context);
+
+                if (!context.Response.HasStarted)
+                {
+                    switch (context.Response.StatusCode)
+                    {
+                        case StatusCodes.Status401Unauthorized:
+                            await WriteErrorResponse(context, HttpStatusCode.Unauthorized, new ApiError { Type = "unauthorized", Message = "Authentication required." });
+                            break;
+                        case StatusCodes.Status403Forbidden:
+                            await WriteErrorResponse(context, HttpStatusCode.Forbidden, new ApiError { Type = "forbidden", Message = "Access denied." });
+                            break;
+                        case StatusCodes.Status404NotFound:
+                            await WriteErrorResponse(context, HttpStatusCode.NotFound, new ApiError { Type = "not-found", Message = "Resource or Endpoint not found." });
+                            break;
+                        case StatusCodes.Status405MethodNotAllowed:
+                            await WriteErrorResponse(context, HttpStatusCode.MethodNotAllowed, new ApiError { Type = "method-not-allowed", Message = $"HTTP Method {context.Request.Method} is not allowed for this endpoint." });
+                            break;
+                    }
+                }
             }
             catch (Exception ex)
             {
@@ -30,6 +55,12 @@ namespace WebAPI.Middleware.ExceptionHandling
 
         private async Task HandleExceptionAsync(HttpContext context, Exception ex)
         {
+            if (context.Response.HasStarted)
+            {
+                _logger.LogWarning("The response has already started, the exception middleware will not be executed.");
+                return;
+            }
+
             HttpStatusCode statusCode;
             ApiError apiError;
 
@@ -78,7 +109,12 @@ namespace WebAPI.Middleware.ExceptionHandling
                     apiError = new ApiError { Type = "internal-server-error", Message = "An internal error occurred." };
                     break;
             }
-            
+
+            await WriteErrorResponse(context, statusCode, apiError);
+        }
+
+        private static async Task WriteErrorResponse(HttpContext context, HttpStatusCode statusCode, ApiError error)
+        {
             context.Response.ContentType = "application/json";
             context.Response.StatusCode = (int)statusCode;
 
@@ -93,14 +129,10 @@ namespace WebAPI.Middleware.ExceptionHandling
                 ClientIp = context.Connection.RemoteIpAddress?.ToString()
             };
 
-            var response = ApiResponse.Fail(apiError);
+            var response = ApiResponse.Fail(error);
             response.Meta = meta;
-            
-            var json = JsonSerializer.Serialize(response, new JsonSerializerOptions
-            {
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-                WriteIndented = true
-            });
+
+            var json = JsonSerializer.Serialize(response, JsonOptions);
 
             await context.Response.WriteAsync(json);
         }
