@@ -77,7 +77,7 @@ const ProductDetailPage = () => {
             onError: (error) => {
                 messageApi.open({
                     type: 'error',
-                    content: error?.Error?.Message || error?.message || 'Failed to create variant',
+                    content: error?.error?.message || error?.message || 'Failed to create variant',
                 });
             }
         });
@@ -95,7 +95,7 @@ const ProductDetailPage = () => {
         return (
             <div className="flex flex-col items-center justify-center h-[60vh] gap-4">
                 {contextHolder}
-                <Empty description={error?.Error?.Message || "Product not found"} />
+                <Empty description={error?.error?.message || "Product not found"} />
                 <Button onClick={handleBack}>Back to List</Button>
             </div>
         );

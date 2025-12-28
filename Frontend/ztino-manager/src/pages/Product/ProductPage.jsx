@@ -83,7 +83,7 @@ const ProductPage = () => {
             onError: (error) => {
                 messageApi.open({
                     type: 'error',
-                    content: error?.Error?.Message || error?.message || 'Operation failed',
+                    content: error?.error?.message || error?.message || 'Operation failed',
                 });
             }
         });
@@ -141,7 +141,7 @@ const ProductPage = () => {
                     onError: (error) => {
                         messageApi.open({
                             type: 'error',
-                            content: error?.Error?.Message || error?.message || 'Delete failed',
+                            content: error?.error?.message || error?.message || 'Delete failed',
                         });
                     }
                 });
