@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo } from 'react';
-import { Modal, Form, Select, InputNumber, Switch, Row, Col, Typography, Button, theme } from 'antd';
+import { Modal, Form, Select, InputNumber, Switch, Row, Col, Typography, Button } from 'antd';
 
 const { Text } = Typography;
 
@@ -11,21 +11,30 @@ const UpsertProductVariantModal = ({
     sizes = [], 
     isLoadingColors, 
     isLoadingSizes, 
-    confirmLoading 
+    confirmLoading,
+    initialValues
 }) => {
     const [form] = Form.useForm();
-    const { token } = theme.useToken();
+    const isEdit = !!initialValues;
 
     useEffect(() => {
         if (open) {
-            form.resetFields();
-            form.setFieldsValue({
-                isActive: true,
-                stockQuantity: 0,
-                price: 0
-            });
+            if (initialValues) {
+                form.setFieldsValue({
+                    ...initialValues,
+                    colorId: initialValues.colorId || initialValues.color?.id,
+                    sizeId: initialValues.sizeId || initialValues.size?.id,
+                });
+            } else {
+                form.resetFields();
+                form.setFieldsValue({
+                    isActive: true,
+                    stockQuantity: 0,
+                    price: 0
+                });
+            }
         }
-    }, [open, form]);
+    }, [open, initialValues, form]);
 
     const handleSubmit = async () => {
         try {
@@ -63,7 +72,7 @@ const UpsertProductVariantModal = ({
         <Modal
             title={
                 <span className="text-xl font-semibold text-slate-700">
-                    Create Product Variant
+                    {isEdit ? "Update Product Variant" : "Create Product Variant"}
                 </span>
             }
             open={open}
@@ -88,7 +97,7 @@ const UpsertProductVariantModal = ({
                     onClick={handleSubmit}
                     className="bg-indigo-600 hover:!bg-indigo-700 border-none h-9 px-6 rounded-lg shadow-sm"
                 >
-                    Create
+                    {isEdit ? "Update" : "Create"}
                 </Button>,
             ]}
             styles={{

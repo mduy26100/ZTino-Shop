@@ -16,6 +16,7 @@ import {
 import { 
     UpsertProductVariantModal, 
     useCreateVariant, 
+    useUpdateProductVariant,
     useGetColors, 
     useGetProductDetailById, 
     useGetSizes, 
@@ -38,9 +39,12 @@ const ProductDetailPage = () => {
 
     const { data: colors, isLoading: isLoadingColors } = useGetColors();
     const { data: sizes, isLoading: isLoadingSizes } = useGetSizes();
+    
     const { create: createVariant, isCreating: isCreatingVariant } = useCreateVariant();
+    const { update: updateVariant, isUpdating: isUpdatingVariant } = useUpdateProductVariant();
 
     const [isCreateVariantOpen, setIsCreateVariantOpen] = useState(false);
+    const [editingVariant, setEditingVariant] = useState(null);
 
     const breadcrumbItems = useMemo(() => [
         { title: <a onClick={() => navigate('/dashboard')}>Dashboard</a> },
@@ -50,13 +54,29 @@ const ProductDetailPage = () => {
 
     const handleBack = useCallback(() => navigate('/products'), [navigate]);
 
-    const handleOpenCreateVariant = useCallback(() => setIsCreateVariantOpen(true), []);
-    const handleCloseCreateVariant = useCallback(() => setIsCreateVariantOpen(false), []);
+    const handleOpenCreateVariant = useCallback(() => {
+        setEditingVariant(null);
+        setIsCreateVariantOpen(true);
+    }, []);
+
+    const handleOpenEditVariant = useCallback((variant) => {
+        setEditingVariant(variant);
+        setIsCreateVariantOpen(true);
+    }, []);
+
+    const handleCloseCreateVariant = useCallback(() => {
+        setIsCreateVariantOpen(false);
+        setEditingVariant(null);
+    }, []);
 
     const handleSubmitVariant = useCallback(async (values) => {
         if (!id) return;
 
+        const isEdit = !!editingVariant;
+        const action = isEdit ? updateVariant : createVariant;
+
         const payload = {
+            id: isEdit ? editingVariant.id : undefined,
             productId: parseInt(id),
             colorId: values.colorId,
             sizeId: values.sizeId,
@@ -65,11 +85,11 @@ const ProductDetailPage = () => {
             isActive: values.isActive
         };
 
-        await createVariant(payload, {
+        await action(payload, {
             onSuccess: () => {
                 messageApi.open({
                     type: 'success',
-                    content: 'Variant created successfully',
+                    content: `Variant ${isEdit ? 'updated' : 'created'} successfully`,
                 });
                 handleCloseCreateVariant();
                 refetch();
@@ -77,11 +97,11 @@ const ProductDetailPage = () => {
             onError: (error) => {
                 messageApi.open({
                     type: 'error',
-                    content: error?.error?.message || error?.message || 'Failed to create variant',
+                    content: error?.error?.message || error?.message || 'Operation failed',
                 });
             }
         });
-    }, [id, createVariant, handleCloseCreateVariant, refetch, messageApi]);
+    }, [id, editingVariant, createVariant, updateVariant, handleCloseCreateVariant, refetch, messageApi]);
 
     if (isLoading) {
         return (
@@ -130,10 +150,8 @@ const ProductDetailPage = () => {
                                         </div>
                                     )}
                                 </div>
-                                <div className="mt-4">
-                                    <Text type="secondary" className="text-xs block text-center">
-                                        Main Product Image
-                                    </Text>
+                                <div className="mt-4 text-center">
+                                    <Tag color="blue">Main Product Image</Tag>
                                 </div>
                             </Card>
                         </div>
@@ -165,18 +183,14 @@ const ProductDetailPage = () => {
                                             <Text type="secondary" className="text-xs">
                                                 {new Date(product.createdAt || product.CreatedAt).toLocaleDateString('vi-VN')}
                                             </Text>
-                                        ) : (
-                                            <Text type="secondary" className="text-xs italic">N/A</Text>
-                                        )}
+                                        ) : <Text type="secondary">N/A</Text>}
                                     </Descriptions.Item>
                                     <Descriptions.Item label="Updated At">
                                         {(product.updatedAt || product.UpdatedAt) ? (
                                             <Text type="secondary" className="text-xs">
                                                 {new Date(product.updatedAt || product.UpdatedAt).toLocaleDateString('vi-VN')}
                                             </Text>
-                                        ) : (
-                                            <Text type="secondary" className="text-xs italic">N/A</Text>
-                                        )}
+                                        ) : <Text type="secondary">N/A</Text>}
                                     </Descriptions.Item>
                                     <Descriptions.Item label="Description" span={2}>
                                         <div 
@@ -220,7 +234,11 @@ const ProductDetailPage = () => {
                     </div>
                     
                     <Card bordered={false} className="shadow-sm rounded-xl !p-0" bodyStyle={{ padding: 0 }}>
-                        <VariantTable variants={product.variants} productId={product.id} />
+                        <VariantTable 
+                            variants={product.variants} 
+                            productId={product.id} 
+                            onEdit={handleOpenEditVariant}
+                        />
                     </Card>
                 </div>
             ),
@@ -261,7 +279,8 @@ const ProductDetailPage = () => {
                 open={isCreateVariantOpen}
                 onCancel={handleCloseCreateVariant}
                 onSubmit={handleSubmitVariant}
-                confirmLoading={isCreatingVariant}
+                confirmLoading={isCreatingVariant || isUpdatingVariant}
+                initialValues={editingVariant}
                 colors={colors}
                 sizes={sizes}
                 isLoadingColors={isLoadingColors}

@@ -1,6 +1,7 @@
 import React from 'react';
-import { Table, Tag, Typography, Image, Space, Empty, theme } from 'antd';
+import { Table, Tag, Typography, Image, Space, Empty, Button, Tooltip, theme } from 'antd';
 import { EyeOutlined } from '@ant-design/icons';
+import { PencilSquareIcon } from '@heroicons/react/24/outline';
 
 const { Text } = Typography;
 
@@ -53,13 +54,11 @@ const VariantImages = ({ images = [] }) => {
     );
 };
 
-const VariantTable = ({ variants = [], productId }) => {
+const VariantTable = ({ variants = [], productId, onEdit }) => {
     
     const dataSource = variants.map(v => ({
         key: v.id,
         ...v,
-        colorName: v.color?.name,
-        sizeName: v.size?.name
     }));
 
     const columns = [
@@ -106,10 +105,10 @@ const VariantTable = ({ variants = [], productId }) => {
             title: 'Status',
             dataIndex: 'isActive',
             key: 'isActive',
-            width: 120,
+            width: 100,
             align: 'center',
             render: (isActive) => (
-                <Tag color={isActive ? 'success' : 'error'} className="m-0 min-w-[80px] text-center">
+                <Tag color={isActive ? 'success' : 'error'} className="m-0 min-w-[70px] text-center">
                     {isActive ? 'Active' : 'Inactive'}
                 </Tag>
             ),
@@ -118,20 +117,26 @@ const VariantTable = ({ variants = [], productId }) => {
             title: 'Images',
             dataIndex: 'images',
             key: 'images',
+            width: 200,
             render: (images) => <VariantImages images={images} />
         },
-        // Placeholder Action Column for Future Update/Delete
-        /*
         {
             title: 'Action',
             key: 'action',
-            width: 100,
+            width: 80,
             align: 'center',
             render: (_, record) => (
-                <Button type="text" icon={<EllipsisHorizontalIcon className="w-5 h-5" />} />
+                <Tooltip title="Edit Variant">
+                    <Button 
+                        type="text" 
+                        size="small"
+                        icon={<PencilSquareIcon className="w-4 h-4 text-indigo-600" />} 
+                        className="flex items-center justify-center hover:bg-indigo-50"
+                        onClick={() => onEdit?.(record)}
+                    />
+                </Tooltip>
             )
         }
-        */
     ];
 
     return (
@@ -143,7 +148,7 @@ const VariantTable = ({ variants = [], productId }) => {
             locale={{ 
                 emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="No variants found" /> 
             }}
-            scroll={{ x: 800 }}
+            scroll={{ x: 1000 }}
         />
     );
 };
