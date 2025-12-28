@@ -1,12 +1,12 @@
 ﻿using Application.Common.Interfaces.Persistence.Data;
 using Application.Common.Interfaces.Services.FileUpLoad;
+using Application.Common.Models.Requests;
 using Application.Features.Products.Commands.ProductImages.UpdateProductImage;
 using Application.Features.Products.DTOs.ProductImages;
 using Application.Features.Products.Repositories;
 using Domain.Models.Products;
-using Application.Common.Models.Requests;
 
-namespace Application.Tests.Features.Products.Commands.ProductImages.UpdateProductImage
+namespace Application.Tests.Products.ProductImages.UpdateProductImage
 {
     public class UpdateProductImageHandlerTests
     {
@@ -27,87 +27,174 @@ namespace Application.Tests.Features.Products.Commands.ProductImages.UpdateProdu
                 _repoMock.Object,
                 _fileServiceMock.Object,
                 _mapperMock.Object,
-                _contextMock.Object
-            );
+                _contextMock.Object);
         }
 
         [Fact]
-        public async Task Handle_ShouldThrow_WhenImageNotFound()
+        public async Task Handle_ShouldThrowNotFound_WhenImageDoesNotExist()
         {
             _repoMock.Setup(x => x.GetByIdAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync((ProductImage?)null);
 
+            var command = new UpdateProductImageCommand(
+                new UpsertProductImageDto { Id = 999 });
+
             await Assert.ThrowsAsync<NotFoundException>(() =>
-                _handler.Handle(new UpdateProductImageCommand(new UpsertProductImageDto { Id = 999 }), CancellationToken.None));
+                _handler.Handle(command, CancellationToken.None));
         }
 
         [Fact]
-        public async Task Handle_ShouldUploadImage_WhenContentProvided()
+        public async Task Handle_ShouldUploadImage_WhenImageContentProvided()
         {
-            var entity = new ProductImage { Id = 1, IsMain = false };
+            var entity = new ProductImage { Id = 1, ProductVariantId = 10 };
             var dto = new UpsertProductImageDto
             {
                 Id = 1,
-                IsMain = false,
-                ImgContent = new MemoryStream(new byte[] { 1 }),
+                ImgContent = new MemoryStream(new byte[] { 1, 2, 3 }),
                 ImgFileName = "test.jpg"
             };
 
-            _repoMock.Setup(x => x.GetByIdAsync(1, It.IsAny<CancellationToken>())).ReturnsAsync(entity);
-            _mapperMock.Setup(m => m.Map<UpsertProductImageDto>(It.IsAny<ProductImage>())).Returns(dto);
+            _repoMock.Setup(x => x.GetByIdAsync(1, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(entity);
 
-            await _handler.Handle(new UpdateProductImageCommand(dto), CancellationToken.None);
-
-            _fileServiceMock.Verify(x => x.UploadAsync(It.IsAny<FileUploadRequest>(), It.IsAny<CancellationToken>()), Times.Once);
-            _repoMock.Verify(x => x.Update(entity), Times.AtLeastOnce);
-        }
-
-        [Fact]
-        public async Task Handle_ShouldRouteTo_ClaimMainStrategy_WhenChangingFalseToTrue()
-        {
-            var entity = new ProductImage { Id = 1, IsMain = false, ProductVariantId = 10 };
-            var dto = new UpsertProductImageDto { Id = 1, IsMain = true };
-
-            _repoMock.Setup(x => x.GetByIdAsync(1, It.IsAny<CancellationToken>())).ReturnsAsync(entity);
-            _mapperMock.Setup(m => m.Map<UpsertProductImageDto>(It.IsAny<ProductImage>())).Returns(dto);
-
-            _repoMock.Setup(x => x.FindAsync(It.IsAny<Expression<Func<ProductImage, bool>>>(), true, It.IsAny<CancellationToken>()))
+            _repoMock.Setup(x => x.FindAsync(
+                    It.IsAny<Expression<Func<ProductImage, bool>>>(),
+                    false,
+                    It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new List<ProductImage>());
 
+            _fileServiceMock.Setup(x => x.UploadAsync(
+                    It.IsAny<FileUploadRequest>(),
+                    It.IsAny<CancellationToken>()))
+                .ReturnsAsync("https://cdn.test/image.jpg");
+
+            _mapperMock.Setup(x => x.Map<UpsertProductImageDto>(It.IsAny<ProductImage>()))
+                .Returns(dto);
+
             await _handler.Handle(new UpdateProductImageCommand(dto), CancellationToken.None);
 
-            _repoMock.Verify(x => x.FindAsync(It.IsAny<Expression<Func<ProductImage, bool>>>(), true, It.IsAny<CancellationToken>()), Times.Once);
+            _fileServiceMock.Verify(x =>
+                x.UploadAsync(It.IsAny<FileUploadRequest>(), It.IsAny<CancellationToken>()),
+                Times.Once);
+
+            _contextMock.Verify(x =>
+                x.SaveChangesAsync(It.IsAny<CancellationToken>()),
+                Times.Once);
         }
 
         [Fact]
-        public async Task Handle_ShouldRouteTo_ResignMainStrategy_WhenChangingTrueToFalse()
+        public async Task Handle_ShouldClaimMain_WhenRequestedIsMain()
         {
-            var entity = new ProductImage { Id = 1, IsMain = true, ProductVariantId = 10 };
-            var dto = new UpsertProductImageDto { Id = 1, IsMain = false };
+            var current = new ProductImage
+            {
+                Id = 1,
+                ProductVariantId = 10,
+                IsMain = false
+            };
 
-            _repoMock.Setup(x => x.GetByIdAsync(1, It.IsAny<CancellationToken>())).ReturnsAsync(entity);
-            _mapperMock.Setup(m => m.Map<UpsertProductImageDto>(It.IsAny<ProductImage>())).Returns(dto);
+            var oldMain = new ProductImage
+            {
+                Id = 2,
+                ProductVariantId = 10,
+                IsMain = true
+            };
 
-            _repoMock.Setup(x => x.FindAsync(It.IsAny<Expression<Func<ProductImage, bool>>>(), true, It.IsAny<CancellationToken>()))
+            var dto = new UpsertProductImageDto
+            {
+                Id = 1,
+                IsMain = true
+            };
+
+            _repoMock.Setup(x => x.GetByIdAsync(1, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(current);
+
+            _repoMock.Setup(x => x.FindAsync(
+                    It.IsAny<Expression<Func<ProductImage, bool>>>(),
+                    false,
+                    It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new List<ProductImage> { oldMain });
+
+            _mapperMock.Setup(x => x.Map<UpsertProductImageDto>(It.IsAny<ProductImage>()))
+                .Returns(dto);
+
+            await _handler.Handle(new UpdateProductImageCommand(dto), CancellationToken.None);
+
+            Assert.True(current.IsMain);
+            Assert.False(oldMain.IsMain);
+
+            _repoMock.Verify(x => x.Update(oldMain), Times.Once);
+            _contextMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
+        }
+
+        [Fact]
+        public async Task Handle_ShouldResignMain_AndAssignHeir()
+        {
+            var current = new ProductImage
+            {
+                Id = 1,
+                ProductVariantId = 10,
+                IsMain = true
+            };
+
+            var heir = new ProductImage
+            {
+                Id = 2,
+                ProductVariantId = 10,
+                IsMain = false,
+                DisplayOrder = 1
+            };
+
+            var dto = new UpsertProductImageDto
+            {
+                Id = 1,
+                IsMain = false
+            };
+
+            _repoMock.Setup(x => x.GetByIdAsync(1, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(current);
+
+            _repoMock.Setup(x => x.FindAsync(
+                    It.IsAny<Expression<Func<ProductImage, bool>>>(),
+                    false,
+                    It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new List<ProductImage> { heir });
+
+            _mapperMock.Setup(x => x.Map<UpsertProductImageDto>(It.IsAny<ProductImage>()))
+                .Returns(dto);
+
+            await _handler.Handle(new UpdateProductImageCommand(dto), CancellationToken.None);
+
+            Assert.False(current.IsMain);
+            Assert.True(heir.IsMain);
+
+            _repoMock.Verify(x => x.Update(heir), Times.Once);
+            _contextMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
+        }
+
+        [Fact]
+        public async Task Handle_ShouldUpdateDisplayOrder_WhenProvided()
+        {
+            var entity = new ProductImage { Id = 1, DisplayOrder = 1 };
+
+            var dto = new UpsertProductImageDto
+            {
+                Id = 1,
+                DisplayOrder = 99
+            };
+
+            _repoMock.Setup(x => x.GetByIdAsync(1, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(entity);
+
+            _repoMock.Setup(x => x.FindAsync(
+                    It.IsAny<Expression<Func<ProductImage, bool>>>(),
+                    false,
+                    It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new List<ProductImage>());
 
-            await _handler.Handle(new UpdateProductImageCommand(dto), CancellationToken.None);
-
-            _repoMock.Verify(x => x.FindAsync(It.IsAny<Expression<Func<ProductImage, bool>>>(), true, It.IsAny<CancellationToken>()), Times.Once);
-        }
-
-        [Fact]
-        public async Task Handle_ShouldRouteTo_DefaultStrategy_WhenNoChangeInIsMain()
-        {
-            var entity = new ProductImage { Id = 1, IsMain = true };
-            var dto = new UpsertProductImageDto { Id = 1, IsMain = true, DisplayOrder = 99 };
-
-            _repoMock.Setup(x => x.GetByIdAsync(1, It.IsAny<CancellationToken>())).ReturnsAsync(entity);
-            _mapperMock.Setup(m => m.Map<UpsertProductImageDto>(It.IsAny<ProductImage>())).Returns(dto);
+            _mapperMock.Setup(x => x.Map<UpsertProductImageDto>(It.IsAny<ProductImage>()))
+                .Returns(dto);
 
             await _handler.Handle(new UpdateProductImageCommand(dto), CancellationToken.None);
-
-            _repoMock.Verify(x => x.FindAsync(It.IsAny<Expression<Func<ProductImage, bool>>>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()), Times.Never);
 
             Assert.Equal(99, entity.DisplayOrder);
             _contextMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
