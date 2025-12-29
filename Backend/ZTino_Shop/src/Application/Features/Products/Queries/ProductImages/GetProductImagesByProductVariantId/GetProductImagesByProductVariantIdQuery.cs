@@ -1,6 +1,5 @@
-﻿namespace Application.Features.Products.Queries.ProductImages.GetProductImagesByProductVariantId;
+﻿using Application.Features.Products.DTOs.ProductImages;
 
-public class GetProductImagesByProductVariantIdQuery
-{
-    
-}
+namespace Application.Features.Products.Queries.ProductImages.GetProductImagesByProductVariantId;
+
+public record GetProductImagesByProductVariantIdQuery(int variantId) : IRequest<IEnumerable<ProductImageDto>>;
