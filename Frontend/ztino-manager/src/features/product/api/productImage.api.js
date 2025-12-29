@@ -23,3 +23,22 @@ export const createProductImages = (productImagesData) => {
         },
     });
 };
+
+export const updateProductImage = (productImagesData) => {
+    const formData = new FormData();
+
+    formData.append("Id", productImagesData.Id);
+    formData.append("ProductVariantId", productImagesData.ProductVariantId);
+    formData.append("IsMain", productImagesData.IsMain);
+
+    
+    if (productImagesData.ImageFile) {
+        formData.append("ImageFile", productImagesData.ImageFile); 
+    }
+
+    return axiosClient.put(`${URL_MANAGER}/${productImagesData.Id}`, formData, {
+        headers: {
+            "Content-Type": "multipart/form-data",
+        },
+    });
+};
