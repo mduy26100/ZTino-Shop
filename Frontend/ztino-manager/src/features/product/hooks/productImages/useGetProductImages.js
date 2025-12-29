@@ -3,7 +3,6 @@ import axios from 'axios';
 import { getProductImagesByProductVariantId } from '../../api/productImage.api';
 
 const CACHE = {}; 
-
 const CACHE_TTL = 5 * 60 * 1000; 
 
 export const useGetProductImages = (variantId, options = {}) => {
@@ -12,7 +11,6 @@ export const useGetProductImages = (variantId, options = {}) => {
     const cachedEntry = CACHE[variantId];
     
     const [data, setData] = useState(cachedEntry?.data || []);
-    
     const [isLoading, setIsLoading] = useState(!cachedEntry?.data);
     const [error, setError] = useState(null);
     
@@ -57,6 +55,7 @@ export const useGetProductImages = (variantId, options = {}) => {
                 const res = await currentCache.promise;
                 if (isMounted.current) {
                     setData(res);
+                    setIsLoading(false);
                     currentOnSuccess?.(res);
                 }
             } catch (err) {
@@ -64,8 +63,6 @@ export const useGetProductImages = (variantId, options = {}) => {
                     setError(err);
                     currentOnError?.(err);
                 }
-            } finally {
-                if (isMounted.current) setIsLoading(false);
             }
             return;
         }
@@ -80,6 +77,7 @@ export const useGetProductImages = (variantId, options = {}) => {
         if (isMounted.current) {
             if (!CACHE[variantId]?.data) {
                 setIsLoading(true);
+                setData([]);
             }
             setError(null);
         }
