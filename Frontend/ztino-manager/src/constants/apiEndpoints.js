@@ -1,5 +1,3 @@
-// src/constants/apiEndpoints.js
-
 export const ENDPOINTS = {
   AUTH: "/auth",
   PROFILE: "/profile",

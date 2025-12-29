@@ -1,14 +1,46 @@
-import React from 'react';
-import { Form, Input, Button, Checkbox } from 'antd';
-import { UserOutlined, LockOutlined } from '@ant-design/icons';
+import React, { useState, useEffect } from 'react';
+import { Form, Input, Button, Checkbox, Tooltip } from 'antd';
+import { UserOutlined, LockOutlined, CheckCircleFilled } from '@ant-design/icons';
 import PropTypes from 'prop-types';
 
 const LoginForm = ({ onFinish, isLoading }) => {
+    const [form] = Form.useForm();
+    const [isEmailValid, setIsEmailValid] = useState(false);
+
+    useEffect(() => {
+        const savedEmail = localStorage.getItem('remembered_email');
+        if (savedEmail) {
+            form.setFieldsValue({ email: savedEmail, remember: true });
+            setIsEmailValid(true); 
+        }
+    }, [form]);
+
+    const handleEmailChange = (e) => {
+        const value = e.target.value;
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        
+        if (emailRegex.test(value)) {
+            setIsEmailValid(true);
+        } else {
+            setIsEmailValid(false);
+        }
+    };
+
+    const handleSubmit = (values) => {
+        if (values.remember) {
+            localStorage.setItem('remembered_email', values.email);
+        } else {
+            localStorage.removeItem('remembered_email');
+        }
+        onFinish(values);
+    };
+
     return (
         <Form
+            form={form}
             name="login_form"
             layout="vertical"
-            onFinish={onFinish}
+            onFinish={handleSubmit}
             autoComplete="off"
             requiredMark={false}
             size="large"
@@ -23,7 +55,15 @@ const LoginForm = ({ onFinish, isLoading }) => {
                 className="mb-5"
             >
                 <Input 
+                    onChange={handleEmailChange}
                     prefix={<UserOutlined className="text-gray-400" />} 
+                    suffix={
+                        isEmailValid && (
+                            <Tooltip title="Email format is valid">
+                                <CheckCircleFilled className="text-green-500 animate-fade-in" />
+                            </Tooltip>
+                        )
+                    }
                     placeholder="Enter your email" 
                     className="rounded-lg py-2.5" 
                 />
@@ -44,10 +84,12 @@ const LoginForm = ({ onFinish, isLoading }) => {
 
             <div className="flex justify-between items-center mb-8">
                 <Form.Item name="remember" valuePropName="checked" noStyle>
-                    <Checkbox className="text-gray-500">Remember me</Checkbox>
+                    <Checkbox className="text-gray-500 font-medium">
+                        Remember me
+                    </Checkbox>
                 </Form.Item>
-                <a className="text-blue-600 hover:text-blue-700 font-medium text-sm cursor-pointer">
-                    Contact support
+                <a className="text-blue-600 hover:text-blue-700 font-semibold text-sm transition-all cursor-pointer">
+                    Forgot password?
                 </a>
             </div>
 
@@ -57,7 +99,7 @@ const LoginForm = ({ onFinish, isLoading }) => {
                     htmlType="submit" 
                     loading={isLoading} 
                     block 
-                    className="h-12 rounded-lg font-semibold text-base bg-blue-600 hover:!bg-blue-700 border-none"
+                    className="h-12 rounded-lg font-bold text-base bg-blue-600 hover:!bg-blue-700 shadow-lg shadow-blue-200 border-none"
                 >
                     Sign In
                 </Button>
