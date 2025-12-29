@@ -19,6 +19,9 @@ export {default as UpsertProductModal} from "./components/product/UpsertProductM
 export {default as VariantTable} from "./components/productVariant/VariantTable";
 export {default as UpsertProductVariantModal} from "./components/productVariant/UpsertProductVariantModal";
 
+//Product Image
+export {default as ProductImageModal} from "./components/productImage/ProductImageModal";
+
 //hooks
 //Category
 export {useGetCategories} from "./hooks/category/useGetCategories";
@@ -49,3 +52,6 @@ export {useDeleteProduct} from "./hooks/product/useDeleteProduct";
 export {useCreateProductVariant} from "./hooks/productVariant/useCreateProductVariant";
 export {useUpdateProductVariant} from "./hooks/productVariant/useUpdateProductVariant";
 export {useDeleteProductVariant} from "./hooks/productVariant/useDeleteProductVariant";
+
+//Product Image
+export {useGetProductImages} from "./hooks/productImages/useGetProductImages";

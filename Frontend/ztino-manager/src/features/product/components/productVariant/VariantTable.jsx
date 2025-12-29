@@ -1,6 +1,6 @@
 import React from 'react';
 import { Table, Tag, Typography, Image, Space, Empty, Button, Tooltip, theme } from 'antd';
-import { EyeOutlined } from '@ant-design/icons';
+import { EyeOutlined, PictureOutlined } from '@ant-design/icons';
 import { PencilSquareIcon, TrashIcon } from '@heroicons/react/24/outline';
 
 const { Text } = Typography;
@@ -54,7 +54,7 @@ const VariantImages = ({ images = [] }) => {
     );
 };
 
-const VariantTable = ({ variants = [], productId, onEdit, onDelete }) => {
+const VariantTable = ({ variants = [], productId, onEdit, onDelete, onManageImages }) => {
     
     const dataSource = variants.map(v => ({
         key: v.id,
@@ -123,10 +123,19 @@ const VariantTable = ({ variants = [], productId, onEdit, onDelete }) => {
         {
             title: 'Action',
             key: 'action',
-            width: 100, 
+            width: 120, 
             align: 'center',
             render: (_, record) => (
                 <Space>
+                    <Tooltip title="View Images">
+                        <Button 
+                            type="text" 
+                            size="small"
+                            icon={<PictureOutlined className="text-blue-500" />} 
+                            className="flex items-center justify-center hover:bg-blue-50"
+                            onClick={() => onManageImages?.(record)}
+                        />
+                    </Tooltip>
                     <Tooltip title="Edit Variant">
                         <Button 
                             type="text" 

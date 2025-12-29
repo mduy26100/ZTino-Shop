@@ -22,7 +22,8 @@ import {
     useGetColors, 
     useGetProductDetailById, 
     useGetSizes, 
-    VariantTable 
+    VariantTable,
+    ProductImageModal
 } from '../../features/product';
 
 const { Title, Text } = Typography;
@@ -49,6 +50,11 @@ const ProductDetailPage = () => {
 
     const [isCreateVariantOpen, setIsCreateVariantOpen] = useState(false);
     const [editingVariant, setEditingVariant] = useState(null);
+
+    const [imageModalState, setImageModalState] = useState({
+        open: false,
+        variantId: null
+    });
 
     const breadcrumbItems = useMemo(() => [
         { title: <a onClick={() => navigate('/dashboard')}>Dashboard</a> },
@@ -144,6 +150,17 @@ const ProductDetailPage = () => {
             }
         });
     }, [id, editingVariant, createVariant, updateVariant, handleCloseCreateVariant, refetch, messageApi]);
+
+    const handleManageImages = useCallback((variant) => {
+        setImageModalState({
+            open: true,
+            variantId: variant.id
+        });
+    }, []);
+
+    const handleCloseImageModal = useCallback(() => {
+        setImageModalState(prev => ({ ...prev, open: false }));
+    }, []);
 
     if (isLoading) {
         return (
@@ -281,6 +298,7 @@ const ProductDetailPage = () => {
                             productId={product.id} 
                             onEdit={handleOpenEditVariant}
                             onDelete={handleDeleteVariant}
+                            onManageImages={handleManageImages}
                         />
                     </Card>
                 </div>
@@ -329,6 +347,12 @@ const ProductDetailPage = () => {
                 sizes={sizes}
                 isLoadingColors={isLoadingColors}
                 isLoadingSizes={isLoadingSizes}
+            />
+
+            <ProductImageModal 
+                open={imageModalState.open}
+                variantId={imageModalState.variantId}
+                onCancel={handleCloseImageModal}
             />
         </div>
     );
