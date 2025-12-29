@@ -2,8 +2,9 @@
 
 namespace WebAPI.Controllers.Products
 {
-    [Route("api/[controller]")]
     [ApiController]
+    [ApiVersion("1.0")]
+    [Route("api/v{version:apiVersion}/colors")]
     public class ColorsController : ControllerBase
     {
         private readonly IMediator _mediator;

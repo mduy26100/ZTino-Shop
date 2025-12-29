@@ -2,8 +2,9 @@
 
 namespace WebAPI.Controllers.Products
 {
-    [Route("api/[controller]")]
     [ApiController]
+    [ApiVersion("1.0")]
+    [Route("api/v{version:apiVersion}/sizes")]
     public class SizesController : ControllerBase
     {
         private readonly IMediator _mediator;

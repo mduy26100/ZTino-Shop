@@ -4,13 +4,14 @@ using Application.Features.Auth.Commands.TokenRefresh;
 
 namespace WebAPI.Controllers.Auth
 {
-    [Route("api/[controller]")]
     [ApiController]
-    public class AuthenticationsController : ControllerBase
+    [ApiVersion("1.0")]
+    [Route("api/v{version:apiVersion}/auth")]
+    public class AuthController : ControllerBase
     {
         private readonly IMediator _mediator;
 
-        public AuthenticationsController(IMediator mediator)
+        public AuthController(IMediator mediator)
         {
             _mediator = mediator;
         }

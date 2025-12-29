@@ -1,3 +1,4 @@
+using Asp.Versioning;
 using Infrastructure.Data.Seeds;
 using WebAPI.DependencyInjection;
 using WebAPI.Filters.Response;
@@ -11,6 +12,15 @@ builder.Services.AddControllers(options =>
 {
     options.Filters.Add<ApiResponseFilter>();
 });
+
+//API Versioning
+builder.Services.AddApiVersioning(options =>
+{
+    options.DefaultApiVersion = new ApiVersion(1, 0);
+    options.AssumeDefaultVersionWhenUnspecified = true;
+    options.ReportApiVersions = true;
+}).AddMvc();
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();

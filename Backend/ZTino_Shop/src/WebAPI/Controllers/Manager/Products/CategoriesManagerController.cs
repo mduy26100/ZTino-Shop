@@ -5,9 +5,10 @@ using Domain.Consts;
 
 namespace WebAPI.Controllers.Manager.Products
 {
-    [Route("api/[controller]")]
     [ApiController]
+    [ApiVersion("1.0")]
     [Authorize(Roles = Roles.Manager)]
+    [Route("api/v{version:apiVersion}/admin/categories")]
     public class CategoriesManagerController : ControllerBase
     {
         private readonly IMediator _mediator;

@@ -1,19 +1,19 @@
 ﻿using Application.Features.Auth.Commands.Logout;
 using Application.Features.Auth.Commands.UpdateProfile;
 using Application.Features.Auth.Queries.CurrentUser;
-using Microsoft.AspNetCore.Authorization;
 using WebAPI.Requests.Auth;
 
 namespace WebAPI.Controllers.Auth
 {
-    [Route("api/[controller]")]
     [ApiController]
+    [ApiVersion("1.0")]
     [Authorize]
-    public class AccountsController : ControllerBase
+    [Route("api/v{version:apiVersion}/profile")]
+    public class ProfileController : ControllerBase
     {
         private readonly IMediator _mediator;
 
-        public AccountsController(IMediator mediator)
+        public ProfileController(IMediator mediator)
         {
             _mediator = mediator;
         }

@@ -6,9 +6,10 @@ using WebAPI.Requests.Products.Product;
 
 namespace WebAPI.Controllers.Manager.Products
 {
-    [Route("api/[controller]")]
     [ApiController]
+    [ApiVersion("1.0")]
     [Authorize(Roles = Roles.Manager)]
+    [Route("api/v{version:apiVersion}/admin/products")]
     public class ProductsManagerController : ControllerBase
     {
         private readonly IMediator _mediator;

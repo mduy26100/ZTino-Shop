@@ -7,9 +7,10 @@ using WebAPI.Requests.Products.Product;
 
 namespace WebAPI.Controllers.Manager.Products
 {
-    [Route("api/[controller]")]
     [ApiController]
+    [ApiVersion("1.0")]
     [Authorize(Roles = Roles.Manager)]
+    [Route("api/v{version:apiVersion}/admin/product-images")]
     public class ProductImagesManagerController : ControllerBase
     {
         private readonly IMediator _mediator;
@@ -19,7 +20,7 @@ namespace WebAPI.Controllers.Manager.Products
             _mediator = mediator;
         }
 
-        [HttpGet("{variantId:int}/images")]
+        [HttpGet]
         public async Task<IActionResult> GetProductImagesByProductVariantId(int variantId, CancellationToken cancellationToken)
         {
             var query = new GetProductImagesByProductVariantIdQuery(variantId);

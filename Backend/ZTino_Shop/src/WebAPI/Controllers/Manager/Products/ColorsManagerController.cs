@@ -1,12 +1,14 @@
 ﻿using Application.Features.Products.Commands.Colors.CreateColor;
 using Application.Features.Products.Commands.Colors.DeleteColor;
 using Application.Features.Products.Commands.Colors.UpdateColor;
+using Domain.Consts;
 
 namespace WebAPI.Controllers.Manager.Products
 {
-    [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
+    [ApiVersion("1.0")]
+    [Authorize(Roles = Roles.Manager)]
+    [Route("api/v{version:apiVersion}/admin/colors")]
     public class ColorsManagerController : ControllerBase
     {
         private readonly IMediator _mediator;
