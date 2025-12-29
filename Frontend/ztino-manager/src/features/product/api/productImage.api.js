@@ -42,3 +42,7 @@ export const updateProductImage = (productImagesData) => {
         },
     });
 };
+
+export const deleteProductImage = (id) => {
+    return axiosClient.delete(`${URL_MANAGER}/${id}`);
+};

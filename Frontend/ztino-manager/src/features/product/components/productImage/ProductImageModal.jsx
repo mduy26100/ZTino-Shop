@@ -1,15 +1,17 @@
 import React, { useMemo, useState, useRef } from 'react';
 import { Modal, Spin, Empty, Tag, Image, Typography, Upload, message, Button, Divider, Tooltip } from 'antd';
-import { InboxOutlined, CloudUploadOutlined, DeleteOutlined, EyeOutlined, StarOutlined, StarFilled, SwapOutlined, UndoOutlined, SaveOutlined } from '@ant-design/icons';
+import { InboxOutlined, CloudUploadOutlined, DeleteOutlined, EyeOutlined, StarOutlined, StarFilled, SwapOutlined, UndoOutlined, SaveOutlined, ExclamationCircleFilled } from '@ant-design/icons';
 import { useGetProductImages } from '../../hooks/productImages/useGetProductImages';
 import { useCreateProductImages } from '../../hooks/productImages/useCreateProductImages';
 import { useUpdateProductImage } from '../../hooks/productImages/useUpdateProductImage';
+import { useDeleteProductImage } from '../../hooks/productImages/useDeleteProductImage';
 
 const { Text } = Typography;
 const { Dragger } = Upload;
 
 const ProductImageModal = ({ open, onCancel, variantId, onSuccess }) => {
     const [messageApi, contextHolder] = message.useMessage();
+    const [modal, modalContextHolder] = Modal.useModal();
     
     const [fileList, setFileList] = useState([]);
     const [pendingReplacements, setPendingReplacements] = useState({});
@@ -20,8 +22,9 @@ const ProductImageModal = ({ open, onCancel, variantId, onSuccess }) => {
     const { data: images, isLoading, refetch } = useGetProductImages(variantId);
     const { create: createImages, isCreating } = useCreateProductImages();
     const { update: updateImage, isUpdating } = useUpdateProductImage();
+    const { remove: deleteImage, isDeleting } = useDeleteProductImage();
 
-    const isProcessing = isCreating || isUpdating;
+    const isProcessing = isCreating || isUpdating || isDeleting;
 
     const sortedImages = useMemo(() => {
         if (!images) return [];
@@ -186,9 +189,42 @@ const ProductImageModal = ({ open, onCancel, variantId, onSuccess }) => {
             handleCancelReplace(imageId);
             return;
         }
-        messageApi.open({
-            type: 'info',
-            content: 'Delete feature is coming soon!',
+
+        modal.confirm({
+            title: 'Delete Image',
+            icon: <ExclamationCircleFilled />,
+            content: (
+                <div className="pt-2">
+                    <Text>Are you sure you want to delete this image?</Text>
+                    <br />
+                    <Text type="secondary" className="text-xs">
+                        This action cannot be undone.
+                    </Text>
+                </div>
+            ),
+            okText: 'Delete',
+            okType: 'danger',
+            cancelText: 'Cancel',
+            centered: true,
+            maskClosable: true,
+            onOk: async () => {
+                await deleteImage(imageId, {
+                    onSuccess: () => {
+                        messageApi.open({
+                            type: 'success',
+                            content: 'Image deleted successfully',
+                        });
+                        refetch();
+                        onSuccess?.();
+                    },
+                    onError: (error) => {
+                        messageApi.open({
+                            type: 'error',
+                            content: error?.error?.message || error?.message || 'Delete failed',
+                        });
+                    }
+                });
+            },
         });
     };
 
@@ -341,6 +377,7 @@ const ProductImageModal = ({ open, onCancel, variantId, onSuccess }) => {
             ]}
         >
             {contextHolder}
+            {modalContextHolder}
             
             <input 
                 type="file" 
