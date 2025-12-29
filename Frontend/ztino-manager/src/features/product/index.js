@@ -55,3 +55,4 @@ export {useDeleteProductVariant} from "./hooks/productVariant/useDeleteProductVa
 
 //Product Image
 export {useGetProductImages} from "./hooks/productImages/useGetProductImages";
+export {useCreateProductImages} from "./hooks/productImages/useCreateProductImages";

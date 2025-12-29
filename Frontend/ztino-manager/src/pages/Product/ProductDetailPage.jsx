@@ -353,6 +353,7 @@ const ProductDetailPage = () => {
                 open={imageModalState.open}
                 variantId={imageModalState.variantId}
                 onCancel={handleCloseImageModal}
+                onSuccess={refetch}
             />
         </div>
     );
