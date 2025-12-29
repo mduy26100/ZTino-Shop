@@ -1,9 +1,10 @@
 import axiosClient from "../../../services/axiosClient";
-
-const URL_MANAGER = "ProductImagesManager";
+import { ENDPOINTS } from "../../../constants/apiEndpoints";
 
 export const getProductImagesByProductVariantId = (variantId) => {
-    return axiosClient.get(`${URL_MANAGER}/${variantId}/images`);
+    return axiosClient.get(ENDPOINTS.ADMIN.PRODUCT_IMAGES, {
+        params: { variantId: variantId } 
+    });
 };
 
 export const createProductImages = (productImagesData) => {
@@ -17,7 +18,7 @@ export const createProductImages = (productImagesData) => {
         });
     }
 
-    return axiosClient.post(URL_MANAGER, formData, {
+    return axiosClient.post(ENDPOINTS.ADMIN.PRODUCT_IMAGES, formData, {
         headers: {
             "Content-Type": "multipart/form-data",
         },
@@ -36,7 +37,7 @@ export const updateProductImage = (productImagesData) => {
         formData.append("ImageFile", productImagesData.ImageFile); 
     }
 
-    return axiosClient.put(`${URL_MANAGER}/${productImagesData.Id}`, formData, {
+    return axiosClient.put(`${ENDPOINTS.ADMIN.PRODUCT_IMAGES}/${productImagesData.Id}`, formData, {
         headers: {
             "Content-Type": "multipart/form-data",
         },
@@ -44,5 +45,5 @@ export const updateProductImage = (productImagesData) => {
 };
 
 export const deleteProductImage = (id) => {
-    return axiosClient.delete(`${URL_MANAGER}/${id}`);
+    return axiosClient.delete(`${ENDPOINTS.ADMIN.PRODUCT_IMAGES}/${id}`);
 };

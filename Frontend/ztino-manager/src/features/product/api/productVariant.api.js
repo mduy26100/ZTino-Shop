@@ -1,6 +1,5 @@
+import { ENDPOINTS } from "../../../constants/apiEndpoints";
 import axiosClient from "../../../services/axiosClient";
-
-const URL_MANAGER = "ProductVariantsManager";
 
 export const createProductVariant = (payload) => {
     const dto = {
@@ -12,7 +11,7 @@ export const createProductVariant = (payload) => {
         isActive: payload.isActive
     }
 
-    return axiosClient.post(URL_MANAGER, {dto});
+    return axiosClient.post(ENDPOINTS.ADMIN.PRODUCT_VARIANTS, {dto});
 };
 
 export const updateProductVariant = (payload) => {
@@ -26,9 +25,9 @@ export const updateProductVariant = (payload) => {
         isActive: payload.isActive
     }
 
-    return axiosClient.put(`${URL_MANAGER}/${payload.id}`, {dto});
+    return axiosClient.put(`${ENDPOINTS.ADMIN.PRODUCT_VARIANTS}/${payload.id}`, {dto});
 };
 
 export const deleteProductVariant = (id) => {
-    return axiosClient.delete(`${URL_MANAGER}/${id}`);
+    return axiosClient.delete(`${ENDPOINTS.ADMIN.PRODUCT_VARIANTS}/${id}`);
 };

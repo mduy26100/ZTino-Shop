@@ -1,10 +1,8 @@
+import { ENDPOINTS } from "../../../constants/apiEndpoints";
 import axiosClient from "../../../services/axiosClient";
 
-const URL_MANAGER = "ColorsManager";
-const URL_BASE = "Colors";
-
 export const getColors = () => {
-    return axiosClient.get(URL_BASE);
+    return axiosClient.get(ENDPOINTS.COLORS);
 };
 
 export const createColor = (payload) => {
@@ -12,7 +10,7 @@ export const createColor = (payload) => {
         name: payload.name
     }
 
-    return axiosClient.post(URL_MANAGER, {dto});
+    return axiosClient.post(ENDPOINTS.ADMIN.COLORS, {dto});
 };
 
 export const updateColor = (payload) => {
@@ -21,9 +19,9 @@ export const updateColor = (payload) => {
         name: payload.name
     }
 
-    return axiosClient.put(`${URL_MANAGER}/${payload.id}`, {dto});
+    return axiosClient.put(`${ENDPOINTS.ADMIN.COLORS}/${payload.id}`, {dto});
 };
 
 export const deleteColor = (id) => {
-    return axiosClient.delete(`${URL_MANAGER}/${id}`);
+    return axiosClient.delete(`${ENDPOINTS.ADMIN.COLORS}/${id}`);
 };

@@ -1,10 +1,8 @@
 import axiosClient from "../../../services/axiosClient";
-
-const URL_MANAGER = "SizesManager";
-const URL_BASE = "Sizes";
+import { ENDPOINTS } from "../../../constants/apiEndpoints";
 
 export const getSizes = () => {
-    return axiosClient.get(URL_BASE);
+    return axiosClient.get(ENDPOINTS.SIZES);
 };
 
 export const createSize = (payload) => {
@@ -12,7 +10,7 @@ export const createSize = (payload) => {
         name: payload.name
     }
 
-    return axiosClient.post(URL_MANAGER, {dto});
+    return axiosClient.post(ENDPOINTS.ADMIN.SIZES, {dto});
 };
 
 export const updateSize = (payload) => {
@@ -21,9 +19,9 @@ export const updateSize = (payload) => {
         name: payload.name
     }
 
-    return axiosClient.put(`${URL_MANAGER}/${payload.id}`, {dto});
+    return axiosClient.put(`${ENDPOINTS.ADMIN.SIZES}/${payload.id}`, {dto});
 };
 
 export const deleteSize = (id) => {
-    return axiosClient.delete(`${URL_MANAGER}/${id}`);
+    return axiosClient.delete(`${ENDPOINTS.ADMIN.SIZES}/${id}`);
 };

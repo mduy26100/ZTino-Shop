@@ -1,10 +1,9 @@
+import { ENDPOINTS } from "../../../constants/apiEndpoints";
 import axiosClient from "../../../services/axiosClient";
-
-const URL_BASE = "Authentications";
 
 const loginAPI = async (data) => {
     try {
-        const response = await axiosClient.post(`${URL_BASE}/login`, {
+        const response = await axiosClient.post(`${ENDPOINTS.AUTH}/login`, {
             dto: {
                 email: data.email,
                 password: data.password

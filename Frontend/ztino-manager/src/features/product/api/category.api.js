@@ -1,10 +1,8 @@
+import { ENDPOINTS } from "../../../constants/apiEndpoints";
 import axiosClient from "../../../services/axiosClient";
 
-const URL_MANAGER = "CategoriesManager";
-const URL_BASE = "Categories";
-
 export const getCategories = () => {
-    return axiosClient.get(URL_BASE);
+    return axiosClient.get(ENDPOINTS.CATEGORIES);
 };
 
 export const createCategory = (payload) => {
@@ -15,7 +13,7 @@ export const createCategory = (payload) => {
         parentId: payload.parentId || null,
     };
 
-    return axiosClient.post(URL_MANAGER, { dto });
+    return axiosClient.post(ENDPOINTS.ADMIN.CATEGORIES, { dto });
 };
 
 export const updateCategory = (payload) => {
@@ -27,9 +25,9 @@ export const updateCategory = (payload) => {
         parentId: payload.parentId || null,
     };
 
-    return axiosClient.put(`${URL_MANAGER}/${payload.id}`, { dto });
+    return axiosClient.put(`${ENDPOINTS.ADMIN.CATEGORIES}/${payload.id}`, { dto });
 };
 
 export const deleteCategory = (id) => {
-    return axiosClient.delete(`${URL_MANAGER}/${id}`);
+    return axiosClient.delete(`${ENDPOINTS.ADMIN.CATEGORIES}/${id}`);
 };

@@ -1,14 +1,12 @@
 import axiosClient from "../../../services/axiosClient";
-
-const URL_MANAGER = "ProductsManager";
-const URL_BASE = "Products";
+import { ENDPOINTS } from "../../../constants/apiEndpoints";
 
 export const getProducts = () => {
-    return axiosClient.get(URL_BASE);
+    return axiosClient.get(ENDPOINTS.PRODUCTS);
 };
 
 export const getProductDetailById = (id) => {
-    return axiosClient.get(`${URL_BASE}/${id}`);
+    return axiosClient.get(`${ENDPOINTS.PRODUCTS}/${id}`);
 };
 
 export const createProduct = (productData) => {
@@ -26,7 +24,7 @@ export const createProduct = (productData) => {
         formData.append("MainImageUrl", productData.MainImageUrl); 
     }
 
-    return axiosClient.post(URL_MANAGER, formData, {
+    return axiosClient.post(ENDPOINTS.ADMIN.PRODUCTS, formData, {
         headers: {
             "Content-Type": "multipart/form-data",
         },
@@ -49,7 +47,7 @@ export const updateProduct = (productData) => {
         formData.append("MainImageUrl", productData.MainImageUrl); 
     }
 
-    return axiosClient.put(`${URL_MANAGER}/${productData.Id}`, formData, {
+    return axiosClient.put(`${ENDPOINTS.ADMIN.PRODUCTS}/${productData.Id}`, formData, {
         headers: {
             "Content-Type": "multipart/form-data",
         },
@@ -57,5 +55,5 @@ export const updateProduct = (productData) => {
 };
 
 export const deleteProduct = (id) => {
-    return axiosClient.delete(`${URL_MANAGER}/${id}`);
+    return axiosClient.delete(`${ENDPOINTS.ADMIN.PRODUCTS}/${id}`);
 };
