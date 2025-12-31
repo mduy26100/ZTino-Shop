@@ -1,7 +1,7 @@
-﻿using Application.Features.Products.Queries.Products.GetAllProducts;
-using Application.Features.Products.Queries.Products.GetProductDetail;
+﻿using Application.Features.Products.v1.Queries.Products.GetAllProducts;
+using Application.Features.Products.v1.Queries.Products.GetProductDetail;
 
-namespace WebAPI.Controllers.Products
+namespace WebAPI.Controllers.v1.Products
 {
     [ApiController]
     [ApiVersion("1.0")]

@@ -1,4 +1,4 @@
-﻿using Application.Features.Auth.Services.Jwt;
+﻿using Application.Features.Auth.v1.Services.Jwt;
 using Infrastructure.Auth.Options;
 
 namespace Infrastructure.Auth.Services.Jwt

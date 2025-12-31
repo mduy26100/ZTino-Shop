@@ -1,10 +1,4 @@
-﻿using Application.Features.Products.DTOs.Categories;
-using Application.Features.Products.DTOs.Colors;
-using Application.Features.Products.DTOs.ProductImages;
-using Application.Features.Products.DTOs.Products;
-using Application.Features.Products.DTOs.ProductVariants;
-using Application.Features.Products.DTOs.Sizes;
-using Application.Features.Products.Repositories;
+﻿using Application.Features.Products.v1.Repositories;
 using Domain.Models.Products;
 using Infrastructure.Common.Interfaces.Persistence.Base;
 using Infrastructure.Data;

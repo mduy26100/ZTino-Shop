@@ -1,5 +1,5 @@
-﻿using Application.Features.Products.Repositories;
-using Application.Features.Products.Services;
+﻿using Application.Features.Products.v1.Repositories;
+using Application.Features.Products.v1.Services;
 using Infrastructure.Products.Repositories;
 using Infrastructure.Products.Services;
 

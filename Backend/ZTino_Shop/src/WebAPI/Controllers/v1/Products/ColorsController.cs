@@ -1,6 +1,6 @@
-﻿using Application.Features.Products.Queries.Colors.GetAllColors;
+﻿using Application.Features.Products.v1.Queries.Colors.GetAllColors;
 
-namespace WebAPI.Controllers.Products
+namespace WebAPI.Controllers.v1.Products
 {
     [ApiController]
     [ApiVersion("1.0")]

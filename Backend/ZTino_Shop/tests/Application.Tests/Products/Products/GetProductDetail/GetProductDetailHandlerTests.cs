@@ -1,6 +1,6 @@
-﻿using Application.Features.Products.DTOs.Products;
-using Application.Features.Products.Queries.Products.GetProductDetail;
-using Application.Features.Products.Services;
+﻿using Application.Features.Products.v1.DTOs.Products;
+using Application.Features.Products.v1.Queries.Products.GetProductDetail;
+using Application.Features.Products.v1.Services;
 
 namespace Application.Tests.Products.Products.GetProductDetail
 {

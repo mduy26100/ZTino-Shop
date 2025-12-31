@@ -1,4 +1,4 @@
-﻿using Application.Features.Products.DTOs.ProductImages;
+﻿using Application.Features.Products.v1.DTOs.ProductImages;
 
 namespace WebAPI.Requests.Products.Product
 {

@@ -1,8 +1,8 @@
-﻿using Application.Features.Auth.Commands.Login;
-using Application.Features.Auth.Commands.Register;
-using Application.Features.Auth.Commands.TokenRefresh;
+﻿using Application.Features.Auth.v1.Commands.Login;
+using Application.Features.Auth.v1.Commands.Register;
+using Application.Features.Auth.v1.Commands.TokenRefresh;
 
-namespace WebAPI.Controllers.Auth
+namespace WebAPI.Controllers.v1.Auth
 {
     [ApiController]
     [ApiVersion("1.0")]

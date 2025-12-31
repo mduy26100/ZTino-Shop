@@ -1,9 +1,9 @@
-﻿using Application.Features.Products.Commands.Categories.CreateCategory;
-using Application.Features.Products.Commands.Categories.DeleteCategory;
-using Application.Features.Products.Commands.Categories.UpdateCategory;
+﻿using Application.Features.Products.v1.Commands.Categories.DeleteCategory;
+using Application.Features.Products.v1.Commands.Categories.CreateCategory;
+using Application.Features.Products.v1.Commands.Categories.UpdateCategory;
 using Domain.Consts;
 
-namespace WebAPI.Controllers.Manager.Products
+namespace WebAPI.Controllers.v1.Manager.Products
 {
     [ApiController]
     [ApiVersion("1.0")]

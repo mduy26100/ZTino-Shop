@@ -1,9 +1,9 @@
 ﻿using Application.Common.Exceptions;
 using Application.Common.Interfaces.Identity;
-using Application.Features.Auth.DTOs;
-using Application.Features.Auth.Services.Command.UpdateProfile;
-using Application.Features.Auth.Services.Command.UpdateProfile.Factory;
-using Application.Features.Auth.Services.Command.UpdateProfile.Strategy;
+using Application.Features.Auth.v1.DTOs;
+using Application.Features.Auth.v1.Services.Command.UpdateProfile;
+using Application.Features.Auth.v1.Services.Command.UpdateProfile.Factory;
+using Application.Features.Auth.v1.Services.Command.UpdateProfile.Strategy;
 using Domain.Consts;
 
 namespace Infrastructure.Auth.Services.Command.UpdateProfile

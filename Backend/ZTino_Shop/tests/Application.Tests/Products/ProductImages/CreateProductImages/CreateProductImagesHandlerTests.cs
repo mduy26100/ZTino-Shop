@@ -1,9 +1,9 @@
 ﻿using Application.Common.Interfaces.Persistence.Data;
 using Application.Common.Interfaces.Services.FileUpLoad;
 using Application.Common.Models.Requests;
-using Application.Features.Products.Commands.ProductImages.CreateProductImage;
-using Application.Features.Products.DTOs.ProductImages;
-using Application.Features.Products.Repositories;
+using Application.Features.Products.v1.Commands.ProductImages.CreateProductImages;
+using Application.Features.Products.v1.DTOs.ProductImages;
+using Application.Features.Products.v1.Repositories;
 using Domain.Models.Products;
 using ProductVariantEntity = Domain.Models.Products.ProductVariant;
 

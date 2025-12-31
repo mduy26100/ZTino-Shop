@@ -1,4 +1,4 @@
-﻿using Application.Features.Products.DTOs.Products;
+﻿using Application.Features.Products.v1.DTOs.Products;
 
 namespace WebAPI.Requests.Products.Product
 {

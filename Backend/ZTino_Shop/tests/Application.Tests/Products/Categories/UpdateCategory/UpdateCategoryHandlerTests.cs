@@ -1,7 +1,7 @@
 ﻿using Application.Common.Interfaces.Persistence.Data;
-using Application.Features.Products.Commands.Categories.UpdateCategory;
-using Application.Features.Products.DTOs.Categories;
-using Application.Features.Products.Repositories;
+using Application.Features.Products.v1.Commands.Categories.UpdateCategory;
+using Application.Features.Products.v1.DTOs.Categories;
+using Application.Features.Products.v1.Repositories;
 using Domain.Models.Products;
 
 namespace Application.Tests.Products.Categories.UpdateCategory

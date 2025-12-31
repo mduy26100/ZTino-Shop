@@ -1,10 +1,10 @@
-﻿using Application.Features.Products.Commands.Products.CreateProduct;
-using Application.Features.Products.Commands.Products.DeleteProduct;
-using Application.Features.Products.Commands.Products.UpdateProduct;
+﻿using Application.Features.Products.v1.Commands.Products.CreateProduct;
+using Application.Features.Products.v1.Commands.Products.DeleteProduct;
+using Application.Features.Products.v1.Commands.Products.UpdateProduct;
 using Domain.Consts;
 using WebAPI.Requests.Products.Product;
 
-namespace WebAPI.Controllers.Manager.Products
+namespace WebAPI.Controllers.v1.Manager.Products
 {
     [ApiController]
     [ApiVersion("1.0")]

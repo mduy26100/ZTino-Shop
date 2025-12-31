@@ -1,6 +1,6 @@
 ﻿using Application.Common.Interfaces.Persistence.Data;
-using Application.Features.Products.Commands.Products.DeleteProduct;
-using Application.Features.Products.Repositories;
+using Application.Features.Products.v1.Commands.Products.DeleteProduct;
+using Application.Features.Products.v1.Repositories;
 using Domain.Models.Products;
 
 namespace Application.Tests.Products.Products.DeleteProduct

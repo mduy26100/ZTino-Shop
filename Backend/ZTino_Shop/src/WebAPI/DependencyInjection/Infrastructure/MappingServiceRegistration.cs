@@ -1,4 +1,4 @@
-﻿using Application.Features.Products.Mappings;
+﻿using Application.Features.Products.v1.Mappings;
 
 namespace WebAPI.DependencyInjection.Infrastructure
 {

@@ -1,9 +1,9 @@
-﻿using Application.Features.Products.Commands.ProductVariants.CreateProductVariant;
-using Application.Features.Products.Commands.ProductVariants.DeleteProductVariant;
-using Application.Features.Products.Commands.ProductVariants.UpdateProductVariant;
+﻿using Application.Features.Products.v1.Commands.ProductVariants.DeleteProductVariant;
+using Application.Features.Products.v1.Commands.ProductVariants.CreateProductVariant;
+using Application.Features.Products.v1.Commands.ProductVariants.UpdateProductVariant;
 using Domain.Consts;
 
-namespace WebAPI.Controllers.Manager.Products
+namespace WebAPI.Controllers.v1.Manager.Products
 {
     [ApiController]
     [ApiVersion("1.0")]

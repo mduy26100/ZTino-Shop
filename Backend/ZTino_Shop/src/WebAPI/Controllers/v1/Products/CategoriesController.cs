@@ -1,6 +1,6 @@
-﻿using Application.Features.Products.Queries.Categories.GetAllCategories;
+﻿using Application.Features.Products.v1.Queries.Categories.GetAllCategories;
 
-namespace WebAPI.Controllers.Products
+namespace WebAPI.Controllers.v1.Products
 {
     [ApiController]
     [ApiVersion("1.0")]

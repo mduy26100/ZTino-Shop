@@ -1,6 +1,6 @@
-﻿using Application.Features.Products.DTOs.Products;
-using Application.Features.Products.Expressions;
-using Application.Features.Products.Services;
+﻿using Application.Features.Products.v1.DTOs.Products;
+using Application.Features.Products.v1.Expressions;
+using Application.Features.Products.v1.Services;
 using Infrastructure.Data;
 
 namespace Infrastructure.Products.Services

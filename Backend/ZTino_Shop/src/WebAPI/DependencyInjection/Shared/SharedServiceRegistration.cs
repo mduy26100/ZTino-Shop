@@ -1,5 +1,5 @@
 ﻿using Application.Common.Behaviors;
-using Application.Features.Auth.Commands.Login;
+using Application.Features.Auth.v1.Commands.Login;
 
 namespace WebAPI.DependencyInjection.Shared
 {

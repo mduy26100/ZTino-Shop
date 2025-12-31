@@ -1,9 +1,9 @@
-﻿using Application.Features.Products.Commands.Colors.CreateColor;
-using Application.Features.Products.Commands.Colors.DeleteColor;
-using Application.Features.Products.Commands.Colors.UpdateColor;
+﻿using Application.Features.Products.v1.Commands.Colors.DeleteColor;
+using Application.Features.Products.v1.Commands.Colors.CreateColor;
+using Application.Features.Products.v1.Commands.Colors.UpdateColor;
 using Domain.Consts;
 
-namespace WebAPI.Controllers.Manager.Products
+namespace WebAPI.Controllers.v1.Manager.Products
 {
     [ApiController]
     [ApiVersion("1.0")]

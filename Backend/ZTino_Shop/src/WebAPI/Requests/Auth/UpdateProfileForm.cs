@@ -1,4 +1,4 @@
-﻿using Application.Features.Auth.DTOs;
+﻿using Application.Features.Auth.v1.DTOs;
 
 namespace WebAPI.Requests.Auth
 {

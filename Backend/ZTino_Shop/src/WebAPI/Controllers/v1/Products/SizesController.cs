@@ -1,6 +1,6 @@
-﻿using Application.Features.Products.Queries.Sizes.GetAllSizes;
+﻿using Application.Features.Products.v1.Queries.Sizes.GetAllSizes;
 
-namespace WebAPI.Controllers.Products
+namespace WebAPI.Controllers.v1.Products
 {
     [ApiController]
     [ApiVersion("1.0")]

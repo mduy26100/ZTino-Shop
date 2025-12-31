@@ -1,7 +1,7 @@
 ﻿using Application.Common.Interfaces.Persistence.Data;
-using Application.Features.Products.Commands.ProductVariants.UpdateProductVariant;
-using Application.Features.Products.DTOs.ProductVariants;
-using Application.Features.Products.Repositories;
+using Application.Features.Products.v1.Commands.ProductVariants.UpdateProductVariant;
+using Application.Features.Products.v1.DTOs.ProductVariants;
+using Application.Features.Products.v1.Repositories;
 using Domain.Models.Products;
 using ProductVariantEntity = Domain.Models.Products.ProductVariant;
 

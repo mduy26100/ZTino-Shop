@@ -1,9 +1,9 @@
-﻿using Application.Features.Auth.Commands.Logout;
-using Application.Features.Auth.Commands.UpdateProfile;
-using Application.Features.Auth.Queries.CurrentUser;
+﻿using Application.Features.Auth.v1.Commands.Logout;
+using Application.Features.Auth.v1.Commands.UpdateProfile;
+using Application.Features.Auth.v1.Queries.CurrentUser;
 using WebAPI.Requests.Auth;
 
-namespace WebAPI.Controllers.Auth
+namespace WebAPI.Controllers.v1.Auth
 {
     [ApiController]
     [ApiVersion("1.0")]

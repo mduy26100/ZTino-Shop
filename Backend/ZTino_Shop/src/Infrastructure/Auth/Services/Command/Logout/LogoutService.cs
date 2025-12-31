@@ -1,4 +1,4 @@
-﻿using Application.Features.Auth.Services.Command.Logout;
+﻿using Application.Features.Auth.v1.Services.Command.Logout;
 using Infrastructure.Data;
 
 namespace Infrastructure.Auth.Services.Command.Logout

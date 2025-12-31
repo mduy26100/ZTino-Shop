@@ -1,11 +1,11 @@
-﻿using Application.Features.Products.Commands.ProductImages.CreateProductImage;
-using Application.Features.Products.Commands.ProductImages.DeleteProductImage;
-using Application.Features.Products.Commands.ProductImages.UpdateProductImage;
-using Application.Features.Products.Queries.ProductImages.GetProductImagesByProductVariantId;
+﻿using Application.Features.Products.v1.Commands.ProductImages.CreateProductImages;
+using Application.Features.Products.v1.Commands.ProductImages.DeleteProductImage;
+using Application.Features.Products.v1.Commands.ProductImages.UpdateProductImage;
+using Application.Features.Products.v1.Queries.ProductImages.GetProductImagesByProductVariantId;
 using Domain.Consts;
 using WebAPI.Requests.Products.Product;
 
-namespace WebAPI.Controllers.Manager.Products
+namespace WebAPI.Controllers.v1.Manager.Products
 {
     [ApiController]
     [ApiVersion("1.0")]

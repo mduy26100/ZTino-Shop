@@ -1,7 +1,7 @@
 ﻿using Application.Common.Exceptions;
 using Application.Common.Interfaces.Identity;
-using Application.Features.Auth.DTOs;
-using Application.Features.Auth.Services.Command.Register;
+using Application.Features.Auth.v1.DTOs;
+using Application.Features.Auth.v1.Services.Command.Register;
 using Domain.Consts;
 using Infrastructure.Auth.Models;
 

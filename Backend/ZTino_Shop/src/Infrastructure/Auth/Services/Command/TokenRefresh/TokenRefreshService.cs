@@ -1,7 +1,7 @@
 ﻿using Application.Common.Exceptions;
-using Application.Features.Auth.DTOs;
-using Application.Features.Auth.Services.Command.TokenRefresh;
-using Application.Features.Auth.Services.Jwt;
+using Application.Features.Auth.v1.DTOs;
+using Application.Features.Auth.v1.Services.Command.TokenRefresh;
+using Application.Features.Auth.v1.Services.Jwt;
 using Infrastructure.Auth.Models;
 using Infrastructure.Data;
 

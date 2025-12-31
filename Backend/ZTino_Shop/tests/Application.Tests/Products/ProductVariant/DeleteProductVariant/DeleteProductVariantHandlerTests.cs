@@ -1,6 +1,6 @@
 ﻿using Application.Common.Interfaces.Persistence.Data;
-using Application.Features.Products.Commands.ProductVariants.DeleteProductVariant;
-using Application.Features.Products.Repositories;
+using Application.Features.Products.v1.Commands.ProductVariants.DeleteProductVariant;
+using Application.Features.Products.v1.Repositories;
 using MediatR;
 using ProductVariantEntity = Domain.Models.Products.ProductVariant;
 

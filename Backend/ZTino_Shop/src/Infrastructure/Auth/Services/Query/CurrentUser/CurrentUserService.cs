@@ -1,6 +1,6 @@
 ﻿using Application.Common.Exceptions;
-using Application.Features.Auth.DTOs;
-using Application.Features.Auth.Services.Query.CurrentUser;
+using Application.Features.Auth.v1.DTOs;
+using Application.Features.Auth.v1.Services.Query.CurrentUser;
 using Infrastructure.Auth.Models;
 
 namespace Infrastructure.Auth.Services.Query.CurrentUser

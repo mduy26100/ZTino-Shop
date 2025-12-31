@@ -1,9 +1,9 @@
-﻿using Application.Features.Products.Commands.Sizes.CreateSize;
-using Application.Features.Products.Commands.Sizes.DeleteSize;
-using Application.Features.Products.Commands.Sizes.UpdateSize;
+﻿using Application.Features.Products.v1.Commands.Sizes.DeleteSize;
+using Application.Features.Products.v1.Commands.Sizes.CreateSize;
+using Application.Features.Products.v1.Commands.Sizes.UpdateSize;
 using Domain.Consts;
 
-namespace WebAPI.Controllers.Manager.Products
+namespace WebAPI.Controllers.v1.Manager.Products
 {
     [ApiController]
     [ApiVersion("1.0")]
