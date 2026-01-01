@@ -1,5 +1,13 @@
 import React, { useEffect, useMemo } from 'react';
-import { Modal, Form, Input, Checkbox, Select, Button } from 'antd';
+import { Modal, Form, Input, Checkbox, Select, Button, Upload } from 'antd';
+import { PlusOutlined } from '@ant-design/icons';
+
+const normFile = (e) => {
+    if (Array.isArray(e)) {
+        return e;
+    }
+    return e?.fileList;
+};
 
 const UpsertCategoryModal = ({ 
     open, 
@@ -10,8 +18,12 @@ const UpsertCategoryModal = ({
     initialValues = null 
 }) => {
     const [form] = Form.useForm();
-    const isEdit = !!initialValues;
+    
+    const parentIdValue = Form.useWatch('parentId', form);
+    
+    const isRootCategory = !parentIdValue;
 
+    const isEdit = !!initialValues;
     const shouldShowParentSelect = !isEdit || (isEdit && initialValues?.parentId !== null);
 
     const parentOptions = useMemo(() => {
@@ -25,10 +37,12 @@ const UpsertCategoryModal = ({
 
     useEffect(() => {
         if (open) {
+            form.resetFields(); 
             if (initialValues) {
-                form.setFieldsValue(initialValues);
-            } else {
-                form.resetFields();
+                form.setFieldsValue({
+                    ...initialValues,
+                    parentId: initialValues.parentId || null 
+                });
             }
         }
     }, [open, initialValues, form]);
@@ -36,10 +50,37 @@ const UpsertCategoryModal = ({
     const handleSubmit = async () => {
         try {
             const values = await form.validateFields();
-            onSubmit(values, form);
+            
+            const payload = {
+                name: values.name,
+                slug: values.slug,
+                isActive: values.isActive,
+                
+                parentId: values.parentId || null,
+
+                image: isRootCategory && values.image?.[0]?.originFileObj 
+                    ? values.image[0].originFileObj 
+                    : null
+            };
+
+            onSubmit(payload, form);
         } catch (error) {
             console.error('Validate Failed:', error);
         }
+    };
+
+    const uploadProps = {
+        beforeUpload: (file) => {
+            const isImage = file.type.startsWith('image/');
+            if (!isImage) {
+                return Upload.LIST_IGNORE;
+            }
+            return false;
+        },
+        maxCount: 1,
+        listType: "picture-card",
+        showUploadList: { showPreviewIcon: false },
+        accept: "image/*"
     };
 
     return (
@@ -64,7 +105,7 @@ const UpsertCategoryModal = ({
             ]}
             destroyOnHidden
             centered
-            className="top-4 md:top-0"
+            maskClosable={false}
             styles={{ 
                 mask: { backdropFilter: 'blur(4px)' },
                 content: { padding: '24px', borderRadius: '16px' }
@@ -105,6 +146,7 @@ const UpsertCategoryModal = ({
                     <Form.Item 
                         name="parentId" 
                         label={<span className="font-medium text-gray-700">Parent Category</span>}
+                        tooltip="Select a parent to make this a sub-category. Leave empty for Root category."
                     >
                         <Select
                             placeholder="Select parent category (Root)"
@@ -115,6 +157,23 @@ const UpsertCategoryModal = ({
                             optionFilterProp="label"
                             popupMatchSelectWidth={false}
                         />
+                    </Form.Item>
+                )}
+
+                {isRootCategory && (
+                    <Form.Item
+                        name="image"
+                        label={<span className="font-medium text-gray-700">Cover Image</span>}
+                        valuePropName="fileList"
+                        getValueFromEvent={normFile}
+                        tooltip="Only root categories can have a cover image"
+                    >
+                        <Upload {...uploadProps}>
+                            <div>
+                                <PlusOutlined />
+                                <div style={{ marginTop: 8 }}>Upload</div>
+                            </div>
+                        </Upload>
                     </Form.Item>
                 )}
 

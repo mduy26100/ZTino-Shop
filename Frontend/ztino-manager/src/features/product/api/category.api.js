@@ -6,14 +6,26 @@ export const getCategories = () => {
 };
 
 export const createCategory = (payload) => {
-    const dto = {
-        name: payload.name,
-        slug: payload.slug,
-        isActive: payload.isActive ?? true,
-        parentId: payload.parentId || null,
-    };
+    const formData = new FormData();
 
-    return axiosClient.post(ENDPOINTS.ADMIN.CATEGORIES, { dto });
+    formData.append("Name", payload.name?.trim() || "");
+    formData.append("Slug", payload.slug?.trim() || "");
+
+    formData.append("IsActive", payload.isActive ?? true);
+
+    if (payload.parentId) {
+        formData.append("ParentId", payload.parentId);
+    }
+
+    if (payload.image) {
+        formData.append("ImageUrl", payload.image); 
+    }
+
+    return axiosClient.post(ENDPOINTS.ADMIN.CATEGORIES, formData, {
+        headers: {
+            "Content-Type": "multipart/form-data",
+        },
+    });
 };
 
 export const updateCategory = (payload) => {
