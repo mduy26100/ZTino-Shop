@@ -18,6 +18,10 @@ namespace Infrastructure.Data.Configurations.Products
                 .IsRequired()
                 .HasMaxLength(150);
 
+            builder.Property(c => c.ImageUrl)
+                .HasMaxLength(500)
+                .IsRequired(false);
+
             builder.Property(c => c.IsActive)
                 .HasDefaultValue(true);
 

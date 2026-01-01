@@ -2,6 +2,7 @@
 using Application.Features.Products.v1.Commands.Categories.CreateCategory;
 using Application.Features.Products.v1.Commands.Categories.UpdateCategory;
 using Domain.Consts;
+using WebAPI.Requests.Products.Product;
 
 namespace WebAPI.Controllers.v1.Manager.Products
 {
@@ -19,8 +20,10 @@ namespace WebAPI.Controllers.v1.Manager.Products
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateCategory(CreateCategoryCommand command, CancellationToken cancellationToken)
+        [Consumes("multipart/form-data")]
+        public async Task<IActionResult> CreateCategory([FromForm]UpsertCategoryForm form, CancellationToken cancellationToken)
         {
+            var command = new CreateCategoryCommand(form.ToDto());
             var result = await _mediator.Send(command, cancellationToken);
             return Ok(result);
         }

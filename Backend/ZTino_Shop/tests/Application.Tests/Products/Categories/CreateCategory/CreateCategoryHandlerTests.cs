@@ -1,4 +1,6 @@
 ﻿using Application.Common.Interfaces.Persistence.Data;
+using Application.Common.Interfaces.Services.FileUpLoad;
+using Application.Common.Models.Requests;
 using Application.Features.Products.v1.Commands.Categories.CreateCategory;
 using Application.Features.Products.v1.DTOs.Categories;
 using Application.Features.Products.v1.Repositories;
@@ -10,18 +12,22 @@ namespace Application.Tests.Products.Categories.CreateCategory
     {
         private readonly Mock<ICategoryRepository> _categoryRepoMock;
         private readonly Mock<IMapper> _mapperMock;
+        private readonly Mock<IFileUploadService> _fileUploadServiceMock;
         private readonly Mock<IApplicationDbContext> _contextMock;
+
         private readonly CreateCategoryHandler _handler;
 
         public CreateCategoryHandlerTests()
         {
             _categoryRepoMock = new Mock<ICategoryRepository>();
             _mapperMock = new Mock<IMapper>();
+            _fileUploadServiceMock = new Mock<IFileUploadService>();
             _contextMock = new Mock<IApplicationDbContext>();
 
             _handler = new CreateCategoryHandler(
                 _categoryRepoMock.Object,
                 _mapperMock.Object,
+                _fileUploadServiceMock.Object,
                 _contextMock.Object
             );
         }
@@ -46,10 +52,32 @@ namespace Application.Tests.Products.Categories.CreateCategory
             var dto = new UpsertCategoryDto { Name = "ChildCategory", ParentId = 2 };
             var command = new CreateCategoryCommand(dto);
 
-            var parent = new Category { Id = 2, Name = "ParentCategory", ParentId = 1 };
+            var parent = new Category { Id = 2, Name = "Parent", ParentId = 1 };
 
             _categoryRepoMock
                 .Setup(r => r.GetByIdAsync(2, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(parent);
+
+            await Assert.ThrowsAsync<BusinessRuleException>(
+                () => _handler.Handle(command, CancellationToken.None));
+        }
+
+        [Fact]
+        public async Task Handle_ShouldThrow_WhenChildCategoryHasImage()
+        {
+            var dto = new UpsertCategoryDto
+            {
+                Name = "Child",
+                ParentId = 1,
+                ImageUrl = "https://image.com/img.jpg"
+            };
+
+            var command = new CreateCategoryCommand(dto);
+
+            var parent = new Category { Id = 1, Name = "Parent", ParentId = null };
+
+            _categoryRepoMock
+                .Setup(r => r.GetByIdAsync(1, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(parent);
 
             await Assert.ThrowsAsync<BusinessRuleException>(
@@ -71,9 +99,50 @@ namespace Application.Tests.Products.Categories.CreateCategory
         }
 
         [Fact]
-        public async Task Handle_ShouldReturnDto_WhenSuccess()
+        public async Task Handle_ShouldUploadImage_WhenImgContentProvided()
         {
-            var dto = new UpsertCategoryDto { Name = "Pants", ParentId = null };
+            var dto = new UpsertCategoryDto
+            {
+                Name = "Men",
+                ImgContent = new MemoryStream(new byte[] { 1, 2, 3 }),
+                ImgFileName = "men.jpg"
+            };
+
+            var command = new CreateCategoryCommand(dto);
+
+            var entity = new Category { Name = "Men" };
+
+            _categoryRepoMock
+                .Setup(r => r.AnyAsync(It.IsAny<Expression<Func<Category, bool>>>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(false);
+
+            _fileUploadServiceMock
+                .Setup(s => s.UploadAsync(It.IsAny<FileUploadRequest>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync("https://cdn.com/men.jpg");
+
+            _mapperMock.Setup(m => m.Map<Category>(dto)).Returns(entity);
+            _mapperMock.Setup(m => m.Map<UpsertCategoryDto>(entity)).Returns(dto);
+
+            _categoryRepoMock
+                .Setup(r => r.AddAsync(entity, It.IsAny<CancellationToken>()))
+                .Returns(Task.CompletedTask);
+
+            _contextMock
+                .Setup(c => c.SaveChangesAsync(It.IsAny<CancellationToken>()))
+                .ReturnsAsync(1);
+
+            var result = await _handler.Handle(command, CancellationToken.None);
+
+            Assert.Equal("Men", result.Name);
+            _fileUploadServiceMock.Verify(
+                s => s.UploadAsync(It.IsAny<FileUploadRequest>(), It.IsAny<CancellationToken>()),
+                Times.Once);
+        }
+
+        [Fact]
+        public async Task Handle_ShouldReturnDto_WhenSuccessWithoutImage()
+        {
+            var dto = new UpsertCategoryDto { Name = "Pants" };
             var entity = new Category { Name = "Pants" };
             var command = new CreateCategoryCommand(dto);
 
@@ -84,11 +153,13 @@ namespace Application.Tests.Products.Categories.CreateCategory
             _mapperMock.Setup(m => m.Map<Category>(dto)).Returns(entity);
             _mapperMock.Setup(m => m.Map<UpsertCategoryDto>(entity)).Returns(dto);
 
-            _categoryRepoMock.Setup(r => r.AddAsync(entity, It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
+            _categoryRepoMock
+                .Setup(r => r.AddAsync(entity, It.IsAny<CancellationToken>()))
+                .Returns(Task.CompletedTask);
 
             _contextMock
                 .Setup(c => c.SaveChangesAsync(It.IsAny<CancellationToken>()))
-                .Returns(Task.FromResult(1));
+                .ReturnsAsync(1);
 
             var result = await _handler.Handle(command, CancellationToken.None);
 
