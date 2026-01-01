@@ -1,12 +1,45 @@
 import React, { useMemo } from 'react';
-import { Table, Tag, Space, Button, Tooltip, Typography } from 'antd';
-import { PencilSquareIcon, TrashIcon } from '@heroicons/react/24/outline';
+import { Table, Tag, Space, Button, Tooltip, Typography, Image } from 'antd';
+import { EyeOutlined } from '@ant-design/icons';
+import { PencilSquareIcon, TrashIcon, PhotoIcon } from '@heroicons/react/24/outline';
 
 const { Text } = Typography;
 
 const CategoryTable = ({ data = [], loading, onEdit, onDelete }) => {
     
     const columns = useMemo(() => [
+        {
+            title: 'Image',
+            dataIndex: 'imageUrl',
+            key: 'imageUrl',
+            width: 80,
+            align: 'center',
+            render: (imageUrl, record) => {
+                const isRoot = record.parentId === null;
+                
+                if (!isRoot) return null;
+
+                if (imageUrl) {
+                    return (
+                        <Image
+                            src={imageUrl}
+                            alt={record.name}
+                            width={40}
+                            height={40}
+                            className="object-cover rounded-md border border-gray-200"
+                            fallback="https://via.placeholder.com/40?text=No+Img"
+                            preview={{ mask: <EyeOutlined className="text-white text-xs" /> }}
+                        />
+                    );
+                }
+
+                return (
+                    <div className="w-10 h-10 rounded-md bg-gray-50 border border-gray-200 flex items-center justify-center mx-auto text-gray-300">
+                        <PhotoIcon className="w-5 h-5" />
+                    </div>
+                );
+            },
+        },
         {
             title: 'Category Name',
             dataIndex: 'name',
