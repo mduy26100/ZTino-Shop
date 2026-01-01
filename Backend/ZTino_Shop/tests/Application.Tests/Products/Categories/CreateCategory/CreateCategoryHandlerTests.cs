@@ -12,7 +12,7 @@ namespace Application.Tests.Products.Categories.CreateCategory
     {
         private readonly Mock<ICategoryRepository> _categoryRepoMock;
         private readonly Mock<IMapper> _mapperMock;
-        private readonly Mock<IFileUploadService> _fileUploadServiceMock;
+        private readonly Mock<IFileUploadService> _fileUploadMock;
         private readonly Mock<IApplicationDbContext> _contextMock;
 
         private readonly CreateCategoryHandler _handler;
@@ -21,13 +21,13 @@ namespace Application.Tests.Products.Categories.CreateCategory
         {
             _categoryRepoMock = new Mock<ICategoryRepository>();
             _mapperMock = new Mock<IMapper>();
-            _fileUploadServiceMock = new Mock<IFileUploadService>();
+            _fileUploadMock = new Mock<IFileUploadService>();
             _contextMock = new Mock<IApplicationDbContext>();
 
             _handler = new CreateCategoryHandler(
                 _categoryRepoMock.Object,
                 _mapperMock.Object,
-                _fileUploadServiceMock.Object,
+                _fileUploadMock.Object,
                 _contextMock.Object
             );
         }
@@ -35,71 +35,91 @@ namespace Application.Tests.Products.Categories.CreateCategory
         [Fact]
         public async Task Handle_ShouldThrow_WhenParentNotExist()
         {
-            var dto = new UpsertCategoryDto { Name = "Shirts", ParentId = 1 };
+            var dto = new UpsertCategoryDto { Name = "Child", ParentId = 1 };
             var command = new CreateCategoryCommand(dto);
 
             _categoryRepoMock
                 .Setup(r => r.GetByIdAsync(1, It.IsAny<CancellationToken>()))
                 .ReturnsAsync((Category?)null);
 
-            await Assert.ThrowsAsync<NotFoundException>(
-                () => _handler.Handle(command, CancellationToken.None));
+            await Assert.ThrowsAsync<NotFoundException>(() =>
+                _handler.Handle(command, CancellationToken.None));
         }
 
         [Fact]
         public async Task Handle_ShouldThrow_WhenParentIsNotRoot()
         {
-            var dto = new UpsertCategoryDto { Name = "ChildCategory", ParentId = 2 };
+            var dto = new UpsertCategoryDto { Name = "Child", ParentId = 2 };
             var command = new CreateCategoryCommand(dto);
-
-            var parent = new Category { Id = 2, Name = "Parent", ParentId = 1 };
 
             _categoryRepoMock
                 .Setup(r => r.GetByIdAsync(2, It.IsAny<CancellationToken>()))
-                .ReturnsAsync(parent);
+                .ReturnsAsync(new Category { Id = 2, ParentId = 1 });
 
-            await Assert.ThrowsAsync<BusinessRuleException>(
-                () => _handler.Handle(command, CancellationToken.None));
+            await Assert.ThrowsAsync<BusinessRuleException>(() =>
+                _handler.Handle(command, CancellationToken.None));
         }
 
         [Fact]
-        public async Task Handle_ShouldThrow_WhenChildCategoryHasImage()
+        public async Task Handle_ShouldThrow_WhenChildHasImageUrl()
         {
             var dto = new UpsertCategoryDto
             {
                 Name = "Child",
                 ParentId = 1,
-                ImageUrl = "https://image.com/img.jpg"
+                ImageUrl = "https://img.com/a.jpg"
             };
 
             var command = new CreateCategoryCommand(dto);
 
-            var parent = new Category { Id = 1, Name = "Parent", ParentId = null };
-
             _categoryRepoMock
                 .Setup(r => r.GetByIdAsync(1, It.IsAny<CancellationToken>()))
-                .ReturnsAsync(parent);
+                .ReturnsAsync(new Category { Id = 1 });
 
-            await Assert.ThrowsAsync<BusinessRuleException>(
-                () => _handler.Handle(command, CancellationToken.None));
+            await Assert.ThrowsAsync<BusinessRuleException>(() =>
+                _handler.Handle(command, CancellationToken.None));
         }
 
         [Fact]
-        public async Task Handle_ShouldThrow_WhenNameExists()
+        public async Task Handle_ShouldThrow_WhenChildHasImageFile()
         {
-            var dto = new UpsertCategoryDto { Name = "Shirts" };
+            var dto = new UpsertCategoryDto
+            {
+                Name = "Child",
+                ParentId = 1,
+                ImgContent = new MemoryStream(new byte[] { 1, 2 }),
+                ImgFileName = "img.jpg"
+            };
+
             var command = new CreateCategoryCommand(dto);
 
             _categoryRepoMock
-                .Setup(r => r.AnyAsync(It.IsAny<Expression<Func<Category, bool>>>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(true);
+                .Setup(r => r.GetByIdAsync(1, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new Category { Id = 1 });
 
-            await Assert.ThrowsAsync<ConflictException>(
-                () => _handler.Handle(command, CancellationToken.None));
+            await Assert.ThrowsAsync<BusinessRuleException>(() =>
+                _handler.Handle(command, CancellationToken.None));
         }
 
         [Fact]
-        public async Task Handle_ShouldUploadImage_WhenImgContentProvided()
+        public async Task Handle_ShouldThrow_WhenDuplicateName()
+        {
+            var dto = new UpsertCategoryDto { Name = "Men", Slug = "men" };
+            var command = new CreateCategoryCommand(dto);
+
+            _categoryRepoMock
+                .Setup(r => r.FindOneAsync(
+                    It.IsAny<Expression<Func<Category, bool>>>(),
+                    true,
+                    It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new Category { Name = "Men" });
+
+            await Assert.ThrowsAsync<ConflictException>(() =>
+                _handler.Handle(command, CancellationToken.None));
+        }
+
+        [Fact]
+        public async Task Handle_ShouldUploadImage_WhenRootCategoryHasImageFile()
         {
             var dto = new UpsertCategoryDto
             {
@@ -109,15 +129,17 @@ namespace Application.Tests.Products.Categories.CreateCategory
             };
 
             var command = new CreateCategoryCommand(dto);
-
             var entity = new Category { Name = "Men" };
 
             _categoryRepoMock
-                .Setup(r => r.AnyAsync(It.IsAny<Expression<Func<Category, bool>>>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(false);
+                .Setup(r => r.FindOneAsync(
+                    It.IsAny<Expression<Func<Category, bool>>>(),
+                    true,
+                    It.IsAny<CancellationToken>()))
+                .ReturnsAsync((Category?)null);
 
-            _fileUploadServiceMock
-                .Setup(s => s.UploadAsync(It.IsAny<FileUploadRequest>(), It.IsAny<CancellationToken>()))
+            _fileUploadMock
+                .Setup(f => f.UploadAsync(It.IsAny<FileUploadRequest>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync("https://cdn.com/men.jpg");
 
             _mapperMock.Setup(m => m.Map<Category>(dto)).Returns(entity);
@@ -134,21 +156,24 @@ namespace Application.Tests.Products.Categories.CreateCategory
             var result = await _handler.Handle(command, CancellationToken.None);
 
             Assert.Equal("Men", result.Name);
-            _fileUploadServiceMock.Verify(
-                s => s.UploadAsync(It.IsAny<FileUploadRequest>(), It.IsAny<CancellationToken>()),
+            _fileUploadMock.Verify(
+                f => f.UploadAsync(It.IsAny<FileUploadRequest>(), It.IsAny<CancellationToken>()),
                 Times.Once);
         }
 
         [Fact]
-        public async Task Handle_ShouldReturnDto_WhenSuccessWithoutImage()
+        public async Task Handle_ShouldCreateSuccessfully_WithoutImage()
         {
             var dto = new UpsertCategoryDto { Name = "Pants" };
-            var entity = new Category { Name = "Pants" };
             var command = new CreateCategoryCommand(dto);
+            var entity = new Category { Name = "Pants" };
 
             _categoryRepoMock
-                .Setup(r => r.AnyAsync(It.IsAny<Expression<Func<Category, bool>>>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(false);
+                .Setup(r => r.FindOneAsync(
+                    It.IsAny<Expression<Func<Category, bool>>>(),
+                    true,
+                    It.IsAny<CancellationToken>()))
+                .ReturnsAsync((Category?)null);
 
             _mapperMock.Setup(m => m.Map<Category>(dto)).Returns(entity);
             _mapperMock.Setup(m => m.Map<UpsertCategoryDto>(entity)).Returns(dto);

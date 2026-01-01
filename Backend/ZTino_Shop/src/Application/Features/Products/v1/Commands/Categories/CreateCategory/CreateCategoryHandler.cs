@@ -39,15 +39,31 @@ namespace Application.Features.Products.v1.Commands.Categories.CreateCategory
                 if (parentCategory.ParentId != null)
                     throw new BusinessRuleException("Cannot assign a parent that is already a child. Only 1 level of hierarchy allowed.");
 
-                if (dto.ImageUrl != null)
+                bool hasImageUrl = !string.IsNullOrWhiteSpace(dto.ImageUrl);
+                bool hasImageFile = dto.ImgContent != null && dto.ImgContent.Length > 0;
+
+                if (hasImageUrl || hasImageFile)
+                {
                     throw new BusinessRuleException("Child categories cannot have an image.");
+                }
             }
 
-            bool nameExists = await _categoryRepository.AnyAsync(c => c.Name == dto.Name, cancellationToken);
-            if (nameExists)
-                throw new ConflictException("Category with the same name already exists.");
+            var duplicate = await _categoryRepository.FindOneAsync(c =>
+                c.Name == dto.Name || c.Slug == dto.Slug,
+                asNoTracking: true,
+                cancellationToken: cancellationToken);
+
+            if (duplicate != null)
+            {
+                if (duplicate.Name == dto.Name)
+                    throw new ConflictException($"Category name '{dto.Name}' already exists.");
+
+                if (duplicate.Slug == dto.Slug)
+                    throw new ConflictException($"Slug '{dto.Slug}' is already in use.");
+            }
 
             string imgUrl = string.Empty;
+
             if (dto.ImgContent != null && !string.IsNullOrWhiteSpace(dto.ImgFileName))
             {
                 var uploadRequest = new FileUploadRequest
