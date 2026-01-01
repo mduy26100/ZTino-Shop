@@ -76,7 +76,7 @@ const AppFooter = () => {
 
                 <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-center md:text-left">
                     <Text className="text-slate-500 text-sm">
-                        © {new Date().getFullYear()} Shopify Inc. All rights reserved.
+                        © {new Date().getFullYear()} ZTino. All rights reserved.
                     </Text>
                     <Space size="large" className="text-slate-500 text-sm">
                         <span>Currency: <span className="text-slate-300">VND</span></span>
