@@ -29,15 +29,27 @@ export const createCategory = (payload) => {
 };
 
 export const updateCategory = (payload) => {
-    const dto = {
-        id: payload.id,
-        name: payload.name,
-        slug: payload.slug,
-        isActive: payload.isActive ?? true,
-        parentId: payload.parentId || null,
-    };
+    const formData = new FormData();
 
-    return axiosClient.put(`${ENDPOINTS.ADMIN.CATEGORIES}/${payload.id}`, { dto });
+    formData.append("Id", payload.id);
+    formData.append("Name", payload.name?.trim() || "");
+    formData.append("Slug", payload.slug?.trim() || "");
+
+    formData.append("IsActive", payload.isActive ?? true);
+
+    if (payload.parentId) {
+        formData.append("ParentId", payload.parentId);
+    }
+
+    if (payload.image) {
+        formData.append("ImageUrl", payload.image); 
+    }
+
+    return axiosClient.put(`${ENDPOINTS.ADMIN.CATEGORIES}/${payload.id}`, formData, {
+        headers: {
+            "Content-Type": "multipart/form-data",
+        },
+    });
 };
 
 export const deleteCategory = (id) => {
