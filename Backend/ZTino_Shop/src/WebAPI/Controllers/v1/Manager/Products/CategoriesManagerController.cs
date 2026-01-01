@@ -37,8 +37,10 @@ namespace WebAPI.Controllers.v1.Manager.Products
         }
 
         [HttpPut("{Id:int}")]
-        public async Task<IActionResult> UpdateCategory(int Id, UpdateCategoryCommand command, CancellationToken cancellationToken)
+        [Consumes("multipart/form-data")]
+        public async Task<IActionResult> UpdateCategory(int Id, [FromForm] UpsertCategoryForm form, CancellationToken cancellationToken)
         {
+            var command = new UpdateCategoryCommand(form.ToDto());
             var result = await _mediator.Send(command, cancellationToken);
             return Ok(result);
         }

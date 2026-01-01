@@ -19,6 +19,7 @@ namespace WebAPI.Requests.Products.Product
                 Name = Name,
                 Slug = Slug,
                 IsActive = IsActive,
+                ParentId = ParentId,
                 ImgContent = ImageUrl?.OpenReadStream(),
                 ImgFileName = ImageUrl?.FileName,
                 ImgContentType = ImageUrl?.ContentType,

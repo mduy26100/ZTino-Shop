@@ -19,6 +19,11 @@
                 .Matches(@"^[a-z0-9-]+$").WithMessage("Slug can only contain lowercase letters, numbers, and hyphens.")
                 .MaximumLength(200).WithMessage("Slug must not exceed 200 characters.");
 
+            RuleFor(x => x.Dto.ImageUrl)
+                .MaximumLength(500)
+                .When(x => !string.IsNullOrWhiteSpace(x.Dto.ImageUrl))
+                .WithMessage("ImageUrl must not exceed 500 characters.");
+
             RuleFor(x => x.Dto.ParentId)
                 .GreaterThan(0).When(x => x.Dto.ParentId.HasValue)
                 .WithMessage("ParentId must be greater than 0 if specified.");
