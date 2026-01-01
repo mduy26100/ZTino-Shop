@@ -21,7 +21,10 @@ const ProductTable = ({
             width: 300,
             render: (text, record) => (
                 <div className="flex items-center gap-3 group cursor-pointer" onClick={() => onViewDetail?.(record)}>
-                    <div className="flex-shrink-0 border border-gray-100 rounded-lg overflow-hidden w-12 h-12 relative">
+                    <div 
+                        className="flex-shrink-0 border border-gray-100 rounded-lg overflow-hidden w-12 h-12 relative"
+                        onClick={(e) => e.stopPropagation()} 
+                    >
                         <Image
                             src={record.mainImageUrl}
                             alt={text}
@@ -29,11 +32,10 @@ const ProductTable = ({
                             height={48}
                             className="object-cover"
                             fallback="https://via.placeholder.com/48x48?text=No+Img"
-                            preview={false}
+                            preview={{
+                                mask: <div className="flex items-center justify-center h-full w-full bg-black/50 text-white"><EyeOutlined /></div>
+                            }}
                         />
-                        <div className="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                            <EyeOutlined className="text-white text-xs" />
-                        </div>
                     </div>
                     <div className="flex flex-col">
                         <Text strong className="text-sm line-clamp-1 group-hover:text-indigo-600 transition-colors" title={text}>
