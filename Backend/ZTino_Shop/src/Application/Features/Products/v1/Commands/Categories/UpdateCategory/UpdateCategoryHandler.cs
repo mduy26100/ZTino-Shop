@@ -35,12 +35,19 @@ namespace Application.Features.Products.v1.Commands.Categories.UpdateCategory
             if (entity is null)
                 throw new NotFoundException($"Category with Id {dto.Id} not found.");
 
-            var nameExists = await _categoryRepository.AnyAsync(
-                c => c.Id != dto.Id && c.Name == dto.Name,
-                cancellationToken);
+            var duplicate = await _categoryRepository.FindOneAsync(c =>
+                c.Id != dto.Id && (c.Name == dto.Name || c.Slug == dto.Slug),
+                asNoTracking: true,
+                cancellationToken: cancellationToken);
 
-            if (nameExists)
-                throw new ConflictException("Category with the same name already exists.");
+            if (duplicate != null)
+            {
+                if (duplicate.Name.Equals(dto.Name, StringComparison.OrdinalIgnoreCase))
+                    throw new ConflictException($"Category name '{dto.Name}' already exists.");
+
+                if (duplicate.Slug.Equals(dto.Slug, StringComparison.OrdinalIgnoreCase))
+                    throw new ConflictException($"Slug '{dto.Slug}' is already in use.");
+            }
 
             if (dto.ParentId.HasValue)
             {
