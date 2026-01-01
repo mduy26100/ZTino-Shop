@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Modal, Form, Input, Checkbox, Select, Button, Upload, message, Image } from 'antd'; // Import Image
+import { Modal, Form, Input, Checkbox, Select, Button, Upload, message, Image } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 
 const getBase64 = (file) =>

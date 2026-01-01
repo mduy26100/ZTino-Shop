@@ -186,6 +186,7 @@ const UpsertProductModal = ({
                     mask: { backdropFilter: 'blur(4px)' },
                     content: { padding: '24px', borderRadius: '16px' }
                 }}
+                zIndex={1000}
             >
                 <Form form={form} layout="vertical" className="pt-4">
                     <Row gutter={24}>
@@ -304,6 +305,7 @@ const UpsertProductModal = ({
                     onVisibleChange: (value) => {
                         setPreviewOpen(value);
                     },
+                    zIndex: 2000
                 }}
             />
         </>
