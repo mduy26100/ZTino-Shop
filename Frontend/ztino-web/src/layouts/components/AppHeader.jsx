@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Layout, Menu, Input, Badge, Button, Dropdown, Space, Avatar, Typography, Drawer, Divider } from 'antd';
+import React, { useState, useMemo } from 'react';
+import { Layout, Menu, Input, Badge, Button, Dropdown, Space, Avatar, Typography, Drawer, Divider, message } from 'antd';
 import { 
     ShoppingCartOutlined, 
     UserOutlined, 
@@ -7,27 +7,75 @@ import {
     MenuOutlined,
     HeartOutlined,
     LogoutOutlined,
-    ProfileOutlined,
     ShoppingOutlined,
     HomeOutlined,
     PhoneOutlined,
-    InfoCircleOutlined
+    InfoCircleOutlined,
+    DownOutlined
 } from '@ant-design/icons';
 import { Link, useNavigate } from 'react-router-dom';
+import { useGetCategories } from '../../features';
 
 const { Header } = Layout;
-const { Text, Title } = Typography;
+const { Text } = Typography;
 
 const AppHeader = () => {
     const navigate = useNavigate();
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    
+    const { data: categories, isLoading, error } = useGetCategories();
 
-    const menuItems = [
-        { key: 'home', label: <Link to="/">Home</Link>, icon: <HomeOutlined /> },
-        { key: 'products', label: <Link to="/products">Shop</Link>, icon: <ShoppingOutlined /> },
-        { key: 'about', label: <Link to="/about">About Us</Link>, icon: <InfoCircleOutlined /> },
-        { key: 'contact', label: <Link to="/contact">Contact</Link>, icon: <PhoneOutlined /> },
-    ];
+    if (error) {
+        console.error("Failed to load menu categories:", error); 
+    }
+
+    const menuItems = useMemo(() => {
+        const items = [
+            { key: 'home', label: <Link to="/">Home</Link>, icon: <HomeOutlined /> },
+        ];
+
+        if (categories && categories.length > 0) {
+            const categoryMenuItems = categories
+                .filter(cat => cat.parentId === null) 
+                .map(rootCat => {
+                    const childrenItems = rootCat.children?.map(child => ({
+                        key: `cat-${child.id}`,
+                        label: <Link to={`/products?category=${child.slug}`}>{child.name}</Link>
+                    }));
+
+                    return {
+                        key: `root-${rootCat.id}`,
+                        label: (
+                            <span 
+                                onClick={(e) => {
+                                    navigate(`/products?category=${rootCat.slug}`);
+                                    if (mobileMenuOpen) setMobileMenuOpen(false);
+                                }}
+                                className="cursor-pointer"
+                            >
+                                {rootCat.name}
+                            </span>
+                        ),
+                        children: childrenItems.length > 0 ? childrenItems : null, 
+                        onClick: childrenItems.length === 0 ? () => {
+                            navigate(`/products?category=${rootCat.slug}`);
+                            if(mobileMenuOpen) setMobileMenuOpen(false);
+                        } : undefined 
+                    };
+                });
+            
+            items.push(...categoryMenuItems);
+        } else {
+            items.push({ key: 'products', label: <Link to="/products">Shop</Link>, icon: <ShoppingOutlined /> });
+        }
+
+        items.push(
+            { key: 'about', label: <Link to="/about">About Us</Link>, icon: <InfoCircleOutlined /> },
+            { key: 'contact', label: <Link to="/contact">Contact</Link>, icon: <PhoneOutlined /> }
+        );
+
+        return items;
+    }, [categories, navigate, mobileMenuOpen]);
 
     const userMenuItems = [
         { key: 'profile', label: 'My Profile', icon: <UserOutlined /> },
@@ -88,8 +136,8 @@ const AppHeader = () => {
                 <Divider style={{ margin: '12px 0' }} />
                 
                 <div className="flex flex-col gap-1">
-                    {userMenuItems.map(item => {
-                        if (item.type === 'divider') return null;
+                    {userMenuItems.map((item, index) => {
+                        if (item.type === 'divider') return <Divider key={`div-${index}`} style={{ margin: '4px 0' }} />;
                         return (
                             <Button 
                                 key={item.key} 
@@ -134,7 +182,8 @@ const AppHeader = () => {
                         <Menu 
                             mode="horizontal" 
                             items={menuItems} 
-                            className="border-none w-full max-w-md justify-center text-base font-medium"
+                            disabled={isLoading}
+                            className="border-none w-full max-w-2xl justify-center text-base font-medium"
                             style={{ background: 'transparent' }}
                         />
                     </div>
@@ -184,11 +233,16 @@ const AppHeader = () => {
                     />
 
                     <Text type="secondary" className="text-xs uppercase font-bold tracking-wider mb-2 block">Navigation</Text>
+                    
                     <Menu 
                         mode="inline" 
                         items={menuItems} 
                         className="border-none w-full -mx-4 px-2"
-                        onClick={closeMobileMenu}
+                        onClick={(e) => {
+                            if (!e.key.startsWith('sub-')) {
+                                closeMobileMenu();
+                            }
+                        }}
                         selectedKeys={[window.location.pathname.substring(1) || 'home']}
                     />
 
