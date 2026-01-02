@@ -23,5 +23,15 @@ namespace Infrastructure.Products.Services
                 .AsSplitQuery()
                 .FirstOrDefaultAsync(cancellationToken);
         }
+
+        public async Task<ProductDetailDto?> GetProductDetailBySlugAsync(string slug, CancellationToken cancellationToken)
+        {
+            return await _context.Products
+                .AsNoTracking()
+                .Where(p => p.Slug == slug)
+                .Select(ProductExpressions.MapToDetailDto)
+                .AsSplitQuery()
+                .FirstOrDefaultAsync(cancellationToken);
+        }
     }
 }

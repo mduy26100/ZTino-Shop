@@ -1,5 +1,6 @@
 ﻿using Application.Features.Products.v1.Queries.Products.GetAllProducts;
 using Application.Features.Products.v1.Queries.Products.GetProductDetail;
+using Application.Features.Products.v1.Queries.Products.GetProductDetailBySlug;
 using Application.Features.Products.v1.Queries.Products.GetProductsByCategoryId;
 
 namespace WebAPI.Controllers.v1.Products
@@ -28,6 +29,16 @@ namespace WebAPI.Controllers.v1.Products
         public async Task<IActionResult> GetProductDetail(int id, CancellationToken cancellationToken)
         {
             var query = new GetProductDetailQuery(id);
+            var result = await _mediator.Send(query, cancellationToken);
+            if (result is null)
+                return NotFound();
+            return Ok(result);
+        }
+
+        [HttpGet("{slug}")]
+        public async Task<IActionResult> GetProductDetailBySlug(string slug, CancellationToken cancellationToken)
+        {
+            var query = new GetProductDetailBySlugQuery(slug);
             var result = await _mediator.Send(query, cancellationToken);
             if (result is null)
                 return NotFound();
