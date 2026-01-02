@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { CategorySection, EditorialSection, HeroSection, NewArrivalsSection, ServicesSection } from '../../../features';
+import { CategorySection, EditorialSection, HeroSection, NewArrivalsSection, ServicesSection } from '../../features';
 
 const HomePage = () => {
     const navigate = useNavigate();
