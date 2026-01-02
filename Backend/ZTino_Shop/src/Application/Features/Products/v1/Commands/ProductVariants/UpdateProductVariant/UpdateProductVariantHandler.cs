@@ -1,7 +1,7 @@
 ﻿using Application.Common.Interfaces.Persistence.Data;
 using Application.Features.Products.v1.DTOs.ProductVariants;
 using Application.Features.Products.v1.Repositories;
-using Domain.Models.Products;
+using ProductColorEntity = Domain.Models.Products.ProductColor;
 
 namespace Application.Features.Products.v1.Commands.ProductVariants.UpdateProductVariant
 {
@@ -60,7 +60,7 @@ namespace Application.Features.Products.v1.Commands.ProductVariants.UpdateProduc
 
             if (productColor == null)
             {
-                productColor = new ProductColor
+                productColor = new ProductColorEntity
                 {
                     ProductId = dto.ProductId,
                     ColorId = dto.ColorId
