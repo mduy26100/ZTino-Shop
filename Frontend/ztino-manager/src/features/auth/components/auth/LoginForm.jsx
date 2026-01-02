@@ -5,32 +5,40 @@ import PropTypes from 'prop-types';
 
 const LoginForm = ({ onFinish, isLoading }) => {
     const [form] = Form.useForm();
-    const [isEmailValid, setIsEmailValid] = useState(false);
+    const [isValidIdentifier, setIsValidIdentifier] = useState(false);
 
     useEffect(() => {
-        const savedEmail = localStorage.getItem('remembered_email');
-        if (savedEmail) {
-            form.setFieldsValue({ email: savedEmail, remember: true });
-            setIsEmailValid(true); 
+        const savedIdentifier = localStorage.getItem('remembered_identifier');
+        if (savedIdentifier) {
+            form.setFieldsValue({ identifier: savedIdentifier, remember: true });
+            validateIdentifier(savedIdentifier);
         }
     }, [form]);
 
-    const handleEmailChange = (e) => {
-        const value = e.target.value;
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        
-        if (emailRegex.test(value)) {
-            setIsEmailValid(true);
-        } else {
-            setIsEmailValid(false);
+    const validateIdentifier = (value) => {
+        if (!value) {
+            setIsValidIdentifier(false);
+            return;
         }
+
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        const usernameRegex = /^[a-zA-Z0-9_.]+$/;
+        
+        const isEmail = emailRegex.test(value);
+        const isUsername = usernameRegex.test(value) && value.length >= 3 && value.length <= 50;
+
+        setIsValidIdentifier(isEmail || isUsername);
+    };
+
+    const handleInputChange = (e) => {
+        validateIdentifier(e.target.value);
     };
 
     const handleSubmit = (values) => {
         if (values.remember) {
-            localStorage.setItem('remembered_email', values.email);
+            localStorage.setItem('remembered_identifier', values.identifier);
         } else {
-            localStorage.removeItem('remembered_email');
+            localStorage.removeItem('remembered_identifier');
         }
         onFinish(values);
     };
@@ -46,25 +54,25 @@ const LoginForm = ({ onFinish, isLoading }) => {
             size="large"
         >
             <Form.Item
-                label="Email Address"
-                name="email"
+                label="Email or Username"
+                name="identifier"
                 rules={[
-                    { required: true, message: 'Please input your Email!' },
-                    { type: 'email', message: 'Invalid email format!' }
+                    { required: true, message: 'Please input your Email or Username!' },
+                    { min: 3, message: 'Identifier must be at least 3 characters' }
                 ]}
                 className="mb-5"
             >
                 <Input 
-                    onChange={handleEmailChange}
+                    onChange={handleInputChange}
                     prefix={<UserOutlined className="text-gray-400" />} 
                     suffix={
-                        isEmailValid && (
-                            <Tooltip title="Email format is valid">
+                        isValidIdentifier && (
+                            <Tooltip title="Valid format">
                                 <CheckCircleFilled className="text-green-500 animate-fade-in" />
                             </Tooltip>
                         )
                     }
-                    placeholder="Enter your email" 
+                    placeholder="Enter email or username" 
                     className="rounded-lg py-2.5" 
                 />
             </Form.Item>
@@ -72,7 +80,10 @@ const LoginForm = ({ onFinish, isLoading }) => {
             <Form.Item
                 label="Password"
                 name="password"
-                rules={[{ required: true, message: 'Please input your Password!' }]}
+                rules={[
+                    { required: true, message: 'Please input your Password!' },
+                    { min: 6, message: 'Password must be at least 6 characters' }
+                ]}
                 className="mb-5"
             >
                 <Input.Password 

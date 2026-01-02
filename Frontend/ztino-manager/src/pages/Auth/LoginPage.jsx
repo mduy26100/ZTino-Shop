@@ -20,12 +20,13 @@ const LoginPage = () => {
                 state: { showSuccessLogin: true } 
             });
             
-        } catch (err) {            
-            const apiErrorMessage = err.Error?.Message || err.message || 'Invalid email or password.';
+        } catch (error) {            
+            const errorMessage = error?.error?.message || error?.message || 'Login failed. Please check your credentials.';
             
             messageApi.open({
                 type: 'error',
-                content: apiErrorMessage,
+                content: errorMessage,
+                duration: 4,
             });
         }
     };
@@ -45,8 +46,8 @@ const LoginPage = () => {
                             <div className="flex items-center justify-center w-16 h-16 bg-blue-50 rounded-full mb-4 text-blue-600">
                                 <SafetyCertificateFilled style={{ fontSize: '32px' }} />
                             </div>
-                            <Title level={3} className="!mb-1 !text-gray-700">Welcome back, Manager</Title>
-                            <Text type="secondary">Access your Z-Tino dashboard</Text>
+                            <Title level={3} className="!mb-1 !text-gray-700">Welcome back</Title>
+                            <Text type="secondary">Sign in with Email or Username</Text>
                         </div>
 
                         <LoginForm 

@@ -1,10 +1,7 @@
 import { useState } from 'react';
-import { loginAPI } from '../../api/authentication.api';
+import { loginAPI } from '../../api/auth.api';
 import { decodeToken, getRolesFromToken } from '../../../../utils/jwtDecode';
 import { useAuth } from '../../../../contexts/AuthContext';
-
-const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const PWD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
 
 export const useLogin = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -12,21 +9,49 @@ export const useLogin = () => {
   
   const { login: contextLogin } = useAuth();
 
+  const isValidEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  const isValidUsername = (username) => {
+    if (!username || !username.trim()) return false;
+    if (username.length < 3 || username.length > 50) return false;
+    const usernameRegex = /^[a-zA-Z0-9_.]+$/; 
+    return usernameRegex.test(username);
+  };
+
   const validate = (credentials) => {
-    if (!credentials.email || !EMAIL_REGEX.test(credentials.email)) return "Invalid email format";
-    if (!credentials.password || !PWD_REGEX.test(credentials.password)) return "Password validation failed...";
+    const { identifier, password } = credentials;
+
+    if (!password) return "Password is required.";
+    if (password.length < 6) return "Password must be at least 6 characters.";
+
+    if (!identifier) return "Identifier (Email or Username) is required.";
+
+    if (identifier.includes('@')) {
+      if (!isValidEmail(identifier)) return "Invalid email format.";
+    } else {
+      if (!isValidUsername(identifier)) return "Invalid username format (3-50 chars, allowed: letters, numbers, _, .).";
+    }
+
     return null;
   };
 
-  const login = async (credentials) => {
+  const login = async (values) => {
     setIsLoading(true);
     setError(null);
 
     try {
-      const validationError = validate(credentials);
+      const payload = {
+        identifier: values.identifier || values.email || values.username,
+        password: values.password
+      };
+
+      const validationError = validate(payload);
       if (validationError) throw new Error(validationError);
 
-      const data = await loginAPI(credentials);
+      const data = await loginAPI(payload);
 
       if (!data || !data.accessToken) throw new Error("System failed to provide access token");
 
@@ -50,7 +75,10 @@ export const useLogin = () => {
       return data;
 
     } catch (err) {
-      let msg = err?.Error?.Message || err?.message || "An unexpected error occurred";
+      let msg = err?.response?.data?.errors 
+        ? Object.values(err.response.data.errors).flat().join(', ') 
+        : err?.Error?.Message || err?.message || "An unexpected error occurred";
+      
       setError(msg);
       throw err;
     } finally {

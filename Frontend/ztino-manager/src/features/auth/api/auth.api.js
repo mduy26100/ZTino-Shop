@@ -5,7 +5,7 @@ const loginAPI = async (data) => {
     try {
         const response = await axiosClient.post(`${ENDPOINTS.AUTH}/login`, {
             dto: {
-                email: data.email,
+                identifier: data.identifier,
                 password: data.password
             }
         });

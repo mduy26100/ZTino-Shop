@@ -11,7 +11,7 @@ const Dashboard = () => {
     useEffect(() => {
         if (location.state?.showSuccessLogin && !hasShownToast.current) {
             
-            messageApi.success('Login successful!');
+            messageApi.success('Welcome, manager.');
             
             hasShownToast.current = true;
 
