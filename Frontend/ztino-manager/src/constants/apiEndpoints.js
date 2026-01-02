@@ -12,7 +12,7 @@ export const ENDPOINTS = {
     CATEGORIES: "/admin/categories",
     COLORS: "/admin/colors",
     SIZES: "/admin/sizes",
-    VARIANTS: "/admin/product-variants",
+    PRODUCT_VARIANTS: "/admin/product-variants",
     PRODUCT_IMAGES: "/admin/product-images",
   },
 };
