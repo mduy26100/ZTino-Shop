@@ -16,5 +16,6 @@ namespace Application.Features.Products.v1.DTOs.Products
         public DateTime? UpdatedAt { get; set; }
         public CategoryDto Category { get; set; } = default!;
         public List<ProductVariantDto> Variants { get; set; } = new();
+        public List<ProductVariantGroupDto> VariantGroups { get; set; } = new();
     }
 }
