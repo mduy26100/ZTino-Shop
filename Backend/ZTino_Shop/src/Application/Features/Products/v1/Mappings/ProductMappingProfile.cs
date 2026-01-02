@@ -13,6 +13,8 @@ namespace Application.Features.Products.v1.Mappings
                 .ForMember(dest => dest.MainImageUrl, opt => opt.Ignore());
 
             CreateMap<Product, ProductDto>().ReverseMap();
+
+            CreateMap<Product, ProductSummaryDto>().ReverseMap();
         }
     }
 }

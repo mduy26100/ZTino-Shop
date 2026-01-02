@@ -1,5 +1,6 @@
 ﻿using Application.Features.Products.v1.Queries.Products.GetAllProducts;
 using Application.Features.Products.v1.Queries.Products.GetProductDetail;
+using Application.Features.Products.v1.Queries.Products.GetProductsByCategoryId;
 
 namespace WebAPI.Controllers.v1.Products
 {
@@ -30,6 +31,15 @@ namespace WebAPI.Controllers.v1.Products
             var result = await _mediator.Send(query, cancellationToken);
             if (result is null)
                 return NotFound();
+            return Ok(result);
+        }
+
+        [HttpGet("category/{categoryId:int}")]
+        public async Task<IActionResult> GetProductsByCategoryId(int categoryId, CancellationToken cancellationToken)
+        {
+            var query = new GetProductsByCategoryIdQuery(categoryId);
+            var result = await _mediator.Send(query, cancellationToken);
+
             return Ok(result);
         }
     }
