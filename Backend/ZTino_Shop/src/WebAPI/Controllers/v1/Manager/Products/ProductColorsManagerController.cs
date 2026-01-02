@@ -1,4 +1,5 @@
 ﻿using Application.Features.Products.v1.Commands.ProductColor.CreateProductColor;
+using Application.Features.Products.v1.Commands.ProductColor.UpdateProductColor;
 using Domain.Consts;
 
 namespace WebAPI.Controllers.v1.Manager.Products
@@ -18,6 +19,13 @@ namespace WebAPI.Controllers.v1.Manager.Products
 
         [HttpPost]
         public async Task<IActionResult> CreateProductColor(CreateProductColorCommand command, CancellationToken cancellationToken)
+        {
+            var result = await _mediator.Send(command, cancellationToken);
+            return Ok(result);
+        }
+
+        [HttpPut("{Id:int}")]
+        public async Task<IActionResult> UpdateProductColor(int Id, UpdateProductColorCommand command, CancellationToken cancellationToken)
         {
             var result = await _mediator.Send(command, cancellationToken);
             return Ok(result);
