@@ -13,7 +13,9 @@
                 .MaximumLength(50).WithMessage("Last name must be at most 50 characters.");
 
             RuleFor(x => x.Dto.UserName)
-                .NotEmpty().WithMessage("UserName is required.");
+                .NotEmpty().WithMessage("UserName is required.")
+                .Length(3, 50).WithMessage("UserName must be between 3 and 50 characters.")
+                .Matches(@"^[a-zA-Z0-9_.]+$").WithMessage("UserName can only contain letters, numbers, underscores, or dots.");
 
             RuleFor(x => x.Dto.PhoneNumber)
                 .NotEmpty().WithMessage("Phone number is required.");
