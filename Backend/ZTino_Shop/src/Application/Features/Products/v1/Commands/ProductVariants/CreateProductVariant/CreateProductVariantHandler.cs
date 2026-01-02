@@ -11,13 +11,16 @@ namespace Application.Features.Products.v1.Commands.ProductVariants.CreateProduc
         private readonly IProductRepository _productRepository;
         private readonly ISizeRepository _sizeRepository;
         private readonly IColorRepository _colorRepository;
+        private readonly IProductColorRepository _productColorRepository;
         private readonly IMapper _mapper;
         private readonly IApplicationDbContext _context;
 
-        public CreateProductVariantHandler(IProductVariantRepository productVariantRepository,
+        public CreateProductVariantHandler(
+            IProductVariantRepository productVariantRepository,
             IProductRepository productRepository,
             ISizeRepository sizeRepository,
             IColorRepository colorRepository,
+            IProductColorRepository productColorRepository,
             IMapper mapper,
             IApplicationDbContext context)
         {
@@ -25,32 +28,51 @@ namespace Application.Features.Products.v1.Commands.ProductVariants.CreateProduc
             _productRepository = productRepository;
             _sizeRepository = sizeRepository;
             _colorRepository = colorRepository;
+            _productColorRepository = productColorRepository;
             _mapper = mapper;
             _context = context;
         }
 
         public async Task<UpsertProductVariantDto> Handle(CreateProductVariantCommand request, CancellationToken cancellationToken)
         {
-            var productExists = await _productRepository.AnyAsync(p => p.Id == request.Dto.ProductId, cancellationToken);
-            if (!productExists)
-                throw new NotFoundException("Product not found.");
+            var dto = request.Dto;
 
-            var sizeExists = await _sizeRepository.AnyAsync(s => s.Id == request.Dto.SizeId, cancellationToken);
-            if (!sizeExists)
-                throw new NotFoundException("Size not found.");
+            var productExists = await _productRepository.AnyAsync(p => p.Id == dto.ProductId, cancellationToken);
+            if (!productExists) throw new NotFoundException("Product not found.");
 
-            var colorExists = await _colorRepository.AnyAsync(c => c.Id == request.Dto.ColorId, cancellationToken);
-            if (!colorExists)
-                throw new NotFoundException("Color not found.");
+            var sizeExists = await _sizeRepository.AnyAsync(s => s.Id == dto.SizeId, cancellationToken);
+            if (!sizeExists) throw new NotFoundException("Size not found.");
 
-            var variantExists = await _productVariantRepository.AnyAsync(pv => pv.ProductId == request.Dto.ProductId &&
-                                                                             pv.SizeId == request.Dto.SizeId &&
-                                                                             pv.ColorId == request.Dto.ColorId,
-                                                                             cancellationToken);
+            var colorExists = await _colorRepository.AnyAsync(c => c.Id == dto.ColorId, cancellationToken);
+            if (!colorExists) throw new NotFoundException("Color not found.");
+
+            var productColor = await _productColorRepository.FindOneAsync(
+                pc => pc.ProductId == dto.ProductId && pc.ColorId == dto.ColorId,
+                false,
+                cancellationToken);
+
+            if (productColor == null)
+            {
+                productColor = new ProductColor
+                {
+                    ProductId = dto.ProductId,
+                    ColorId = dto.ColorId
+                };
+                await _productColorRepository.AddAsync(productColor, cancellationToken);
+
+                await _context.SaveChangesAsync(cancellationToken);
+            }
+
+            var variantExists = await _productVariantRepository.AnyAsync(pv =>
+                pv.ProductColorId == productColor.Id &&
+                pv.SizeId == dto.SizeId,
+                cancellationToken);
+
             if (variantExists)
-                throw new ConflictException("Product variant with the same product, size, and color already exists.");
+                throw new ConflictException("This size already exists for the selected color of this product.");
 
-            var entity = _mapper.Map<ProductVariant>(request.Dto);
+            var entity = _mapper.Map<ProductVariant>(dto);
+            entity.ProductColorId = productColor.Id;
 
             await _productVariantRepository.AddAsync(entity, cancellationToken);
             await _context.SaveChangesAsync(cancellationToken);

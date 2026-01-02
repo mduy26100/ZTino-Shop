@@ -14,6 +14,6 @@
         public DateTime? UpdatedAt { get; set; }
 
         public Category Category { get; set; } = default!;
-        public ICollection<ProductVariant> Variants { get; set; } = new List<ProductVariant>();
+        public ICollection<ProductColor> ProductColors { get; set; } = new List<ProductColor>();
     }
 }

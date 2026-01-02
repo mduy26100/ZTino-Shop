@@ -20,12 +20,12 @@ namespace Infrastructure.Data.Configurations.Products
             builder.Property(pi => pi.DisplayOrder)
                 .HasDefaultValue(0);
 
-            builder.HasOne(pi => pi.ProductVariant)
-                .WithMany(v => v.Images)
-                .HasForeignKey(pi => pi.ProductVariantId)
+            builder.HasOne(pi => pi.ProductColor)
+                .WithMany(pc => pc.Images)
+                .HasForeignKey(pi => pi.ProductColorId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            builder.HasIndex(pi => new { pi.ProductVariantId, pi.IsMain })
+            builder.HasIndex(pi => new { pi.ProductColorId, pi.IsMain })
                 .IsUnique()
                 .HasFilter("[IsMain] = 1");
         }

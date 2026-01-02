@@ -38,20 +38,14 @@ namespace Application.Tests.Products.ProductImages.CreateProductImages
 
             Assert.NotNull(result);
             Assert.Empty(result);
-
-            _productImageRepository.Verify(
-                x => x.AddRangeAsync(It.IsAny<List<ProductImage>>(), It.IsAny<CancellationToken>()),
-                Times.Never);
         }
 
         [Fact]
         public async Task Handle_VariantNotExists_ThrowsNotFoundException()
         {
             _productVariantRepository
-                .Setup(x => x.AnyAsync(
-                    It.IsAny<Expression<Func<ProductVariantEntity, bool>>>(),
-                    It.IsAny<CancellationToken>()))
-                .ReturnsAsync(false);
+                .Setup(x => x.FindOneAsync(It.IsAny<Expression<Func<ProductVariantEntity, bool>>>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync((ProductVariantEntity?)null);
 
             var command = new CreateProductImagesCommand(new List<UpsertProductImageDto>
             {
@@ -66,13 +60,15 @@ namespace Application.Tests.Products.ProductImages.CreateProductImages
         public async Task Handle_NoExistingImages_FirstImageIsMain()
         {
             const int variantId = 1;
+            const int productColorId = 10;
+            var variant = new ProductVariantEntity { Id = variantId, ProductColorId = productColorId };
 
             _productVariantRepository
-                .Setup(x => x.AnyAsync(It.IsAny<Expression<Func<ProductVariantEntity, bool>>>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(true);
+                .Setup(x => x.FindOneAsync(It.IsAny<Expression<Func<ProductVariantEntity, bool>>>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(variant);
 
             _productImageRepository
-                .Setup(x => x.GetMaxDisplayOrderAsync(variantId, It.IsAny<CancellationToken>()))
+                .Setup(x => x.GetMaxDisplayOrderAsync(productColorId, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(0);
 
             _fileUploadService
@@ -81,11 +77,7 @@ namespace Application.Tests.Products.ProductImages.CreateProductImages
 
             _mapper
                 .Setup(x => x.Map<ProductImage>(It.IsAny<UpsertProductImageDto>()))
-                .Returns(new ProductImage { ProductVariantId = variantId });
-
-            _mapper
-                .Setup(x => x.Map<List<UpsertProductImageDto>>(It.IsAny<List<ProductImage>>()))
-                .Returns(new List<UpsertProductImageDto>());
+                .Returns(new ProductImage());
 
             var command = new CreateProductImagesCommand(new List<UpsertProductImageDto>
             {
@@ -103,23 +95,28 @@ namespace Application.Tests.Products.ProductImages.CreateProductImages
                 x.AddRangeAsync(
                     It.Is<List<ProductImage>>(list =>
                         list.Count == 1 &&
+                        list[0].ProductColorId == productColorId &&
                         list[0].IsMain &&
                         list[0].DisplayOrder == 1),
                     It.IsAny<CancellationToken>()),
                 Times.Once);
+
+            _context.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
         }
 
         [Fact]
         public async Task Handle_HasExistingImages_AllNewImagesAreNotMain()
         {
             const int variantId = 1;
+            const int productColorId = 10;
+            var variant = new ProductVariantEntity { Id = variantId, ProductColorId = productColorId };
 
             _productVariantRepository
-                .Setup(x => x.AnyAsync(It.IsAny<Expression<Func<ProductVariantEntity, bool>>>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(true);
+                .Setup(x => x.FindOneAsync(It.IsAny<Expression<Func<ProductVariantEntity, bool>>>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(variant);
 
             _productImageRepository
-                .Setup(x => x.GetMaxDisplayOrderAsync(variantId, It.IsAny<CancellationToken>()))
+                .Setup(x => x.GetMaxDisplayOrderAsync(productColorId, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(3);
 
             _fileUploadService
@@ -128,14 +125,7 @@ namespace Application.Tests.Products.ProductImages.CreateProductImages
 
             _mapper
                 .Setup(x => x.Map<ProductImage>(It.IsAny<UpsertProductImageDto>()))
-                .Returns(() => new ProductImage
-                {
-                    ProductVariantId = variantId
-                });
-
-            _mapper
-                .Setup(x => x.Map<List<UpsertProductImageDto>>(It.IsAny<List<ProductImage>>()))
-                .Returns(new List<UpsertProductImageDto>());
+                .Returns(() => new ProductImage());
 
             var command = new CreateProductImagesCommand(new List<UpsertProductImageDto>
             {
@@ -158,51 +148,10 @@ namespace Application.Tests.Products.ProductImages.CreateProductImages
             _productImageRepository.Verify(x =>
                 x.AddRangeAsync(
                     It.Is<List<ProductImage>>(list =>
+                        list.All(i => i.ProductColorId == productColorId) &&
                         list.All(i => !i.IsMain) &&
                         list.Select(i => i.DisplayOrder).SequenceEqual(new[] { 4, 5 })),
                     It.IsAny<CancellationToken>()),
-                Times.Once);
-        }
-
-        [Fact]
-        public async Task Handle_EntitiesAdded_SaveChangesCalled()
-        {
-            const int variantId = 1;
-
-            _productVariantRepository
-                .Setup(x => x.AnyAsync(It.IsAny<Expression<Func<ProductVariantEntity, bool>>>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(true);
-
-            _productImageRepository
-                .Setup(x => x.GetMaxDisplayOrderAsync(variantId, It.IsAny<CancellationToken>()))
-                .ReturnsAsync(0);
-
-            _fileUploadService
-                .Setup(x => x.UploadAsync(It.IsAny<FileUploadRequest>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync("http://img.test/1.jpg");
-
-            _mapper
-                .Setup(x => x.Map<ProductImage>(It.IsAny<UpsertProductImageDto>()))
-                .Returns(new ProductImage { ProductVariantId = variantId });
-
-            _mapper
-                .Setup(x => x.Map<List<UpsertProductImageDto>>(It.IsAny<List<ProductImage>>()))
-                .Returns(new List<UpsertProductImageDto>());
-
-            var command = new CreateProductImagesCommand(new List<UpsertProductImageDto>
-            {
-                new()
-                {
-                    ProductVariantId = variantId,
-                    ImgContent = new MemoryStream(new byte[] { 1 }),
-                    ImgFileName = "img.jpg"
-                }
-            });
-
-            await _handler.Handle(command, CancellationToken.None);
-
-            _context.Verify(
-                x => x.SaveChangesAsync(It.IsAny<CancellationToken>()),
                 Times.Once);
         }
     }

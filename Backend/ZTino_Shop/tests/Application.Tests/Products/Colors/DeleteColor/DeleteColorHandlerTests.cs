@@ -8,25 +8,25 @@ namespace Application.Tests.Products.Colors.DeleteColor
     public class DeleteColorHandlerTests
     {
         private readonly Mock<IColorRepository> _colorRepositoryMock;
-        private readonly Mock<IProductVariantRepository> _variantRepositoryMock;
+        private readonly Mock<IProductColorRepository> _productColorRepositoryMock;
         private readonly Mock<IApplicationDbContext> _contextMock;
         private readonly DeleteColorHandler _handler;
 
         public DeleteColorHandlerTests()
         {
             _colorRepositoryMock = new Mock<IColorRepository>();
-            _variantRepositoryMock = new Mock<IProductVariantRepository>();
+            _productColorRepositoryMock = new Mock<IProductColorRepository>();
             _contextMock = new Mock<IApplicationDbContext>();
 
             _handler = new DeleteColorHandler(
                 _colorRepositoryMock.Object,
-                _variantRepositoryMock.Object,
+                _productColorRepositoryMock.Object,
                 _contextMock.Object
             );
         }
 
         [Fact]
-        public async Task Handle_ShouldDeleteColor_WhenColorExistsAndNoVariants()
+        public async Task Handle_ShouldDeleteColor_WhenColorExistsAndNoProductAssociations()
         {
             int id = 1;
             var entity = new Color { Id = id, Name = "Red" };
@@ -35,11 +35,11 @@ namespace Application.Tests.Products.Colors.DeleteColor
                 .Setup(r => r.GetByIdAsync(id, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(entity);
 
-            _variantRepositoryMock
-                .Setup(r => r.AnyAsync(v => v.ColorId == id, It.IsAny<CancellationToken>()))
+            _productColorRepositoryMock
+                .Setup(r => r.AnyAsync(It.IsAny<Expression<Func<ProductColor, bool>>>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(false);
 
-            var result = await _handler.Handle(new DeleteColorCommand(id), CancellationToken.None);
+            await _handler.Handle(new DeleteColorCommand(id), CancellationToken.None);
 
             _colorRepositoryMock.Verify(r => r.Remove(entity), Times.Once);
             _contextMock.Verify(c => c.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
@@ -63,7 +63,7 @@ namespace Application.Tests.Products.Colors.DeleteColor
         }
 
         [Fact]
-        public async Task Handle_ShouldThrow_WhenColorHasVariants()
+        public async Task Handle_ShouldThrow_WhenColorIsAssociatedWithProducts()
         {
             int id = 1;
             var entity = new Color { Id = id, Name = "Blue" };
@@ -72,9 +72,9 @@ namespace Application.Tests.Products.Colors.DeleteColor
                 .Setup(r => r.GetByIdAsync(id, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(entity);
 
-            _variantRepositoryMock
+            _productColorRepositoryMock
                 .Setup(r => r.AnyAsync(
-                    It.IsAny<Expression<Func<Domain.Models.Products.ProductVariant, bool>>>(),
+                    It.IsAny<Expression<Func<ProductColor, bool>>>(),
                     It.IsAny<CancellationToken>()
                 ))
                 .ReturnsAsync(true);

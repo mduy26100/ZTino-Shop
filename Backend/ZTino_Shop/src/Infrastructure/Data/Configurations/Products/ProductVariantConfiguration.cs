@@ -19,22 +19,17 @@ namespace Infrastructure.Data.Configurations.Products
             builder.Property(v => v.IsActive)
                 .HasDefaultValue(true);
 
-            builder.HasOne(v => v.Product)
-                .WithMany(p => p.Variants)
-                .HasForeignKey(v => v.ProductId)
+            builder.HasOne(v => v.ProductColor)
+                .WithMany(pc => pc.ProductVariants)
+                .HasForeignKey(v => v.ProductColorId)
                 .OnDelete(DeleteBehavior.Cascade);
-
-            builder.HasOne(v => v.Color)
-                .WithMany(c => c.ProductVariants)
-                .HasForeignKey(v => v.ColorId)
-                .OnDelete(DeleteBehavior.Restrict);
 
             builder.HasOne(v => v.Size)
                 .WithMany(s => s.ProductVariants)
                 .HasForeignKey(v => v.SizeId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            builder.HasIndex(v => new { v.ProductId, v.ColorId, v.SizeId }).IsUnique();
+            builder.HasIndex(v => new { v.ProductColorId, v.SizeId }).IsUnique();
         }
     }
 }

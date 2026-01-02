@@ -16,6 +16,7 @@ namespace WebAPI.DependencyInjection.Features
             services.AddScoped<ICategoryRepository, CategoryRepository>();
             services.AddScoped<ISizeRepository, SizeRepository>();
             services.AddScoped<IColorRepository, ColorRepository>();
+            services.AddScoped<IProductColorRepository, ProductColorRepository>();
 
             //Service
             services.AddScoped<IProductQueryService, ProductQueryService>();

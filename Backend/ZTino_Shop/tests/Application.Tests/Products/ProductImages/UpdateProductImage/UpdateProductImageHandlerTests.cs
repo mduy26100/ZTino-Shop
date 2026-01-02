@@ -46,7 +46,7 @@ namespace Application.Tests.Products.ProductImages.UpdateProductImage
         [Fact]
         public async Task Handle_ShouldUploadImage_WhenImageContentProvided()
         {
-            var entity = new ProductImage { Id = 1, ProductVariantId = 10 };
+            var entity = new ProductImage { Id = 1, ProductColorId = 10 };
             var dto = new UpsertProductImageDto
             {
                 Id = 1,
@@ -88,14 +88,14 @@ namespace Application.Tests.Products.ProductImages.UpdateProductImage
             var current = new ProductImage
             {
                 Id = 1,
-                ProductVariantId = 10,
+                ProductColorId = 10,
                 IsMain = false
             };
 
             var oldMain = new ProductImage
             {
                 Id = 2,
-                ProductVariantId = 10,
+                ProductColorId = 10,
                 IsMain = true
             };
 
@@ -132,14 +132,14 @@ namespace Application.Tests.Products.ProductImages.UpdateProductImage
             var current = new ProductImage
             {
                 Id = 1,
-                ProductVariantId = 10,
+                ProductColorId = 10,
                 IsMain = true
             };
 
             var heir = new ProductImage
             {
                 Id = 2,
-                ProductVariantId = 10,
+                ProductColorId = 10,
                 IsMain = false,
                 DisplayOrder = 1
             };
@@ -174,7 +174,7 @@ namespace Application.Tests.Products.ProductImages.UpdateProductImage
         [Fact]
         public async Task Handle_ShouldUpdateDisplayOrder_WhenProvided()
         {
-            var entity = new ProductImage { Id = 1, DisplayOrder = 1 };
+            var entity = new ProductImage { Id = 1, DisplayOrder = 1, ProductColorId = 10 };
 
             var dto = new UpsertProductImageDto
             {

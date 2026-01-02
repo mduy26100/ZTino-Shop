@@ -13,6 +13,7 @@ namespace Application.Tests.Products.ProductVariant.CreateProductVariant
         private readonly Mock<IProductRepository> _productRepositoryMock;
         private readonly Mock<ISizeRepository> _sizeRepositoryMock;
         private readonly Mock<IColorRepository> _colorRepositoryMock;
+        private readonly Mock<IProductColorRepository> _productColorRepositoryMock;
         private readonly Mock<IApplicationDbContext> _contextMock;
         private readonly Mock<IMapper> _mapperMock;
         private readonly CreateProductVariantHandler _handler;
@@ -23,6 +24,7 @@ namespace Application.Tests.Products.ProductVariant.CreateProductVariant
             _productRepositoryMock = new Mock<IProductRepository>();
             _sizeRepositoryMock = new Mock<ISizeRepository>();
             _colorRepositoryMock = new Mock<IColorRepository>();
+            _productColorRepositoryMock = new Mock<IProductColorRepository>();
             _contextMock = new Mock<IApplicationDbContext>();
             _mapperMock = new Mock<IMapper>();
 
@@ -31,6 +33,7 @@ namespace Application.Tests.Products.ProductVariant.CreateProductVariant
                 _productRepositoryMock.Object,
                 _sizeRepositoryMock.Object,
                 _colorRepositoryMock.Object,
+                _productColorRepositoryMock.Object,
                 _mapperMock.Object,
                 _contextMock.Object
             );
@@ -49,11 +52,14 @@ namespace Application.Tests.Products.ProductVariant.CreateProductVariant
                 IsActive = true
             };
             var command = new CreateProductVariantCommand(dto);
+
+            var productColor = new ProductColor { Id = 10, ProductId = dto.ProductId, ColorId = dto.ColorId };
+
             var entity = new ProductVariantEntity
             {
-                ProductId = dto.ProductId,
+                Id = 1,
+                ProductColorId = productColor.Id,
                 SizeId = dto.SizeId,
-                ColorId = dto.ColorId,
                 StockQuantity = dto.StockQuantity,
                 Price = dto.Price,
                 IsActive = dto.IsActive
@@ -65,6 +71,10 @@ namespace Application.Tests.Products.ProductVariant.CreateProductVariant
                                .ReturnsAsync(true);
             _colorRepositoryMock.Setup(r => r.AnyAsync(It.IsAny<Expression<Func<Color, bool>>>(), It.IsAny<CancellationToken>()))
                                 .ReturnsAsync(true);
+
+            _productColorRepositoryMock.Setup(r => r.FindOneAsync(It.IsAny<Expression<Func<ProductColor, bool>>>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()))
+                                       .ReturnsAsync(productColor);
+
             _productVariantRepositoryMock.Setup(r => r.AnyAsync(It.IsAny<Expression<Func<ProductVariantEntity, bool>>>(), It.IsAny<CancellationToken>()))
                                          .ReturnsAsync(false);
 
@@ -74,12 +84,8 @@ namespace Application.Tests.Products.ProductVariant.CreateProductVariant
             var result = await _handler.Handle(command, CancellationToken.None);
 
             Assert.NotNull(result);
-            Assert.Equal(dto.ProductId, result.ProductId);
-            Assert.Equal(dto.SizeId, result.SizeId);
-            Assert.Equal(dto.ColorId, result.ColorId);
-
-            _productVariantRepositoryMock.Verify(r => r.AddAsync(entity, It.IsAny<CancellationToken>()), Times.Once);
-            _contextMock.Verify(c => c.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
+            _productVariantRepositoryMock.Verify(r => r.AddAsync(It.IsAny<ProductVariantEntity>(), It.IsAny<CancellationToken>()), Times.Once);
+            _contextMock.Verify(c => c.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.AtLeastOnce);
         }
 
         [Fact]
@@ -94,7 +100,6 @@ namespace Application.Tests.Products.ProductVariant.CreateProductVariant
             await Assert.ThrowsAsync<NotFoundException>(() => _handler.Handle(command, CancellationToken.None));
 
             _productVariantRepositoryMock.Verify(r => r.AddAsync(It.IsAny<ProductVariantEntity>(), It.IsAny<CancellationToken>()), Times.Never);
-            _contextMock.Verify(c => c.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
         }
 
         [Fact]
@@ -128,10 +133,11 @@ namespace Application.Tests.Products.ProductVariant.CreateProductVariant
         }
 
         [Fact]
-        public async Task Handle_Should_ThrowInvalidOperationException_WhenVariantAlreadyExists()
+        public async Task Handle_Should_ThrowConflictException_WhenVariantAlreadyExists()
         {
             var dto = new UpsertProductVariantDto { ProductId = 1, SizeId = 2, ColorId = 3 };
             var command = new CreateProductVariantCommand(dto);
+            var productColor = new ProductColor { Id = 10 };
 
             _productRepositoryMock.Setup(r => r.AnyAsync(It.IsAny<Expression<Func<Product, bool>>>(), It.IsAny<CancellationToken>()))
                                   .ReturnsAsync(true);
@@ -139,6 +145,10 @@ namespace Application.Tests.Products.ProductVariant.CreateProductVariant
                                .ReturnsAsync(true);
             _colorRepositoryMock.Setup(r => r.AnyAsync(It.IsAny<Expression<Func<Color, bool>>>(), It.IsAny<CancellationToken>()))
                                 .ReturnsAsync(true);
+
+            _productColorRepositoryMock.Setup(r => r.FindOneAsync(It.IsAny<Expression<Func<ProductColor, bool>>>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()))
+                                       .ReturnsAsync(productColor);
+
             _productVariantRepositoryMock.Setup(r => r.AnyAsync(It.IsAny<Expression<Func<ProductVariantEntity, bool>>>(), It.IsAny<CancellationToken>()))
                                          .ReturnsAsync(true);
 

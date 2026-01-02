@@ -29,6 +29,7 @@ namespace Infrastructure.Data
             //Products
             builder.ApplyConfiguration(new CategoryConfiguration());
             builder.ApplyConfiguration(new ColorConfiguration());
+            builder.ApplyConfiguration(new ProductColorConfiguration());
             builder.ApplyConfiguration(new ProductConfiguration());
             builder.ApplyConfiguration(new ProductImageConfiguration());
             builder.ApplyConfiguration(new ProductVariantConfiguration());
@@ -43,6 +44,7 @@ namespace Infrastructure.Data
         //Products
         public DbSet<Category> Categories { get; set; }
         public DbSet<Color> Colors { get; set; }
+        public DbSet<ProductColor> ProductColors { get; set; }
         public DbSet<Product> Products { get; set; }
         public DbSet<ProductImage> ProductImages { get; set; }
         public DbSet<ProductVariant> ProductVariants { get; set; }

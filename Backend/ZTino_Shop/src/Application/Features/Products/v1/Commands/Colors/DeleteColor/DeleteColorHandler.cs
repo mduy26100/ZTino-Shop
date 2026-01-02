@@ -6,15 +6,16 @@ namespace Application.Features.Products.v1.Commands.Colors.DeleteColor
     public class DeleteColorHandler : IRequestHandler<DeleteColorCommand, Unit>
     {
         private readonly IColorRepository _colorRepository;
-        private readonly IProductVariantRepository _productVariantRepository;
+        private readonly IProductColorRepository _productColorRepository;
         private readonly IApplicationDbContext _context;
 
-        public DeleteColorHandler(IColorRepository colorRepository,
-            IProductVariantRepository productVariantRepository,
+        public DeleteColorHandler(
+            IColorRepository colorRepository,
+            IProductColorRepository productColorRepository,
             IApplicationDbContext context)
         {
             _colorRepository = colorRepository;
-            _productVariantRepository = productVariantRepository;
+            _productColorRepository = productColorRepository;
             _context = context;
         }
 
@@ -24,12 +25,13 @@ namespace Application.Features.Products.v1.Commands.Colors.DeleteColor
             if (entity == null)
                 throw new NotFoundException($"Color with Id {request.Id} not found.");
 
-            bool hasVariants = await _productVariantRepository.AnyAsync(c => c.ColorId == request.Id, cancellationToken);
-            if (hasVariants)
-                throw new BusinessRuleException("Cannot delete color that is associated with product variants.");
+            bool isUsedInProducts = await _productColorRepository.AnyAsync(pc => pc.ColorId == request.Id, cancellationToken);
+            if (isUsedInProducts)
+                throw new BusinessRuleException("Cannot delete color that is associated with products.");
 
             _colorRepository.Remove(entity);
             await _context.SaveChangesAsync(cancellationToken);
+
             return Unit.Value;
         }
     }

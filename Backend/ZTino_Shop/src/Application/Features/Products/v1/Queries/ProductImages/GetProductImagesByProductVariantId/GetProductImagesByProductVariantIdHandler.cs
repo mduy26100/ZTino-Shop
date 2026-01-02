@@ -1,30 +1,40 @@
 ﻿using Application.Features.Products.v1.DTOs.ProductImages;
 using Application.Features.Products.v1.Repositories;
 
-namespace Application.Features.Products.v1.Queries.ProductImages.GetProductImagesByProductVariantId;
-
-public class GetProductImagesByProductVariantIdHandler : IRequestHandler<GetProductImagesByProductVariantIdQuery, IEnumerable<ProductImageDto>>
+namespace Application.Features.Products.v1.Queries.ProductImages.GetProductImagesByProductVariantId
 {
-    private readonly IProductImageRepository _productImageRepository;
-    private readonly IMapper _mapper;
-
-    public GetProductImagesByProductVariantIdHandler(IProductImageRepository productImageRepository,
-        IMapper mapper)
+    public class GetProductImagesByProductVariantIdHandler : IRequestHandler<GetProductImagesByProductVariantIdQuery, IEnumerable<ProductImageDto>>
     {
-        _productImageRepository = productImageRepository;
-        _mapper = mapper;
-    }
+        private readonly IProductImageRepository _productImageRepository;
+        private readonly IProductVariantRepository _productVariantRepository;
+        private readonly IMapper _mapper;
 
-    public async Task<IEnumerable<ProductImageDto>> Handle(GetProductImagesByProductVariantIdQuery request, CancellationToken cancellationToken)
-    {
-        var productImages = await _productImageRepository.FindAsync(
-            pi => pi.ProductVariantId == request.variantId,
-            cancellationToken: cancellationToken);
+        public GetProductImagesByProductVariantIdHandler(
+            IProductImageRepository productImageRepository,
+            IProductVariantRepository productVariantRepository,
+            IMapper mapper)
+        {
+            _productImageRepository = productImageRepository;
+            _productVariantRepository = productVariantRepository;
+            _mapper = mapper;
+        }
 
-        if (!productImages.Any())
-            throw new NotFoundException(
-                $"No product images found for Product Variant Id {request.variantId}.");
+        public async Task<IEnumerable<ProductImageDto>> Handle(GetProductImagesByProductVariantIdQuery request, CancellationToken cancellationToken)
+        {
+            var variant = await _productVariantRepository.GetByIdAsync(request.variantId, cancellationToken);
 
-        return _mapper.Map<IEnumerable<ProductImageDto>>(productImages);
+            if (variant == null)
+                throw new NotFoundException($"Product Variant Id {request.variantId} not found.");
+
+            var productImages = await _productImageRepository.FindAsync(
+                pi => pi.ProductColorId == variant.ProductColorId,
+                true,
+                cancellationToken);
+
+            if (!productImages.Any())
+                return Enumerable.Empty<ProductImageDto>();
+
+            return _mapper.Map<IEnumerable<ProductImageDto>>(productImages.OrderBy(i => i.DisplayOrder));
+        }
     }
 }

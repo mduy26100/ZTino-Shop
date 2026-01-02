@@ -34,19 +34,19 @@ namespace Application.Features.Products.v1.Commands.ProductImages.UpdateProductI
             if (entity == null) throw new NotFoundException($"Product Image {dto.Id} not found.");
 
             var siblings = await _repo.FindAsync(
-                x => x.ProductVariantId == entity.ProductVariantId && x.Id != entity.Id, 
+                x => x.ProductColorId == entity.ProductColorId && x.Id != entity.Id,
                 false,
                 cancellationToken);
 
             await HandleImageUploadAsync(entity, dto, cancellationToken);
 
-            if (dto.DisplayOrder != 0) 
+            if (dto.DisplayOrder != 0)
                 entity.DisplayOrder = dto.DisplayOrder;
 
             HandleMainImageLogic(entity, siblings, dto.IsMain);
 
-            _repo.Update(entity); 
-            
+            _repo.Update(entity);
+
             await _context.SaveChangesAsync(cancellationToken);
 
             return _mapper.Map<UpsertProductImageDto>(entity);
@@ -67,9 +67,9 @@ namespace Application.Features.Products.v1.Commands.ProductImages.UpdateProductI
             else if (!requestedIsMain && currentEntity.IsMain)
             {
                 currentEntity.IsMain = false;
-                
+
                 var heir = siblings.OrderBy(x => x.DisplayOrder).FirstOrDefault();
-                
+
                 if (heir != null)
                 {
                     heir.IsMain = true;
@@ -77,7 +77,7 @@ namespace Application.Features.Products.v1.Commands.ProductImages.UpdateProductI
                 }
                 else
                 {
-                    currentEntity.IsMain = true; 
+                    currentEntity.IsMain = true;
                 }
             }
         }

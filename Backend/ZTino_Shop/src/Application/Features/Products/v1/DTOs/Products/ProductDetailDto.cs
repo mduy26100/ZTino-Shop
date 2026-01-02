@@ -1,4 +1,5 @@
 ﻿using Application.Features.Products.v1.DTOs.Categories;
+using Application.Features.Products.v1.DTOs.ProductColor;
 using Application.Features.Products.v1.DTOs.ProductVariants;
 
 namespace Application.Features.Products.v1.DTOs.Products
@@ -15,7 +16,7 @@ namespace Application.Features.Products.v1.DTOs.Products
         public DateTime? CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
         public CategoryDto Category { get; set; } = default!;
-        public List<ProductVariantDto> Variants { get; set; } = new();
-        public List<ProductVariantGroupDto> VariantGroups { get; set; } = new();
+
+        public List<ProductColorDto> ProductColors { get; set; } = new();
     }
 }

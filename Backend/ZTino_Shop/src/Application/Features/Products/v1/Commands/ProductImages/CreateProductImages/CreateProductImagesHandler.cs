@@ -36,14 +36,14 @@ namespace Application.Features.Products.v1.Commands.ProductImages.CreateProductI
 
             var variantId = request.Dtos[0].ProductVariantId;
 
-            bool variantExists = await _productVariantRepository
-                .AnyAsync(v => v.Id == variantId, cancellationToken);
+            var variant = await _productVariantRepository
+                .FindOneAsync(v => v.Id == variantId, false, cancellationToken);
 
-            if (!variantExists)
+            if (variant == null)
                 throw new NotFoundException($"Product Variant with ID {variantId} does not exist.");
 
             int currentMaxOrder = await _productImageRepository
-                .GetMaxDisplayOrderAsync(variantId, cancellationToken);
+                .GetMaxDisplayOrderAsync(variant.ProductColorId, cancellationToken);
 
             bool hasExistingImages = currentMaxOrder > 0;
 
@@ -76,6 +76,7 @@ namespace Application.Features.Products.v1.Commands.ProductImages.CreateProductI
                 var entity = _mapper.Map<ProductImage>(dto);
 
                 entity.ImageUrl = url;
+                entity.ProductColorId = variant.ProductColorId;
                 entity.DisplayOrder = ++currentMaxOrder;
 
                 if (!hasExistingImages)

@@ -28,23 +28,21 @@ namespace Application.Features.Products.v1.Commands.ProductImages.DeleteProductI
             if (entity.IsMain)
             {
                 var siblings = await _productImageRepository.FindAsync(
-                    x => x.ProductVariantId == entity.ProductVariantId && x.Id != entity.Id,
-                    true,
+                    x => x.ProductColorId == entity.ProductColorId && x.Id != entity.Id,
+                    false,
                     cancellationToken);
 
-                var heir = siblings.FirstOrDefault();
+                var heir = siblings.OrderBy(x => x.DisplayOrder).FirstOrDefault();
 
                 _productImageRepository.Remove(entity);
-
-                await _context.SaveChangesAsync(cancellationToken);
 
                 if (heir != null)
                 {
                     heir.IsMain = true;
                     _productImageRepository.Update(heir);
-
-                    await _context.SaveChangesAsync(cancellationToken);
                 }
+
+                await _context.SaveChangesAsync(cancellationToken);
             }
             else
             {

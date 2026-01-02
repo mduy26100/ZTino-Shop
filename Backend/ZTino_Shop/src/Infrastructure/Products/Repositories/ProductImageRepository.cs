@@ -11,19 +11,19 @@ namespace Infrastructure.Products.Repositories
         {
         }
 
-        public async Task<int> GetMaxDisplayOrderAsync(int productVariantId, CancellationToken cancellationToken = default)
+        public async Task<int> GetMaxDisplayOrderAsync(int productColorId, CancellationToken cancellationToken = default)
         {
             return await _context.ProductImages
-                .Where(x => x.ProductVariantId == productVariantId)
+                .Where(x => x.ProductColorId == productColorId)
                 .Select(x => (int?)x.DisplayOrder)
                 .MaxAsync(cancellationToken)
                 ?? 0;
         }
 
-        public async Task UnsetMainImageAsync(int productVariantId, CancellationToken cancellationToken = default)
+        public async Task UnsetMainImageAsync(int productColorId, CancellationToken cancellationToken = default)
         {
             var mainImages = await _context.ProductImages
-                .Where(x => x.ProductVariantId == productVariantId && x.IsMain)
+                .Where(x => x.ProductColorId == productColorId && x.IsMain)
                 .ToListAsync(cancellationToken);
 
             if (!mainImages.Any())

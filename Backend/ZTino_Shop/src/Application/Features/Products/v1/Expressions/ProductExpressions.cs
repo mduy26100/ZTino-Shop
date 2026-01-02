@@ -1,9 +1,10 @@
 ﻿using Application.Features.Products.v1.DTOs.Categories;
 using Application.Features.Products.v1.DTOs.Colors;
+using Application.Features.Products.v1.DTOs.ProductColor;
 using Application.Features.Products.v1.DTOs.ProductImages;
+using Application.Features.Products.v1.DTOs.Products;
 using Application.Features.Products.v1.DTOs.ProductVariants;
 using Application.Features.Products.v1.DTOs.Sizes;
-using Application.Features.Products.v1.DTOs.Products;
 using Domain.Models.Products;
 using System.Linq.Expressions;
 
@@ -31,36 +32,36 @@ namespace Application.Features.Products.v1.Expressions
                     Slug = p.Category.Slug
                 },
 
-                Variants = p.Variants
-                    .Select(v => new ProductVariantDto
+                ProductColors = p.ProductColors.Select(pc => new ProductColorDto
+                {
+                    Id = pc.Id,
+                    Color = new ColorDto
                     {
-                        Id = v.Id,
-                        Price = v.Price,
-                        StockQuantity = v.StockQuantity,
-                        IsActive = v.IsActive,
-
-                        Color = new ColorDto
+                        Id = pc.Color.Id,
+                        Name = pc.Color.Name
+                    },
+                    Images = pc.Images
+                        .OrderBy(i => i.DisplayOrder)
+                        .Select(i => new ProductImageDto
                         {
-                            Id = v.Color.Id,
-                            Name = v.Color.Name
-                        },
-
+                            Id = i.Id,
+                            ImageUrl = i.ImageUrl,
+                            IsMain = i.IsMain,
+                            DisplayOrder = i.DisplayOrder
+                        }).ToList(),
+                    Variants = pc.ProductVariants.Select(pv => new ProductVariantDto
+                    {
+                        Id = pv.Id,
+                        Price = pv.Price,
+                        StockQuantity = pv.StockQuantity,
+                        IsActive = pv.IsActive,
                         Size = new SizeDto
                         {
-                            Id = v.Size.Id,
-                            Name = v.Size.Name
-                        },
-
-                        Images = v.Images
-                            .OrderBy(i => i.DisplayOrder)
-                            .Select(i => new ProductImageDto
-                            {
-                                Id = i.Id,
-                                ImageUrl = i.ImageUrl,
-                                IsMain = i.IsMain,
-                                DisplayOrder = i.DisplayOrder
-                            }).ToList()
+                            Id = pv.Size.Id,
+                            Name = pv.Size.Name
+                        }
                     }).ToList()
+                }).ToList()
             };
     }
 }

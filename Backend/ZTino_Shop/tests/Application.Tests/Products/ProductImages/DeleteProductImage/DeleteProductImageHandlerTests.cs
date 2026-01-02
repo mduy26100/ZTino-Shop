@@ -42,17 +42,13 @@ namespace Application.Tests.Products.ProductImages.DeleteProductImage
             var image = new ProductImage
             {
                 Id = 1,
-                ProductVariantId = 10,
+                ProductColorId = 10,
                 IsMain = false
             };
 
             _repoMock
                 .Setup(x => x.GetByIdAsync(image.Id, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(image);
-
-            _contextMock
-                .Setup(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()))
-                .ReturnsAsync(1);
 
             var command = new DeleteProductImageCommand(image.Id);
 
@@ -71,15 +67,17 @@ namespace Application.Tests.Products.ProductImages.DeleteProductImage
             var mainImage = new ProductImage
             {
                 Id = 1,
-                ProductVariantId = 10,
-                IsMain = true
+                ProductColorId = 10,
+                IsMain = true,
+                DisplayOrder = 1
             };
 
             var sibling = new ProductImage
             {
                 Id = 2,
-                ProductVariantId = 10,
-                IsMain = false
+                ProductColorId = 10,
+                IsMain = false,
+                DisplayOrder = 2
             };
 
             _repoMock
@@ -89,13 +87,9 @@ namespace Application.Tests.Products.ProductImages.DeleteProductImage
             _repoMock
                 .Setup(x => x.FindAsync(
                     It.IsAny<Expression<Func<ProductImage, bool>>>(),
-                    true,
+                    false,
                     It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new List<ProductImage> { sibling });
-
-            _contextMock
-                .Setup(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()))
-                .ReturnsAsync(1);
 
             var command = new DeleteProductImageCommand(mainImage.Id);
 
@@ -103,7 +97,7 @@ namespace Application.Tests.Products.ProductImages.DeleteProductImage
 
             _repoMock.Verify(x => x.Remove(mainImage), Times.Once);
             _repoMock.Verify(x => x.Update(It.Is<ProductImage>(p => p.Id == sibling.Id && p.IsMain)), Times.Once);
-            _contextMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Exactly(2));
+            _contextMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
         }
 
         [Fact]
@@ -112,7 +106,7 @@ namespace Application.Tests.Products.ProductImages.DeleteProductImage
             var mainImage = new ProductImage
             {
                 Id = 1,
-                ProductVariantId = 10,
+                ProductColorId = 10,
                 IsMain = true
             };
 
@@ -123,13 +117,9 @@ namespace Application.Tests.Products.ProductImages.DeleteProductImage
             _repoMock
                 .Setup(x => x.FindAsync(
                     It.IsAny<Expression<Func<ProductImage, bool>>>(),
-                    true,
+                    false,
                     It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new List<ProductImage>());
-
-            _contextMock
-                .Setup(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()))
-                .ReturnsAsync(1);
 
             var command = new DeleteProductImageCommand(mainImage.Id);
 
