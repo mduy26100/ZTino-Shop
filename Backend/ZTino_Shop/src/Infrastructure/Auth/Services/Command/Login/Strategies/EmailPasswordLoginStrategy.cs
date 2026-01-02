@@ -9,7 +9,7 @@ namespace Infrastructure.Auth.Services.Command.Login.Strategies
 {
     public class EmailPasswordLoginStrategy : ILoginStrategy
     {
-        public LoginProvider Provider => LoginProvider.EmailPassword;
+        public LoginProvider Provider => LoginProvider.Credentials;
 
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IJwtTokenGenerator _jwtTokenGenerator;
@@ -27,10 +27,20 @@ namespace Infrastructure.Auth.Services.Command.Login.Strategies
 
         public async Task<JwtTokenResponseDto> LoginAsync(LoginRequestDto dto, CancellationToken cancellationToken)
         {
-            var user = await _userManager.FindByEmailAsync(dto.Email);
+            ApplicationUser? user;
+
+            if (dto.Identifier.Contains("@"))
+            {
+                user = await _userManager.FindByEmailAsync(dto.Identifier);
+            }
+            else
+            {
+                user = await _userManager.FindByNameAsync(dto.Identifier);
+            }
+
             if (user == null || !await _userManager.CheckPasswordAsync(user, dto.Password))
             {
-                throw new UnauthorizedAccessException("Invalid email or password.");
+                throw new UnauthorizedAccessException("Invalid credentials.");
             }
 
             var roles = await _userManager.GetRolesAsync(user);

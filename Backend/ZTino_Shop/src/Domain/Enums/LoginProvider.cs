@@ -2,7 +2,7 @@
 {
     public enum LoginProvider
     {
-        EmailPassword,
+        Credentials,
         Google,
         Facebook
     }
