@@ -1,5 +1,5 @@
 import { createBrowserRouter, createRoutesFromElements, Navigate, Route, RouterProvider } from "react-router-dom";
-import { ErrorPage, HomePage, ProductListingPage } from "../pages";
+import { ErrorPage, HomePage, ProductListingPage, ProductDetailPage } from "../pages";
 import { MainLayout } from "../layouts";
 
 const router = createBrowserRouter(
@@ -11,6 +11,7 @@ const router = createBrowserRouter(
         >
             <Route index element={<HomePage />} />
             <Route path="products/:slug?" element={<ProductListingPage />} />
+            <Route path="product/:slug?" element={<ProductDetailPage />} />
         </Route>
         </>
     )
