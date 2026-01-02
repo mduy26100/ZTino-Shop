@@ -12,9 +12,8 @@
                 .NotEmpty().WithMessage("LastName is required.")
                 .MaximumLength(50).WithMessage("Last name must be at most 50 characters.");
 
-            RuleFor(x => x.Dto.Email)
-                .NotEmpty().WithMessage("Email is required.")
-                .EmailAddress().WithMessage("Invalid email format.");
+            RuleFor(x => x.Dto.UserName)
+                .NotEmpty().WithMessage("UserName is required.");
 
             RuleFor(x => x.Dto.PhoneNumber)
                 .NotEmpty().WithMessage("Phone number is required.");

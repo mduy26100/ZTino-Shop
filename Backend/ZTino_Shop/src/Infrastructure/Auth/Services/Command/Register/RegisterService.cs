@@ -21,20 +21,29 @@ namespace Infrastructure.Auth.Services.Command.Register
 
         public async Task<RegisterResponseDto> RegisterAsync(RegisterRequestDto dto, CancellationToken cancellationToken = default)
         {
-            if(await _userManager.FindByEmailAsync(dto.Email) is not null)
+            if (await _userManager.FindByNameAsync(dto.UserName) is not null)
             {
-                throw new ConflictException("Email is already in use.");
+                throw new ConflictException("UserName is already in use.");
             }
 
-            if(dto.Password != dto.ConfirmPassword)
+            var normalizedPhone = dto.PhoneNumber.Trim();
+
+            var phoneExists = await _userManager.Users
+                .AnyAsync(u => u.PhoneNumber == normalizedPhone, cancellationToken);
+
+            if (phoneExists)
+            {
+                throw new ConflictException("Phone number is already in use.");
+            }
+
+            if (dto.Password != dto.ConfirmPassword)
             {
                 throw new BusinessRuleException("Password confirmation does not match.");
             }
 
             var user = new ApplicationUser
             {
-                UserName = dto.Email,
-                Email = dto.Email,
+                UserName = dto.UserName,
                 FirstName = dto.FirstName,
                 LastName = dto.LastName,
                 PhoneNumber = dto.PhoneNumber,
@@ -65,11 +74,7 @@ namespace Infrastructure.Auth.Services.Command.Register
             return new RegisterResponseDto
             {
                 UserId = user.Id,
-                Email = user.Email!,
-                Role = roleToAssign,
-                FirstName = user.FirstName,
-                LastName = user.LastName,
-                PhoneNumber = user.PhoneNumber
+                UserName = user.UserName
             };
         }
     }
