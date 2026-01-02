@@ -40,7 +40,7 @@ const AppHeader = () => {
                 .map(rootCat => {
                     const childrenItems = rootCat.children?.map(child => ({
                         key: `cat-${child.id}`,
-                        label: <Link to={`/products?category=${child.slug}`}>{child.name}</Link>
+                        label: <Link to={`/products/${child.slug}`}>{child.name}</Link>
                     }));
 
                     return {
@@ -48,7 +48,7 @@ const AppHeader = () => {
                         label: (
                             <span 
                                 onClick={(e) => {
-                                    navigate(`/products?category=${rootCat.slug}`);
+                                    navigate(`/products/${rootCat.slug}`);
                                     if (mobileMenuOpen) setMobileMenuOpen(false);
                                 }}
                                 className="cursor-pointer"
@@ -58,7 +58,7 @@ const AppHeader = () => {
                         ),
                         children: childrenItems.length > 0 ? childrenItems : null, 
                         onClick: childrenItems.length === 0 ? () => {
-                            navigate(`/products?category=${rootCat.slug}`);
+                            navigate(`/products/${rootCat.slug}`);
                             if(mobileMenuOpen) setMobileMenuOpen(false);
                         } : undefined 
                     };
