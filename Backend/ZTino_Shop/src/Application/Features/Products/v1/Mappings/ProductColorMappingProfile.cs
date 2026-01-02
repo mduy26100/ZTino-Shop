@@ -8,6 +8,7 @@ namespace Application.Features.Products.v1.Mappings
         public ProductColorMappingProfile()
         {
             CreateMap<ProductColor, ProductColorDto>().ReverseMap();
+            CreateMap<ProductColor, UpsertProductColorDto>().ReverseMap();
         }
     }
 }
