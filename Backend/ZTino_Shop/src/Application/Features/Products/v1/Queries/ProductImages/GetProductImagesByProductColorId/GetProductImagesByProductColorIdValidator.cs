@@ -1,4 +1,4 @@
-﻿namespace Application.Features.Products.v1.Queries.ProductImages.GetProductImagesByProductVariantId
+﻿namespace Application.Features.Products.v1.Queries.ProductImages.GetProductImagesByProductColorId
 {
     public class GetProductImagesByProductColorIdValidator : AbstractValidator<GetProductImagesByProductColorIdQuery>
     {

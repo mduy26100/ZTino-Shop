@@ -1,7 +1,7 @@
 ﻿using Application.Features.Products.v1.Commands.ProductImages.CreateProductImages;
 using Application.Features.Products.v1.Commands.ProductImages.DeleteProductImage;
 using Application.Features.Products.v1.Commands.ProductImages.UpdateProductImage;
-using Application.Features.Products.v1.Queries.ProductImages.GetProductImagesByProductVariantId;
+using Application.Features.Products.v1.Queries.ProductImages.GetProductImagesByProductColorId;
 using Domain.Consts;
 using WebAPI.Requests.Products.Product;
 
