@@ -20,6 +20,7 @@ import {
     useGetColors, 
     useGetProductDetailById, 
     useGetSizes, 
+    useGetColorsByProductId,
     VariantTable,
     ProductImageModal,
     ProductOverview
@@ -42,6 +43,7 @@ const ProductDetailPage = () => {
 
     const { data: colors, isLoading: isLoadingColors } = useGetColors();
     const { data: sizes, isLoading: isLoadingSizes } = useGetSizes();
+    const { data: productColors, isLoading: isLoadingProductColors, refetch: refetchProductColors } = useGetColorsByProductId(id);
     
     const { create: createVariant, isCreating } = useCreateProductVariant();
     const { update: updateVariant, isUpdating } = useUpdateProductVariant();
@@ -173,7 +175,11 @@ const ProductDetailPage = () => {
                         Overview
                     </span>
                 ),
-                children: <ProductOverview product={product} />,
+                children: <ProductOverview 
+                    product={product} 
+                    productColors={productColors}
+                    isLoadingProductColors={isLoadingProductColors}
+                />,
             },
             {
                 key: 'variants',

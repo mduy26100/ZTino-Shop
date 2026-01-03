@@ -1,10 +1,85 @@
-import React, { memo } from 'react';
-import { Card, Image, Typography, Tag, Descriptions } from 'antd';
-import { PhotoIcon } from '@heroicons/react/24/outline';
+import React, { memo, useMemo } from 'react';
+import { Card, Image, Typography, Tag, Descriptions, Table, Button, Space, Tooltip, Spin } from 'antd';
+import { PhotoIcon, PlusIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/outline';
 
-const { Text } = Typography;
+const { Text, Title } = Typography;
 
-const ProductOverview = ({ product }) => {
+const ProductOverview = ({ product, productColors, isLoadingProductColors }) => {
+
+    const colorColumns = useMemo(() => [
+        {
+            title: 'ID',
+            dataIndex: 'id',
+            key: 'id',
+            width: 80,
+            align: 'center',
+            render: (id) => <Text className="font-mono text-gray-500">#{id}</Text>
+        },
+        {
+            title: 'Color Preview',
+            dataIndex: ['color', 'name'],
+            key: 'colorPreview',
+            width: 120,
+            align: 'center',
+            render: (colorName) => (
+                <div className="flex items-center justify-center">
+                    <div 
+                        className="w-10 h-10 rounded-lg shadow-md border-2 border-white ring-1 ring-gray-200 transition-transform hover:scale-110"
+                        style={{ backgroundColor: colorName }}
+                        title={colorName}
+                    />
+                </div>
+            )
+        },
+        {
+            title: 'Color Code',
+            dataIndex: ['color', 'name'],
+            key: 'colorCode',
+            render: (colorName) => (
+                <Text copyable code className="font-mono text-sm">
+                    {colorName}
+                </Text>
+            )
+        },
+        {
+            title: 'Color ID',
+            dataIndex: ['color', 'id'],
+            key: 'colorId',
+            width: 100,
+            align: 'center',
+            render: (id) => <Tag color="blue">ID: {id}</Tag>
+        },
+        {
+            title: 'Actions',
+            key: 'actions',
+            width: 150,
+            align: 'center',
+            render: (_, record) => (
+                <Space size="small">
+                    <Tooltip title="Edit Color">
+                        <Button
+                            type="text"
+                            size="small"
+                            icon={<PencilIcon className="w-4 h-4 text-blue-500" />}
+                            className="hover:bg-blue-50 rounded-lg"
+                            onClick={() => console.log('Edit color:', record)}
+                        />
+                    </Tooltip>
+                    <Tooltip title="Delete Color">
+                        <Button
+                            type="text"
+                            size="small"
+                            danger
+                            icon={<TrashIcon className="w-4 h-4" />}
+                            className="hover:bg-red-50 rounded-lg"
+                            onClick={() => console.log('Delete color:', record)}
+                        />
+                    </Tooltip>
+                </Space>
+            )
+        }
+    ], []);
+
     if (!product) return null;
 
     return (
@@ -79,6 +154,53 @@ const ProductOverview = ({ product }) => {
                     </Card>
                 </div>
             </div>
+
+            <Card 
+                bordered={false} 
+                className="shadow-sm rounded-xl"
+                title={
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                            <div className="w-1 h-6 bg-gradient-to-b from-indigo-500 to-purple-500 rounded-full"></div>
+                            <Title level={5} className="!mb-0">
+                                Product Colors
+                            </Title>
+                            <Tag color="blue" className="ml-2">
+                                {productColors?.length || 0} colors
+                            </Tag>
+                        </div>
+                        <Button
+                            type="primary"
+                            icon={<PlusIcon className="w-4 h-4 stroke-2" />}
+                            className="h-9 px-4 rounded-lg bg-gradient-to-r from-indigo-500 to-purple-500 border-none shadow-md hover:shadow-lg transition-all hover:scale-105"
+                            onClick={() => console.log('Add new color')}
+                        >
+                            Add Color
+                        </Button>
+                    </div>
+                }
+            >
+                <Spin spinning={isLoadingProductColors}>
+                    <Table
+                        columns={colorColumns}
+                        dataSource={productColors || []}
+                        rowKey="id"
+                        pagination={false}
+                        size="middle"
+                        className="product-colors-table"
+                        locale={{
+                            emptyText: (
+                                <div className="py-8 text-center">
+                                    <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
+                                        <PhotoIcon className="w-8 h-8 text-gray-400" />
+                                    </div>
+                                    <Text type="secondary">No colors available for this product</Text>
+                                </div>
+                            )
+                        }}
+                    />
+                </Spin>
+            </Card>
         </div>
     );
 };
