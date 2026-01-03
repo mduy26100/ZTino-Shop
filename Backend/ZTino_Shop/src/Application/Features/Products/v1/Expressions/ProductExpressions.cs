@@ -41,7 +41,8 @@ namespace Application.Features.Products.v1.Expressions
                         Name = pc.Color.Name
                     },
                     Images = pc.Images
-                        .OrderBy(i => i.DisplayOrder)
+                        .OrderByDescending(i => i.IsMain)
+                        .ThenBy(i => i.DisplayOrder)
                         .Select(i => new ProductImageDto
                         {
                             Id = i.Id,
