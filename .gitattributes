@@ -1,0 +1,14 @@
+# ======================
+# Backend (.NET) - MAIN
+# ======================
+Backend/** linguist-language=C#
+
+# ======================
+# Frontend - ignore stats
+# ======================
+Frontend/** linguist-generated
+
+# ======================
+# Docs
+# ======================
+*.md linguist-documentation
