@@ -1,6 +1,7 @@
 ﻿using Application.Features.Products.v1.Commands.ProductColor.CreateProductColor;
 using Application.Features.Products.v1.Commands.ProductColor.DeleteProductColor;
 using Application.Features.Products.v1.Commands.ProductColor.UpdateProductColor;
+using Application.Features.Products.v1.Queries.ProductColors.GetColorsByProductId;
 using Domain.Consts;
 
 namespace WebAPI.Controllers.v1.Manager.Products
@@ -37,6 +38,14 @@ namespace WebAPI.Controllers.v1.Manager.Products
         {
             var command = new DeleteProductColorCommand(Id);
             var result = await _mediator.Send(command, cancellationToken);
+            return Ok(result);
+        }
+
+        [HttpGet("{productId:int}")]
+        public async Task<IActionResult> GetColorsByProductId(int productId, CancellationToken cancellationToken)
+        {
+            var query = new GetColorsByProductIdQuery(productId);
+            var result = await _mediator.Send(query, cancellationToken);
             return Ok(result);
         }
     }
