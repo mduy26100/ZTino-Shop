@@ -14,6 +14,7 @@ export {default as UpsertSizeModal} from "./components/size/UpsertSizeModal";
 //Product
 export {default as ProductTable} from "./components/product/ProductTable";
 export {default as UpsertProductModal} from "./components/product/UpsertProductModal";
+export {default as ProductOverview} from "./components/product/ProductOverview";
 
 //Product Variant
 export {default as VariantTable} from "./components/productVariant/VariantTable";

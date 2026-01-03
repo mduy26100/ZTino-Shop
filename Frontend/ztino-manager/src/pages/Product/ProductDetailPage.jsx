@@ -2,15 +2,13 @@ import React, { useMemo, useState, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { 
     Button, Typography, Spin, Breadcrumb, 
-    Tabs, Tag, Descriptions, Empty, Card, 
-    Space, Alert, message, Image, Modal 
+    Tabs, Empty, Card, Alert, message, Modal 
 } from 'antd';
 import { 
     ArrowLeftIcon, 
     CubeIcon, 
     SwatchIcon,
-    PlusIcon,
-    PhotoIcon
+    PlusIcon
 } from '@heroicons/react/24/outline';
 import { ExclamationCircleFilled } from '@ant-design/icons';
 
@@ -23,7 +21,8 @@ import {
     useGetProductDetailById, 
     useGetSizes, 
     VariantTable,
-    ProductImageModal
+    ProductImageModal,
+    ProductOverview
 } from '../../features/product';
 
 const { Title, Text } = Typography;
@@ -162,6 +161,63 @@ const ProductDetailPage = () => {
         setImageModalState(prev => ({ ...prev, open: false }));
     }, []);
 
+    const tabItems = useMemo(() => {
+        if (!product) return [];
+
+        return [
+            {
+                key: 'overview',
+                label: (
+                    <span className="flex items-center gap-2">
+                        <CubeIcon className="w-4 h-4" />
+                        Overview
+                    </span>
+                ),
+                children: <ProductOverview product={product} />,
+            },
+            {
+                key: 'variants',
+                label: (
+                    <span className="flex items-center gap-2">
+                        <SwatchIcon className="w-4 h-4" />
+                        Variants ({product.productColors?.reduce((total, pc) => total + (pc.variants?.length || 0), 0) || 0})
+                    </span>
+                ),
+                children: (
+                    <div className="animate-fade-in">
+                        <div className="flex justify-between items-center mb-4">
+                            <Alert 
+                                message="Product Variants Management" 
+                                description="Manage size, color, pricing, and stock for each product variation."
+                                type="info" 
+                                showIcon 
+                                className="flex-1 mr-4 rounded-lg border-blue-100 bg-blue-50"
+                            />
+                            <Button 
+                                type="primary" 
+                                icon={<PlusIcon className="w-4 h-4 stroke-2" />}
+                                onClick={handleOpenCreateVariant}
+                                className="h-10 px-6 rounded-lg bg-indigo-600 hover:!bg-indigo-700 border-none shadow-md shadow-indigo-100"
+                            >
+                                Add Variant
+                            </Button>
+                        </div>
+                        
+                        <Card bordered={false} className="shadow-sm rounded-xl !p-0" bodyStyle={{ padding: 0 }}>
+                            <VariantTable 
+                                productColors={product.productColors} 
+                                productId={product.id} 
+                                onEdit={handleOpenEditVariant}
+                                onDelete={handleDeleteVariant}
+                                onManageImages={handleManageImages}
+                            />
+                        </Card>
+                    </div>
+                ),
+            },
+        ];
+    }, [product, handleOpenCreateVariant, handleOpenEditVariant, handleDeleteVariant, handleManageImages]);
+
     if (isLoading) {
         return (
             <div className="flex h-[80vh] items-center justify-center">
@@ -179,132 +235,6 @@ const ProductDetailPage = () => {
             </div>
         );
     }
-
-    const tabItems = [
-        {
-            key: 'overview',
-            label: (
-                <span className="flex items-center gap-2">
-                    <CubeIcon className="w-4 h-4" />
-                    Overview
-                </span>
-            ),
-            children: (
-                <div className="space-y-6 animate-fade-in">
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                        <div className="lg:col-span-1">
-                            <Card bordered={false} className="shadow-sm rounded-xl overflow-hidden h-full">
-                                <div className="aspect-square bg-slate-50 flex items-center justify-center relative group rounded-lg border border-gray-100 overflow-hidden">
-                                    {product.mainImageUrl ? (
-                                        <Image
-                                            src={product.mainImageUrl}
-                                            alt={product.name}
-                                            className="object-cover w-full h-full"
-                                            fallback="https://via.placeholder.com/400?text=No+Image"
-                                        />
-                                    ) : (
-                                        <div className="flex flex-col items-center text-gray-400">
-                                            <PhotoIcon className="w-16 h-16 mb-2 opacity-50" />
-                                            <Text type="secondary">No Main Image</Text>
-                                        </div>
-                                    )}
-                                </div>
-                                <div className="mt-4 text-center">
-                                    <Tag color="blue">Main Product Image</Tag>
-                                </div>
-                            </Card>
-                        </div>
-
-                        <div className="lg:col-span-2">
-                            <Card bordered={false} className="shadow-sm rounded-xl h-full">
-                                <Descriptions title="Basic Information" bordered column={{ xxl: 2, xl: 2, lg: 2, md: 1, sm: 1, xs: 1 }}>
-                                    <Descriptions.Item label="Product Name" span={2}>
-                                        <Text strong className="text-lg">{product.name}</Text>
-                                    </Descriptions.Item>
-                                    <Descriptions.Item label="Category">
-                                        {product.category ? <Tag color="purple">{product.category.name}</Tag> : 'N/A'}
-                                    </Descriptions.Item>
-                                    <Descriptions.Item label="Base Price">
-                                        <Text className="font-mono text-emerald-600 font-semibold">
-                                            {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(product.basePrice)}
-                                        </Text>
-                                    </Descriptions.Item>
-                                    <Descriptions.Item label="Slug">
-                                        <Text copyable code>{product.slug}</Text>
-                                    </Descriptions.Item>
-                                    <Descriptions.Item label="Status">
-                                        <Tag color={product.isActive ? 'success' : 'error'}>
-                                            {product.isActive ? 'Active' : 'Inactive'}
-                                        </Tag>
-                                    </Descriptions.Item>
-                                    <Descriptions.Item label="Created At">
-                                        {(product.createdAt || product.CreatedAt) ? (
-                                            <Text type="secondary" className="text-xs">
-                                                {new Date(product.createdAt || product.CreatedAt).toLocaleDateString('vi-VN')}
-                                            </Text>
-                                        ) : <Text type="secondary">N/A</Text>}
-                                    </Descriptions.Item>
-                                    <Descriptions.Item label="Updated At">
-                                        {(product.updatedAt || product.UpdatedAt) ? (
-                                            <Text type="secondary" className="text-xs">
-                                                {new Date(product.updatedAt || product.UpdatedAt).toLocaleDateString('vi-VN')}
-                                            </Text>
-                                        ) : <Text type="secondary">N/A</Text>}
-                                    </Descriptions.Item>
-                                    <Descriptions.Item label="Description" span={2}>
-                                        <div 
-                                            className="prose prose-sm max-w-none text-slate-600 max-h-40 overflow-y-auto"
-                                            dangerouslySetInnerHTML={{ __html: product.description || 'No description' }}
-                                        />
-                                    </Descriptions.Item>
-                                </Descriptions>
-                            </Card>
-                        </div>
-                    </div>
-                </div>
-            ),
-        },
-        {
-            key: 'variants',
-            label: (
-                <span className="flex items-center gap-2">
-                    <SwatchIcon className="w-4 h-4" />
-                    Variants ({product.productColors?.reduce((total, pc) => total + (pc.variants?.length || 0), 0) || 0})
-                </span>
-            ),
-            children: (
-                <div className="animate-fade-in">
-                    <div className="flex justify-between items-center mb-4">
-                        <Alert 
-                            message="Product Variants Management" 
-                            description="Manage size, color, pricing, and stock for each product variation."
-                            type="info" 
-                            showIcon 
-                            className="flex-1 mr-4 rounded-lg border-blue-100 bg-blue-50"
-                        />
-                        <Button 
-                            type="primary" 
-                            icon={<PlusIcon className="w-4 h-4 stroke-2" />}
-                            onClick={handleOpenCreateVariant}
-                            className="h-10 px-6 rounded-lg bg-indigo-600 hover:!bg-indigo-700 border-none shadow-md shadow-indigo-100"
-                        >
-                            Add Variant
-                        </Button>
-                    </div>
-                    
-                    <Card bordered={false} className="shadow-sm rounded-xl !p-0" bodyStyle={{ padding: 0 }}>
-                        <VariantTable 
-                            productColors={product.productColors} 
-                            productId={product.id} 
-                            onEdit={handleOpenEditVariant}
-                            onDelete={handleDeleteVariant}
-                            onManageImages={handleManageImages}
-                        />
-                    </Card>
-                </div>
-            ),
-        },
-    ];
 
     return (
         <div className="space-y-4 pb-10">
