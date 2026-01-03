@@ -21,9 +21,9 @@ namespace WebAPI.Controllers.v1.Manager.Products
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetProductImagesByProductVariantId([FromQuery] int variantId, CancellationToken cancellationToken)
+        public async Task<IActionResult> GetProductImagesByProductColorId([FromQuery] int productColorId, CancellationToken cancellationToken)
         {
-            var query = new GetProductImagesByProductVariantIdQuery(variantId);
+            var query = new GetProductImagesByProductColorIdQuery(productColorId);
             var result = await _mediator.Send(query, cancellationToken);
             return Ok(result);
         }

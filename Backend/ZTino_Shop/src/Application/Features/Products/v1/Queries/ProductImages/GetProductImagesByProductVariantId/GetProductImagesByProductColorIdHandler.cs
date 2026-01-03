@@ -3,13 +3,13 @@ using Application.Features.Products.v1.Repositories;
 
 namespace Application.Features.Products.v1.Queries.ProductImages.GetProductImagesByProductVariantId
 {
-    public class GetProductImagesByProductVariantIdHandler : IRequestHandler<GetProductImagesByProductVariantIdQuery, IEnumerable<ProductImageDto>>
+    public class GetProductImagesByProductColorIdHandler : IRequestHandler<GetProductImagesByProductColorIdQuery, IEnumerable<ProductImageDto>>
     {
         private readonly IProductImageRepository _productImageRepository;
         private readonly IProductVariantRepository _productVariantRepository;
         private readonly IMapper _mapper;
 
-        public GetProductImagesByProductVariantIdHandler(
+        public GetProductImagesByProductColorIdHandler(
             IProductImageRepository productImageRepository,
             IProductVariantRepository productVariantRepository,
             IMapper mapper)
@@ -19,12 +19,12 @@ namespace Application.Features.Products.v1.Queries.ProductImages.GetProductImage
             _mapper = mapper;
         }
 
-        public async Task<IEnumerable<ProductImageDto>> Handle(GetProductImagesByProductVariantIdQuery request, CancellationToken cancellationToken)
+        public async Task<IEnumerable<ProductImageDto>> Handle(GetProductImagesByProductColorIdQuery request, CancellationToken cancellationToken)
         {
-            var variant = await _productVariantRepository.GetByIdAsync(request.variantId, cancellationToken);
+            var variant = await _productVariantRepository.GetByIdAsync(request.productColorId, cancellationToken);
 
             if (variant == null)
-                throw new NotFoundException($"Product Variant Id {request.variantId} not found.");
+                throw new NotFoundException($"Product Color Id {request.productColorId} not found.");
 
             var productImages = await _productImageRepository.FindAsync(
                 pi => pi.ProductColorId == variant.ProductColorId,
