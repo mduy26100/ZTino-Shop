@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { Spin, Breadcrumb, Result, Button } from 'antd';
 import { HomeOutlined } from '@ant-design/icons';
@@ -9,7 +9,7 @@ const ProductDetailPage = () => {
     const navigate = useNavigate();
     const location = useLocation();
     
-    const [selectedColorId, setSelectedColorId] = useState(null);
+    const [selectedProductColorId, setSelectedProductColorId] = useState(null);
 
     const productId = location.state?.id || slug;
 
@@ -20,37 +20,77 @@ const ProductDetailPage = () => {
         return productData.data || productData;
     }, [productData]);
 
+    const sortImages = useCallback((images) => {
+        if (!images?.length) return [];
+        return [...images].sort((a, b) => {
+            if (a.isMain !== b.isMain) return a.isMain ? -1 : 1;
+            return (a.displayOrder || 0) - (b.displayOrder || 0);
+        });
+    }, []);
+
+    const imageToColorMap = useMemo(() => {
+        const map = new Map();
+        if (!product?.productColors) return map;
+        
+        product.productColors.forEach(pc => {
+            pc.images?.forEach(img => {
+                map.set(img.id, pc.id);
+            });
+        });
+        return map;
+    }, [product?.productColors]);
+
     const displayImages = useMemo(() => {
         if (!product) return [];
-        let imgs = [];
 
-        if (selectedColorId) {
-            const activeGroup = product.variantGroups?.find(g => g.colorId === selectedColorId);
-            if (activeGroup?.images) {
-                imgs = [...activeGroup.images];
+        if (selectedProductColorId) {
+            const activeProductColor = product.productColors?.find(
+                pc => pc.id === selectedProductColorId
+            );
+            
+            if (activeProductColor?.images?.length > 0) {
+                return sortImages(activeProductColor.images);
             }
             
-            if (imgs.length === 0 && product.mainImageUrl) {
-                imgs.push({ id: 'main', imageUrl: product.mainImageUrl, isMain: true });
-            }
-        } else {
             if (product.mainImageUrl) {
-                imgs.push({ id: 'main', imageUrl: product.mainImageUrl, isMain: true });
+                return [{ id: 'main', imageUrl: product.mainImageUrl, isMain: true }];
             }
-            if (product.variantGroups) {
-                product.variantGroups.forEach(group => {
-                    if (group.images) {
-                        imgs.push(...group.images);
-                    }
-                });
-            }
+            return [];
         }
 
-        const uniqueImgs = Array.from(new Set(imgs.map(a => a.imageUrl)))
-            .map(url => imgs.find(a => a.imageUrl === url));
+        const images = [];
+        
+        if (product.mainImageUrl) {
+            images.push({ id: 'main', imageUrl: product.mainImageUrl, isMain: true, displayOrder: -1 });
+        }
 
-        return uniqueImgs;
-    }, [product, selectedColorId]);
+        if (product.productColors) {
+            product.productColors.forEach(pc => {
+                if (pc.images?.length > 0) {
+                    pc.images.forEach(img => {
+                        if (img.imageUrl !== product.mainImageUrl) {
+                            images.push({ ...img, productColorId: pc.id });
+                        }
+                    });
+                }
+            });
+        }
+
+        return sortImages(images);
+    }, [product, selectedProductColorId, sortImages]);
+
+    const handleImageClick = useCallback((imageId) => {
+        if (imageId === 'main') return;
+        
+        const colorId = imageToColorMap.get(imageId);
+        if (colorId) {
+            setSelectedProductColorId(colorId);
+        }
+    }, [imageToColorMap]);
+
+    const handleResetSelection = useCallback(() => {
+        setSelectedProductColorId(null);
+    }, []);
 
     if (isLoading) {
         return (
@@ -99,14 +139,18 @@ const ProductDetailPage = () => {
 
             <div className="max-w-[1440px] mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20">
                 <div>
-                    <ProductGallery images={displayImages} />
+                    <ProductGallery 
+                        images={displayImages} 
+                        onImageClick={handleImageClick}
+                    />
                 </div>
 
                 <div>
                     <ProductInfo 
                         product={product} 
-                        selectedColorId={selectedColorId}
-                        setSelectedColorId={setSelectedColorId}
+                        selectedProductColorId={selectedProductColorId}
+                        setSelectedProductColorId={setSelectedProductColorId}
+                        onResetSelection={handleResetSelection}
                     />
                 </div>
             </div>
