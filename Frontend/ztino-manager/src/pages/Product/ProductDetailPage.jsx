@@ -22,6 +22,7 @@ import {
     useGetSizes, 
     useGetColorsByProductId,
     useCreateProductColor,
+    useDeleteProductColor,
     VariantTable,
     ProductImageModal,
     ProductOverview
@@ -50,6 +51,7 @@ const ProductDetailPage = () => {
     const { update: updateVariant, isUpdating } = useUpdateProductVariant();
     const { remove: removeVariant } = useDeleteProductVariant();
     const { create: createProductColor, isCreating: isCreatingProductColor } = useCreateProductColor();
+    const { remove: removeProductColor } = useDeleteProductColor();
 
     const [isCreateVariantOpen, setIsCreateVariantOpen] = useState(false);
     const [editingVariant, setEditingVariant] = useState(null);
@@ -196,6 +198,44 @@ const ProductDetailPage = () => {
         });
     }, [id, createProductColor, messageApi, handleCloseAddColorModal, refetchProductColors]);
 
+    const handleDeleteProductColor = useCallback((productColorId) => {
+        modal.confirm({
+            title: 'Delete Color',
+            icon: <ExclamationCircleFilled />,
+            content: (
+                <div className="pt-2">
+                    <Text>Are you sure you want to remove this color from the product?</Text>
+                    <br />
+                    <Text type="secondary" className="text-xs">
+                        This action cannot be undone.
+                    </Text>
+                </div>
+            ),
+            okText: 'Delete',
+            okType: 'danger',
+            cancelText: 'Cancel',
+            centered: true,
+            maskClosable: true,
+            onOk: async () => {
+                await removeProductColor(productColorId, {
+                    onSuccess: () => {
+                        messageApi.open({
+                            type: 'success',
+                            content: 'Color removed from product successfully',
+                        });
+                        refetchProductColors();
+                    },
+                    onError: (error) => {
+                        messageApi.open({
+                            type: 'error',
+                            content: error?.error?.message || error?.message || 'Delete failed',
+                        });
+                    }
+                });
+            },
+        });
+    }, [modal, removeProductColor, messageApi, refetchProductColors]);
+
 
     const tabItems = useMemo(() => {
         if (!product) return [];
@@ -216,6 +256,7 @@ const ProductDetailPage = () => {
                     colors={colors}
                     isLoadingColors={isLoadingColors}
                     onAddColor={handleOpenAddColorModal}
+                    onDeleteColor={handleDeleteProductColor}
                 />,
             },
             {

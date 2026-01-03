@@ -57,6 +57,7 @@ export {useDeleteProductVariant} from "./hooks/productVariant/useDeleteProductVa
 //Product Color
 export {useGetColorsByProductId} from "./hooks/productColor/useGetColorsByProductId";
 export {useCreateProductColor} from "./hooks/productColor/useCreateProductColor";
+export {useDeleteProductColor} from "./hooks/productColor/useDeleteProductColor";
 
 //Product Image
 export {useGetProductImages} from "./hooks/productImages/useGetProductImages";

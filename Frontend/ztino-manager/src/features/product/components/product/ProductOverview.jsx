@@ -4,7 +4,7 @@ import { PhotoIcon, PlusIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/
 
 const { Text, Title } = Typography;
 
-const ProductOverview = ({ product, productColors, isLoadingProductColors, onAddColor }) => {
+const ProductOverview = ({ product, productColors, isLoadingProductColors, onAddColor, onDeleteColor }) => {
 
     const colorColumns = useMemo(() => [
         {
@@ -72,13 +72,13 @@ const ProductOverview = ({ product, productColors, isLoadingProductColors, onAdd
                             danger
                             icon={<TrashIcon className="w-4 h-4" />}
                             className="hover:bg-red-50 rounded-lg"
-                            onClick={() => console.log('Delete color:', record)}
+                            onClick={() => onDeleteColor?.(record.id)}
                         />
                     </Tooltip>
                 </Space>
             )
         }
-    ], []);
+    ], [onDeleteColor]);
 
     if (!product) return null;
 

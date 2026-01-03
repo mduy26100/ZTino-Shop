@@ -13,3 +13,7 @@ export const createProductColor = (payload) => {
 
     return axiosClient.post(ENDPOINTS.ADMIN.PRODUCT_COLORS, {dto});
 };
+
+export const deleteProductColor = (id) => {
+    return axiosClient.delete(`${ENDPOINTS.ADMIN.PRODUCT_COLORS}/${id}`);
+};
