@@ -4,13 +4,9 @@
     {
         public CreateProductVariantValidator()
         {
-            RuleFor(v => v.Dto.ProductId)
+            RuleFor(v => v.Dto.ProductColorId)
                 .GreaterThan(0)
-                .WithMessage("Product id must be greater than 0.");
-
-            RuleFor(v => v.Dto.ColorId)
-                .GreaterThan(0)
-                .WithMessage("Color id must be greater than 0.");
+                .WithMessage("Product color id must be greater than 0.");
 
             RuleFor(v => v.Dto.SizeId)
                 .GreaterThan(0)
