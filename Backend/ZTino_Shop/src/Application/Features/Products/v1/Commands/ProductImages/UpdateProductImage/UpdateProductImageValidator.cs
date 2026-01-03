@@ -14,7 +14,7 @@
                     .GreaterThan(0)
                     .WithMessage("ProductImage Id must be greater than 0.");
 
-                RuleFor(x => x.Dto.ProductVariantId)
+                RuleFor(x => x.Dto.ProductColorId)
                     .GreaterThan(0)
                     .WithMessage("ProductVariantId must be greater than 0.");
 

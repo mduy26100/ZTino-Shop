@@ -12,7 +12,7 @@ namespace Application.Features.Products.v1.Commands.ProductImages.CreateProductI
 
             RuleForEach(x => x.Dtos).ChildRules(dto =>
             {
-                dto.RuleFor(x => x.ProductVariantId)
+                dto.RuleFor(x => x.ProductColorId)
                     .GreaterThan(0).WithMessage("ProductVariantId must be greater than 0.");
 
                 dto.RuleFor(x => x.ImageUrl)
@@ -28,8 +28,8 @@ namespace Application.Features.Products.v1.Commands.ProductImages.CreateProductI
         private bool HaveSameVariantId(List<UpsertProductImageDto> dtos)
         {
             if (dtos is null || dtos.Count == 0) return true;
-            var firstId = dtos[0].ProductVariantId;
-            return dtos.All(x => x.ProductVariantId == firstId);
+            var firstId = dtos[0].ProductColorId;
+            return dtos.All(x => x.ProductColorId == firstId);
         }
     }
 }

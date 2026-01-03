@@ -34,7 +34,7 @@ namespace Application.Features.Products.v1.Commands.ProductImages.CreateProductI
             if (request.Dtos is null || request.Dtos.Count == 0)
                 return new List<UpsertProductImageDto>();
 
-            var variantId = request.Dtos[0].ProductVariantId;
+            var variantId = request.Dtos[0].ProductColorId;
 
             var variant = await _productVariantRepository
                 .FindOneAsync(v => v.Id == variantId, false, cancellationToken);

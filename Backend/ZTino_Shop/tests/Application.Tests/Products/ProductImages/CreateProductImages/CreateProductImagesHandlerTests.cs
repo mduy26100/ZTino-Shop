@@ -49,7 +49,7 @@ namespace Application.Tests.Products.ProductImages.CreateProductImages
 
             var command = new CreateProductImagesCommand(new List<UpsertProductImageDto>
             {
-                new() { ProductVariantId = 1 }
+                new() { ProductColorId = 1 }
             });
 
             await Assert.ThrowsAsync<NotFoundException>(() =>
@@ -59,9 +59,9 @@ namespace Application.Tests.Products.ProductImages.CreateProductImages
         [Fact]
         public async Task Handle_NoExistingImages_FirstImageIsMain()
         {
-            const int variantId = 1;
+            const int variantPkId = 1;
             const int productColorId = 10;
-            var variant = new ProductVariantEntity { Id = variantId, ProductColorId = productColorId };
+            var variant = new ProductVariantEntity { Id = variantPkId, ProductColorId = productColorId };
 
             _productVariantRepository
                 .Setup(x => x.FindOneAsync(It.IsAny<Expression<Func<ProductVariantEntity, bool>>>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()))
@@ -83,7 +83,7 @@ namespace Application.Tests.Products.ProductImages.CreateProductImages
             {
                 new()
                 {
-                    ProductVariantId = variantId,
+                    ProductColorId = variantPkId,
                     ImgContent = new MemoryStream(new byte[] { 1, 2 }),
                     ImgFileName = "img.jpg"
                 }
@@ -107,9 +107,9 @@ namespace Application.Tests.Products.ProductImages.CreateProductImages
         [Fact]
         public async Task Handle_HasExistingImages_AllNewImagesAreNotMain()
         {
-            const int variantId = 1;
+            const int variantPkId = 1;
             const int productColorId = 10;
-            var variant = new ProductVariantEntity { Id = variantId, ProductColorId = productColorId };
+            var variant = new ProductVariantEntity { Id = variantPkId, ProductColorId = productColorId };
 
             _productVariantRepository
                 .Setup(x => x.FindOneAsync(It.IsAny<Expression<Func<ProductVariantEntity, bool>>>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()))
@@ -129,18 +129,8 @@ namespace Application.Tests.Products.ProductImages.CreateProductImages
 
             var command = new CreateProductImagesCommand(new List<UpsertProductImageDto>
             {
-                new()
-                {
-                    ProductVariantId = variantId,
-                    ImgContent = new MemoryStream(new byte[] { 1 }),
-                    ImgFileName = "a.jpg"
-                },
-                new()
-                {
-                    ProductVariantId = variantId,
-                    ImgContent = new MemoryStream(new byte[] { 2 }),
-                    ImgFileName = "b.jpg"
-                }
+                new() { ProductColorId = variantPkId, ImgContent = new MemoryStream(new byte[]{1}), ImgFileName = "a.jpg" },
+                new() { ProductColorId = variantPkId, ImgContent = new MemoryStream(new byte[]{2}), ImgFileName = "b.jpg" }
             });
 
             await _handler.Handle(command, CancellationToken.None);
@@ -148,9 +138,11 @@ namespace Application.Tests.Products.ProductImages.CreateProductImages
             _productImageRepository.Verify(x =>
                 x.AddRangeAsync(
                     It.Is<List<ProductImage>>(list =>
+                        list.Count == 2 &&
                         list.All(i => i.ProductColorId == productColorId) &&
                         list.All(i => !i.IsMain) &&
-                        list.Select(i => i.DisplayOrder).SequenceEqual(new[] { 4, 5 })),
+                        list[0].DisplayOrder == 4 &&
+                        list[1].DisplayOrder == 5),
                     It.IsAny<CancellationToken>()),
                 Times.Once);
         }

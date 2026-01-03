@@ -3,7 +3,7 @@
     public class UpsertProductImageDto
     {
         public int Id { get; set; }
-        public int ProductVariantId { get; set; }
+        public int ProductColorId { get; set; }
         public string ImageUrl { get; set; } = default!;
         public bool IsMain { get; set; } = false;
         public int DisplayOrder { get; set; } = 0;

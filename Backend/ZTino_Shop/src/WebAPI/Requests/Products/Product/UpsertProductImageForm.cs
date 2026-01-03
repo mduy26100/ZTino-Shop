@@ -5,7 +5,7 @@ namespace WebAPI.Requests.Products.Product
     public class UpsertProductImageForm
     {
         public int Id { get; set; }
-        public int ProductVariantId { get; set; }
+        public int ProductColorId { get; set; }
         public bool IsMain { get; set; } = false;
         public List<IFormFile> ImageFiles { get; set; } = new();
         public IFormFile? ImageFile { get; set; }
@@ -15,7 +15,7 @@ namespace WebAPI.Requests.Products.Product
             return ImageFiles.Select(file => new UpsertProductImageDto
             {
                 Id = Id,
-                ProductVariantId = ProductVariantId,
+                ProductColorId = ProductColorId,
                 ImgContent = file.OpenReadStream(),
                 ImgFileName = file.FileName,
                 ImgContentType = file.ContentType
@@ -28,7 +28,7 @@ namespace WebAPI.Requests.Products.Product
             {
                 Id = Id,
                 IsMain = IsMain,
-                ProductVariantId = ProductVariantId,
+                ProductColorId = ProductColorId,
                 ImgContent = ImageFile?.OpenReadStream(),
                 ImgFileName = ImageFile?.FileName,
                 ImgContentType = ImageFile?.ContentType
