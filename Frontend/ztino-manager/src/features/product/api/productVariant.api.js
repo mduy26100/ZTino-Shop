@@ -3,8 +3,7 @@ import axiosClient from "../../../services/axiosClient";
 
 export const createProductVariant = (payload) => {
     const dto = {
-        productId: payload.productId,
-        colorId: payload.colorId,
+        productColorId: payload.productColorId,
         sizeId: payload.sizeId,
         stockQuantity: payload.stockQuantity,
         price: payload.price,
@@ -17,8 +16,7 @@ export const createProductVariant = (payload) => {
 export const updateProductVariant = (payload) => {
     const dto = {
         id: payload.id,
-        productId: payload.productId,
-        colorId: payload.colorId,
+        productColorId: payload.productColorId,
         sizeId: payload.sizeId,
         stockQuantity: payload.stockQuantity,
         price: payload.price,

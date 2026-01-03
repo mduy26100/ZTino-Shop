@@ -132,8 +132,7 @@ const ProductDetailPage = () => {
 
         const payload = {
             id: isEdit ? editingVariant.id : undefined,
-            productId: parseInt(id),
-            colorId: values.colorId,
+            productColorId: values.productColorId,
             sizeId: values.sizeId,
             stockQuantity: values.stockQuantity,
             price: values.price,
@@ -357,9 +356,9 @@ const ProductDetailPage = () => {
                 onSubmit={handleSubmitVariant}
                 confirmLoading={isCreating || isUpdating}
                 initialValues={editingVariant}
-                colors={colors}
+                productColors={productColors}
                 sizes={sizes}
-                isLoadingColors={isLoadingColors}
+                isLoadingProductColors={isLoadingProductColors}
                 isLoadingSizes={isLoadingSizes}
             />
 

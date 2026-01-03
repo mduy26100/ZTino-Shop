@@ -7,9 +7,9 @@ const UpsertProductVariantModal = ({
     open, 
     onCancel, 
     onSubmit, 
-    colors = [], 
+    productColors = [], 
     sizes = [], 
-    isLoadingColors, 
+    isLoadingProductColors, 
     isLoadingSizes, 
     confirmLoading,
     initialValues
@@ -22,7 +22,7 @@ const UpsertProductVariantModal = ({
             if (initialValues) {
                 form.setFieldsValue({
                     ...initialValues,
-                    colorId: initialValues.colorId || initialValues.color?.id,
+                    productColorId: initialValues.productColorId || initialValues.productColor?.id,
                     sizeId: initialValues.sizeId || initialValues.size?.id,
                 });
             } else {
@@ -45,21 +45,21 @@ const UpsertProductVariantModal = ({
         }
     };
 
-    const colorOptions = useMemo(() => {
-        return colors.map(color => ({
+    const productColorOptions = useMemo(() => {
+        return productColors.map(pc => ({
             label: (
                 <div className="flex items-center gap-2">
                     <div 
                         className="w-4 h-4 rounded-full border border-gray-200" 
-                        style={{ backgroundColor: color.hex || color.name }}
+                        style={{ backgroundColor: pc.color?.name }}
                     />
-                    <span>{color.name}</span>
+                    <span>{pc.color?.name}</span>
                 </div>
             ),
-            value: color.id,
-            raw: color 
+            value: pc.id,
+            raw: pc 
         }));
-    }, [colors]);
+    }, [productColors]);
 
     const sizeOptions = useMemo(() => {
         return sizes.map(size => ({
@@ -114,17 +114,17 @@ const UpsertProductVariantModal = ({
                 <Row gutter={16}>
                     <Col span={12}>
                         <Form.Item
-                            name="colorId"
+                            name="productColorId"
                             label={<span className="font-medium text-gray-700">Color</span>}
                             rules={[{ required: true, message: 'Please select a color' }]}
                         >
                             <Select 
                                 placeholder="Select color"
-                                loading={isLoadingColors}
-                                options={colorOptions}
+                                loading={isLoadingProductColors}
+                                options={productColorOptions}
                                 showSearch
                                 filterOption={(input, option) => 
-                                    option.raw?.name?.toLowerCase().includes(input.toLowerCase())
+                                    option.raw?.color?.name?.toLowerCase().includes(input.toLowerCase())
                                 }
                                 className="h-10"
                             />
