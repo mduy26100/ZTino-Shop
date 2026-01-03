@@ -9,18 +9,21 @@ namespace Application.Features.Products.v1.Commands.ProductImages.UpdateProductI
 {
     public class UpdateProductImageHandler : IRequestHandler<UpdateProductImageCommand, UpsertProductImageDto>
     {
-        private readonly IProductImageRepository _repo;
+        private readonly IProductImageRepository _productImageRepository;
+        private readonly IProductColorRepository _productColorRepository;
         private readonly IFileUploadService _fileService;
         private readonly IMapper _mapper;
         private readonly IApplicationDbContext _context;
 
         public UpdateProductImageHandler(
-            IProductImageRepository repo,
+            IProductImageRepository productImageRepository,
+            IProductColorRepository productColorRepository,
             IFileUploadService fileService,
             IMapper mapper,
             IApplicationDbContext context)
         {
-            _repo = repo;
+            _productImageRepository = productImageRepository;
+            _productColorRepository = productColorRepository;
             _fileService = fileService;
             _mapper = mapper;
             _context = context;
@@ -30,56 +33,59 @@ namespace Application.Features.Products.v1.Commands.ProductImages.UpdateProductI
         {
             var dto = request.Dto;
 
-            var entity = await _repo.GetByIdAsync(dto.Id, cancellationToken);
+            var entity = await _productImageRepository.GetByIdAsync(dto.Id, cancellationToken);
             if (entity == null) throw new NotFoundException($"Product Image {dto.Id} not found.");
 
-            var siblings = await _repo.FindAsync(
-                x => x.ProductColorId == entity.ProductColorId && x.Id != entity.Id,
-                false,
-                cancellationToken);
+            var productColor = await _productColorRepository
+                .FindOneAsync(v => v.Id == entity.ProductColorId, false, cancellationToken);
+            if (productColor == null)
+                throw new NotFoundException($"Product Color with ID {entity.ProductColorId} does not exist.");
 
             await HandleImageUploadAsync(entity, dto, cancellationToken);
 
             if (dto.DisplayOrder != 0)
                 entity.DisplayOrder = dto.DisplayOrder;
 
-            HandleMainImageLogic(entity, siblings, dto.IsMain);
-
-            _repo.Update(entity);
-
-            await _context.SaveChangesAsync(cancellationToken);
-
-            return _mapper.Map<UpsertProductImageDto>(entity);
-        }
-
-        private void HandleMainImageLogic(ProductImage currentEntity, IEnumerable<ProductImage> siblings, bool requestedIsMain)
-        {
-            if (requestedIsMain && !currentEntity.IsMain)
+            if (dto.IsMain != entity.IsMain)
             {
-                var oldMain = siblings.FirstOrDefault(x => x.IsMain);
-                if (oldMain != null)
+                if (dto.IsMain)
                 {
-                    oldMain.IsMain = false;
-                    _repo.Update(oldMain);
-                }
-                currentEntity.IsMain = true;
-            }
-            else if (!requestedIsMain && currentEntity.IsMain)
-            {
-                currentEntity.IsMain = false;
+                    var currentMain = await _productImageRepository.FindOneAsync(
+                        x => x.ProductColorId == entity.ProductColorId && x.IsMain && x.Id != entity.Id,
+                        true,
+                        cancellationToken);
 
-                var heir = siblings.OrderBy(x => x.DisplayOrder).FirstOrDefault();
-
-                if (heir != null)
-                {
-                    heir.IsMain = true;
-                    _repo.Update(heir);
+                    if (currentMain != null)
+                    {
+                        currentMain.IsMain = false;
+                        _productImageRepository.Update(currentMain);
+                    }
+                    entity.IsMain = true;
                 }
                 else
                 {
-                    currentEntity.IsMain = true;
+                    var alternativeMain = await _productImageRepository.FindOneAsync(
+                        x => x.ProductColorId == entity.ProductColorId && x.Id != entity.Id,
+                        true,
+                        cancellationToken);
+
+                    if (alternativeMain != null)
+                    {
+                        alternativeMain.IsMain = true;
+                        _productImageRepository.Update(alternativeMain);
+                        entity.IsMain = false;
+                    }
+                    else
+                    {
+                        entity.IsMain = true;
+                    }
                 }
             }
+
+            _productImageRepository.Update(entity);
+            await _context.SaveChangesAsync(cancellationToken);
+
+            return _mapper.Map<UpsertProductImageDto>(entity);
         }
 
         private async Task HandleImageUploadAsync(ProductImage entity, UpsertProductImageDto dto, CancellationToken ct)

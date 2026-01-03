@@ -10,7 +10,8 @@ namespace Application.Tests.Products.ProductImages.UpdateProductImage
 {
     public class UpdateProductImageHandlerTests
     {
-        private readonly Mock<IProductImageRepository> _repoMock;
+        private readonly Mock<IProductImageRepository> _productImageRepositoryMock;
+        private readonly Mock<IProductColorRepository> _productColorRepositoryMock;
         private readonly Mock<IFileUploadService> _fileServiceMock;
         private readonly Mock<IMapper> _mapperMock;
         private readonly Mock<IApplicationDbContext> _contextMock;
@@ -18,185 +19,143 @@ namespace Application.Tests.Products.ProductImages.UpdateProductImage
 
         public UpdateProductImageHandlerTests()
         {
-            _repoMock = new Mock<IProductImageRepository>();
+            _productImageRepositoryMock = new Mock<IProductImageRepository>();
+            _productColorRepositoryMock = new Mock<IProductColorRepository>();
             _fileServiceMock = new Mock<IFileUploadService>();
             _mapperMock = new Mock<IMapper>();
             _contextMock = new Mock<IApplicationDbContext>();
 
             _handler = new UpdateProductImageHandler(
-                _repoMock.Object,
+                _productImageRepositoryMock.Object,
+                _productColorRepositoryMock.Object,
                 _fileServiceMock.Object,
                 _mapperMock.Object,
                 _contextMock.Object);
         }
 
         [Fact]
-        public async Task Handle_ShouldThrowNotFound_WhenImageDoesNotExist()
+        public async Task Handle_ImageNotFound_ThrowsNotFoundException()
         {
-            _repoMock.Setup(x => x.GetByIdAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            _productImageRepositoryMock
+                .Setup(x => x.GetByIdAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync((ProductImage?)null);
 
-            var command = new UpdateProductImageCommand(
-                new UpsertProductImageDto { Id = 999 });
+            var command = new UpdateProductImageCommand(new UpsertProductImageDto { Id = 1 });
 
-            await Assert.ThrowsAsync<NotFoundException>(() =>
-                _handler.Handle(command, CancellationToken.None));
+            await Assert.ThrowsAsync<NotFoundException>(() => _handler.Handle(command, CancellationToken.None));
         }
 
         [Fact]
-        public async Task Handle_ShouldUploadImage_WhenImageContentProvided()
+        public async Task Handle_ProductColorNotFound_ThrowsNotFoundException()
         {
             var entity = new ProductImage { Id = 1, ProductColorId = 10 };
-            var dto = new UpsertProductImageDto
-            {
-                Id = 1,
-                ImgContent = new MemoryStream(new byte[] { 1, 2, 3 }),
-                ImgFileName = "test.jpg"
-            };
-
-            _repoMock.Setup(x => x.GetByIdAsync(1, It.IsAny<CancellationToken>()))
+            _productImageRepositoryMock
+                .Setup(x => x.GetByIdAsync(1, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(entity);
 
-            _repoMock.Setup(x => x.FindAsync(
-                    It.IsAny<Expression<Func<ProductImage, bool>>>(),
-                    false,
-                    It.IsAny<CancellationToken>()))
-                .ReturnsAsync(new List<ProductImage>());
+            _productColorRepositoryMock
+                .Setup(x => x.FindOneAsync(It.IsAny<Expression<Func<ProductColor, bool>>>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync((ProductColor?)null);
 
-            _fileServiceMock.Setup(x => x.UploadAsync(
-                    It.IsAny<FileUploadRequest>(),
-                    It.IsAny<CancellationToken>()))
-                .ReturnsAsync("https://cdn.test/image.jpg");
+            var command = new UpdateProductImageCommand(new UpsertProductImageDto { Id = 1 });
 
-            _mapperMock.Setup(x => x.Map<UpsertProductImageDto>(It.IsAny<ProductImage>()))
-                .Returns(dto);
-
-            await _handler.Handle(new UpdateProductImageCommand(dto), CancellationToken.None);
-
-            _fileServiceMock.Verify(x =>
-                x.UploadAsync(It.IsAny<FileUploadRequest>(), It.IsAny<CancellationToken>()),
-                Times.Once);
-
-            _contextMock.Verify(x =>
-                x.SaveChangesAsync(It.IsAny<CancellationToken>()),
-                Times.Once);
+            await Assert.ThrowsAsync<NotFoundException>(() => _handler.Handle(command, CancellationToken.None));
         }
 
         [Fact]
-        public async Task Handle_ShouldClaimMain_WhenRequestedIsMain()
+        public async Task Handle_ValidRequest_UploadsImageWhenProvided()
         {
-            var current = new ProductImage
-            {
-                Id = 1,
-                ProductColorId = 10,
-                IsMain = false
-            };
-
-            var oldMain = new ProductImage
-            {
-                Id = 2,
-                ProductColorId = 10,
-                IsMain = true
-            };
-
+            var entity = new ProductImage { Id = 1, ProductColorId = 10, ImageUrl = "old.jpg" };
             var dto = new UpsertProductImageDto
             {
                 Id = 1,
-                IsMain = true
+                ImgContent = new MemoryStream(new byte[] { 1 }),
+                ImgFileName = "new.jpg"
             };
 
-            _repoMock.Setup(x => x.GetByIdAsync(1, It.IsAny<CancellationToken>()))
-                .ReturnsAsync(current);
-
-            _repoMock.Setup(x => x.FindAsync(
-                    It.IsAny<Expression<Func<ProductImage, bool>>>(),
-                    false,
-                    It.IsAny<CancellationToken>()))
-                .ReturnsAsync(new List<ProductImage> { oldMain });
-
-            _mapperMock.Setup(x => x.Map<UpsertProductImageDto>(It.IsAny<ProductImage>()))
-                .Returns(dto);
+            _productImageRepositoryMock.Setup(x => x.GetByIdAsync(1, It.IsAny<CancellationToken>())).ReturnsAsync(entity);
+            _productColorRepositoryMock.Setup(x => x.FindOneAsync(It.IsAny<Expression<Func<ProductColor, bool>>>(), It.IsAny<bool>(), It.IsAny<CancellationToken>())).ReturnsAsync(new ProductColor());
+            _fileServiceMock.Setup(x => x.UploadAsync(It.IsAny<FileUploadRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync("new-url.jpg");
 
             await _handler.Handle(new UpdateProductImageCommand(dto), CancellationToken.None);
 
-            Assert.True(current.IsMain);
-            Assert.False(oldMain.IsMain);
-
-            _repoMock.Verify(x => x.Update(oldMain), Times.Once);
-            _contextMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
+            Assert.Equal("new-url.jpg", entity.ImageUrl);
+            _fileServiceMock.Verify(x => x.UploadAsync(It.IsAny<FileUploadRequest>(), It.IsAny<CancellationToken>()), Times.Once);
         }
 
         [Fact]
-        public async Task Handle_ShouldResignMain_AndAssignHeir()
+        public async Task Handle_SetMainTrue_UnsetsCurrentMain()
         {
-            var current = new ProductImage
-            {
-                Id = 1,
-                ProductColorId = 10,
-                IsMain = true
-            };
+            var entity = new ProductImage { Id = 1, ProductColorId = 10, IsMain = false };
+            var currentMain = new ProductImage { Id = 2, ProductColorId = 10, IsMain = true };
+            var dto = new UpsertProductImageDto { Id = 1, IsMain = true };
 
-            var heir = new ProductImage
-            {
-                Id = 2,
-                ProductColorId = 10,
-                IsMain = false,
-                DisplayOrder = 1
-            };
+            _productImageRepositoryMock.Setup(x => x.GetByIdAsync(1, It.IsAny<CancellationToken>())).ReturnsAsync(entity);
+            _productColorRepositoryMock.Setup(x => x.FindOneAsync(It.IsAny<Expression<Func<ProductColor, bool>>>(), It.IsAny<bool>(), It.IsAny<CancellationToken>())).ReturnsAsync(new ProductColor());
 
-            var dto = new UpsertProductImageDto
-            {
-                Id = 1,
-                IsMain = false
-            };
-
-            _repoMock.Setup(x => x.GetByIdAsync(1, It.IsAny<CancellationToken>()))
-                .ReturnsAsync(current);
-
-            _repoMock.Setup(x => x.FindAsync(
-                    It.IsAny<Expression<Func<ProductImage, bool>>>(),
-                    false,
-                    It.IsAny<CancellationToken>()))
-                .ReturnsAsync(new List<ProductImage> { heir });
-
-            _mapperMock.Setup(x => x.Map<UpsertProductImageDto>(It.IsAny<ProductImage>()))
-                .Returns(dto);
+            _productImageRepositoryMock
+                .Setup(x => x.FindOneAsync(It.IsAny<Expression<Func<ProductImage, bool>>>(), true, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(currentMain);
 
             await _handler.Handle(new UpdateProductImageCommand(dto), CancellationToken.None);
 
-            Assert.False(current.IsMain);
-            Assert.True(heir.IsMain);
-
-            _repoMock.Verify(x => x.Update(heir), Times.Once);
-            _contextMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
+            Assert.True(entity.IsMain);
+            Assert.False(currentMain.IsMain);
+            _productImageRepositoryMock.Verify(x => x.Update(currentMain), Times.Once);
+            _productImageRepositoryMock.Verify(x => x.Update(entity), Times.Once);
         }
 
         [Fact]
-        public async Task Handle_ShouldUpdateDisplayOrder_WhenProvided()
+        public async Task Handle_SetMainFalse_AssignsAlternativeMain()
         {
-            var entity = new ProductImage { Id = 1, DisplayOrder = 1, ProductColorId = 10 };
+            var entity = new ProductImage { Id = 1, ProductColorId = 10, IsMain = true };
+            var alternative = new ProductImage { Id = 2, ProductColorId = 10, IsMain = false };
+            var dto = new UpsertProductImageDto { Id = 1, IsMain = false };
 
-            var dto = new UpsertProductImageDto
-            {
-                Id = 1,
-                DisplayOrder = 99
-            };
+            _productImageRepositoryMock.Setup(x => x.GetByIdAsync(1, It.IsAny<CancellationToken>())).ReturnsAsync(entity);
+            _productColorRepositoryMock.Setup(x => x.FindOneAsync(It.IsAny<Expression<Func<ProductColor, bool>>>(), It.IsAny<bool>(), It.IsAny<CancellationToken>())).ReturnsAsync(new ProductColor());
 
-            _repoMock.Setup(x => x.GetByIdAsync(1, It.IsAny<CancellationToken>()))
-                .ReturnsAsync(entity);
-
-            _repoMock.Setup(x => x.FindAsync(
-                    It.IsAny<Expression<Func<ProductImage, bool>>>(),
-                    false,
-                    It.IsAny<CancellationToken>()))
-                .ReturnsAsync(new List<ProductImage>());
-
-            _mapperMock.Setup(x => x.Map<UpsertProductImageDto>(It.IsAny<ProductImage>()))
-                .Returns(dto);
+            _productImageRepositoryMock
+                .Setup(x => x.FindOneAsync(It.IsAny<Expression<Func<ProductImage, bool>>>(), true, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(alternative);
 
             await _handler.Handle(new UpdateProductImageCommand(dto), CancellationToken.None);
 
-            Assert.Equal(99, entity.DisplayOrder);
+            Assert.False(entity.IsMain);
+            Assert.True(alternative.IsMain);
+            _productImageRepositoryMock.Verify(x => x.Update(alternative), Times.Once);
+        }
+
+        [Fact]
+        public async Task Handle_SetMainFalse_StaysMainIfNoAlternative()
+        {
+            var entity = new ProductImage { Id = 1, ProductColorId = 10, IsMain = true };
+            var dto = new UpsertProductImageDto { Id = 1, IsMain = false };
+
+            _productImageRepositoryMock.Setup(x => x.GetByIdAsync(1, It.IsAny<CancellationToken>())).ReturnsAsync(entity);
+            _productColorRepositoryMock.Setup(x => x.FindOneAsync(It.IsAny<Expression<Func<ProductColor, bool>>>(), It.IsAny<bool>(), It.IsAny<CancellationToken>())).ReturnsAsync(new ProductColor());
+
+            _productImageRepositoryMock
+                .Setup(x => x.FindOneAsync(It.IsAny<Expression<Func<ProductImage, bool>>>(), true, It.IsAny<CancellationToken>()))
+                .ReturnsAsync((ProductImage?)null);
+
+            await _handler.Handle(new UpdateProductImageCommand(dto), CancellationToken.None);
+
+            Assert.True(entity.IsMain);
+        }
+
+        [Fact]
+        public async Task Handle_UpdateDisplayOrder_UpdatesSuccessfully()
+        {
+            var entity = new ProductImage { Id = 1, ProductColorId = 10, DisplayOrder = 1 };
+            var dto = new UpsertProductImageDto { Id = 1, DisplayOrder = 5 };
+
+            _productImageRepositoryMock.Setup(x => x.GetByIdAsync(1, It.IsAny<CancellationToken>())).ReturnsAsync(entity);
+            _productColorRepositoryMock.Setup(x => x.FindOneAsync(It.IsAny<Expression<Func<ProductColor, bool>>>(), It.IsAny<bool>(), It.IsAny<CancellationToken>())).ReturnsAsync(new ProductColor());
+
+            await _handler.Handle(new UpdateProductImageCommand(dto), CancellationToken.None);
+
+            Assert.Equal(5, entity.DisplayOrder);
             _contextMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
         }
     }
