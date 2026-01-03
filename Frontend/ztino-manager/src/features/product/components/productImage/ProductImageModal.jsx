@@ -9,7 +9,7 @@ import { useDeleteProductImage } from '../../hooks/productImages/useDeleteProduc
 const { Text } = Typography;
 const { Dragger } = Upload;
 
-const ProductImageModal = ({ open, onCancel, variantId, onSuccess }) => {
+const ProductImageModal = ({ open, onCancel, productColorId, onSuccess }) => {
     const [messageApi, contextHolder] = message.useMessage();
     const [modal, modalContextHolder] = Modal.useModal();
     
@@ -19,7 +19,7 @@ const ProductImageModal = ({ open, onCancel, variantId, onSuccess }) => {
     const hiddenInputRef = useRef(null);
     const currentReplacingId = useRef(null);
 
-    const { data: images, isLoading, refetch } = useGetProductImages(variantId);
+    const { data: images, isLoading, refetch } = useGetProductImages(productColorId);
     const { create: createImages, isCreating } = useCreateProductImages();
     const { update: updateImage, isUpdating } = useUpdateProductImage();
     const { remove: deleteImage, isDeleting } = useDeleteProductImage();
@@ -90,7 +90,7 @@ const ProductImageModal = ({ open, onCancel, variantId, onSuccess }) => {
     };
 
     const handleSaveAll = async () => {
-        if (!variantId) return;
+        if (!productColorId) return;
         const newFilesCount = fileList.length;
         const replacementCount = Object.keys(pendingReplacements).length;
 
@@ -101,7 +101,7 @@ const ProductImageModal = ({ open, onCancel, variantId, onSuccess }) => {
 
             if (newFilesCount > 0) {
                 const createPayload = {
-                    ProductVariantId: variantId,
+                    ProductColorId: productColorId,
                     ImageFiles: fileList
                 };
                 promises.push(createImages(createPayload));
@@ -112,7 +112,7 @@ const ProductImageModal = ({ open, onCancel, variantId, onSuccess }) => {
                     const originalImg = images.find(img => img.id === parseInt(id));
                     const updatePayload = {
                         Id: parseInt(id),
-                        ProductVariantId: variantId,
+                        ProductColorId: productColorId,
                         IsMain: originalImg?.isMain || false,
                         ImageFile: file
                     };
@@ -146,7 +146,7 @@ const ProductImageModal = ({ open, onCancel, variantId, onSuccess }) => {
         } catch (error) {
             messageApi.open({
                 type: 'error',
-                content: 'Some operations failed. Please try again.',
+                content: error?.error?.message || error?.message || 'Some operations failed. Please try again.',
             });
         }
     };
@@ -164,7 +164,7 @@ const ProductImageModal = ({ open, onCancel, variantId, onSuccess }) => {
 
         await updateImage({
             Id: img.id,
-            ProductVariantId: variantId,
+            ProductColorId: productColorId,
             IsMain: true,
         }, {
             onSuccess: () => {
@@ -175,10 +175,10 @@ const ProductImageModal = ({ open, onCancel, variantId, onSuccess }) => {
                 refetch();
                 onSuccess?.();
             },
-            onError: () => {
+            onError: (error) => {
                 messageApi.open({
                     type: 'error',
-                    content: 'Failed to set main image',
+                    content: error?.error?.message || error?.message || 'Failed to set main image',
                 });
             }
         });

@@ -1,16 +1,16 @@
 import axiosClient from "../../../services/axiosClient";
 import { ENDPOINTS } from "../../../constants/apiEndpoints";
 
-export const getProductImagesByProductVariantId = (variantId) => {
+export const getProductImagesByProductColorId = (productColorId) => {
     return axiosClient.get(ENDPOINTS.ADMIN.PRODUCT_IMAGES, {
-        params: { variantId: variantId } 
+        params: { productColorId: productColorId } 
     });
 };
 
 export const createProductImages = (productImagesData) => {
     const formData = new FormData();
 
-    formData.append("ProductVariantId", productImagesData.ProductVariantId);
+    formData.append("ProductColorId", productImagesData.ProductColorId);
 
     if (productImagesData.ImageFiles?.length) {
         productImagesData.ImageFiles.forEach((file) => {
@@ -29,7 +29,7 @@ export const updateProductImage = (productImagesData) => {
     const formData = new FormData();
 
     formData.append("Id", productImagesData.Id);
-    formData.append("ProductVariantId", productImagesData.ProductVariantId);
+    formData.append("ProductColorId", productImagesData.ProductColorId);
     formData.append("IsMain", productImagesData.IsMain);
 
     

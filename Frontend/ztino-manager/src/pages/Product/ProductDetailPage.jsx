@@ -60,7 +60,7 @@ const ProductDetailPage = () => {
 
     const [imageModalState, setImageModalState] = useState({
         open: false,
-        variantId: null
+        productColorId: null
     });
 
     const breadcrumbItems = useMemo(() => [
@@ -157,10 +157,10 @@ const ProductDetailPage = () => {
         });
     }, [id, editingVariant, createVariant, updateVariant, handleCloseCreateVariant, refetch, messageApi]);
 
-    const handleManageImages = useCallback((variant) => {
+    const handleManageImages = useCallback((productColor) => {
         setImageModalState({
             open: true,
-            variantId: variant.id
+            productColorId: productColor.id
         });
     }, []);
 
@@ -364,7 +364,7 @@ const ProductDetailPage = () => {
 
             <ProductImageModal 
                 open={imageModalState.open}
-                variantId={imageModalState.variantId}
+                productColorId={imageModalState.productColorId}
                 onCancel={handleCloseImageModal}
                 onSuccess={refetch}
             />

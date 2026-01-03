@@ -1,14 +1,14 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import axios from 'axios'; 
-import { getProductImagesByProductVariantId } from '../../api/productImage.api';
+import { getProductImagesByProductColorId } from '../../api/productImage.api';
 
 const CACHE = {}; 
 const CACHE_TTL = 5 * 60 * 1000; 
 
-export const useGetProductImages = (variantId, options = {}) => {
+export const useGetProductImages = (productColorId, options = {}) => {
     const { onSuccess, onError } = options;
     
-    const cachedEntry = CACHE[variantId];
+    const cachedEntry = CACHE[productColorId];
     
     const [data, setData] = useState(cachedEntry?.data || []);
     const [isLoading, setIsLoading] = useState(!cachedEntry?.data);
@@ -28,7 +28,7 @@ export const useGetProductImages = (variantId, options = {}) => {
     }, []);
 
     const fetchData = useCallback(async (forceUpdate = false, fetchOptions = {}) => {
-        if (!variantId) {
+        if (!productColorId) {
             if (isMounted.current) {
                 setData([]);
                 setIsLoading(false);
@@ -39,7 +39,7 @@ export const useGetProductImages = (variantId, options = {}) => {
         const now = Date.now();
         const currentOnSuccess = fetchOptions.onSuccess || onSuccess;
         const currentOnError = fetchOptions.onError || onError;
-        const currentCache = CACHE[variantId];
+        const currentCache = CACHE[productColorId];
 
         if (!forceUpdate && currentCache?.data && currentCache?.timestamp && (now - currentCache.timestamp < CACHE_TTL)) {
             if (isMounted.current) {
@@ -75,7 +75,7 @@ export const useGetProductImages = (variantId, options = {}) => {
         abortControllerRef.current = controller;
 
         if (isMounted.current) {
-            if (!CACHE[variantId]?.data) {
+            if (!CACHE[productColorId]?.data) {
                 setIsLoading(true);
                 setData([]);
             }
@@ -83,17 +83,17 @@ export const useGetProductImages = (variantId, options = {}) => {
         }
 
         try {
-            const promise = getProductImagesByProductVariantId(variantId, { signal: controller.signal });
+            const promise = getProductImagesByProductColorId(productColorId, { signal: controller.signal });
             
-            if (!CACHE[variantId]) CACHE[variantId] = {};
-            CACHE[variantId].promise = promise;
+            if (!CACHE[productColorId]) CACHE[productColorId] = {};
+            CACHE[productColorId].promise = promise;
             
             const response = await promise;
             
             const rawData = response?.data || response;
             const safeData = Array.isArray(rawData) ? rawData : (rawData?.images || []);
 
-            CACHE[variantId] = {
+            CACHE[productColorId] = {
                 data: safeData,
                 timestamp: Date.now(),
                 promise: null
@@ -108,7 +108,7 @@ export const useGetProductImages = (variantId, options = {}) => {
                 return;
             }
 
-            if (CACHE[variantId]) CACHE[variantId].promise = null;
+            if (CACHE[productColorId]) CACHE[productColorId].promise = null;
 
             if (isMounted.current) {
                 setError(err);
@@ -117,7 +117,7 @@ export const useGetProductImages = (variantId, options = {}) => {
         } finally {
             if (isMounted.current) setIsLoading(false);
         }
-    }, [variantId, onSuccess, onError]);
+    }, [productColorId, onSuccess, onError]);
 
     useEffect(() => {
         fetchData();
@@ -125,7 +125,7 @@ export const useGetProductImages = (variantId, options = {}) => {
 
     const refetch = useCallback((opt) => fetchData(true, opt), [fetchData]);
 
-    const currentCache = CACHE[variantId];
+    const currentCache = CACHE[productColorId];
     
     return {
         data,
