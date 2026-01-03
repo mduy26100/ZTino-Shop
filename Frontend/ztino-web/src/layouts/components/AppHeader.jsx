@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Layout, Menu, Input, Badge, Button, Dropdown, Space, Avatar, Typography, Drawer, Divider, message } from 'antd';
+import { Layout, Menu, Input, Badge, Button, Dropdown, Space, Avatar, Typography, Drawer, Divider } from 'antd';
 import { 
     ShoppingCartOutlined, 
     UserOutlined, 
@@ -10,10 +10,9 @@ import {
     ShoppingOutlined,
     HomeOutlined,
     PhoneOutlined,
-    InfoCircleOutlined,
-    DownOutlined
+    InfoCircleOutlined
 } from '@ant-design/icons';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useGetCategories } from '../../features';
 
 const { Header } = Layout;
@@ -21,6 +20,7 @@ const { Text } = Typography;
 
 const AppHeader = () => {
     const navigate = useNavigate();
+    const location = useLocation();
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     
     const { data: categories, isLoading, error } = useGetCategories();
@@ -28,6 +28,67 @@ const AppHeader = () => {
     if (error) {
         console.error("Failed to load menu categories:", error); 
     }
+
+    const selectedKeys = useMemo(() => {
+        const pathname = location.pathname;
+        
+        if (pathname === '/' || pathname === '') {
+            return ['home'];
+        }
+        
+        if (pathname === '/about') return ['about'];
+        if (pathname === '/contact') return ['contact'];
+        
+        if (pathname.startsWith('/products')) {
+            const slug = pathname.split('/products/')[1];
+            
+            if (!slug || slug === '') {
+                return ['products'];
+            }
+            
+            if (categories && categories.length > 0) {
+                for (const rootCat of categories.filter(c => c.parentId === null)) {
+                    if (rootCat.slug === slug) {
+                        return [`root-${rootCat.id}`];
+                    }
+                    if (rootCat.children) {
+                        for (const child of rootCat.children) {
+                            if (child.slug === slug) {
+                                return [`cat-${child.id}`];
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
+        if (pathname.startsWith('/product/')) {
+            return [];
+        }
+        
+        return [];
+    }, [location.pathname, categories]);
+
+    const openKeys = useMemo(() => {
+        const pathname = location.pathname;
+        
+        if (!pathname.startsWith('/products') || !categories) return [];
+        
+        const slug = pathname.split('/products/')[1];
+        if (!slug) return [];
+        
+        for (const rootCat of categories.filter(c => c.parentId === null)) {
+            if (rootCat.children) {
+                for (const child of rootCat.children) {
+                    if (child.slug === slug) {
+                        return [`root-${rootCat.id}`];
+                    }
+                }
+            }
+        }
+        
+        return [];
+    }, [location.pathname, categories]);
 
     const menuItems = useMemo(() => {
         const items = [
@@ -47,7 +108,7 @@ const AppHeader = () => {
                         key: `root-${rootCat.id}`,
                         label: (
                             <span 
-                                onClick={(e) => {
+                                onClick={() => {
                                     navigate(`/products/${rootCat.slug}`);
                                     if (mobileMenuOpen) setMobileMenuOpen(false);
                                 }}
@@ -56,10 +117,10 @@ const AppHeader = () => {
                                 {rootCat.name}
                             </span>
                         ),
-                        children: childrenItems.length > 0 ? childrenItems : null, 
-                        onClick: childrenItems.length === 0 ? () => {
+                        children: childrenItems?.length > 0 ? childrenItems : null, 
+                        onClick: !childrenItems || childrenItems.length === 0 ? () => {
                             navigate(`/products/${rootCat.slug}`);
-                            if(mobileMenuOpen) setMobileMenuOpen(false);
+                            if (mobileMenuOpen) setMobileMenuOpen(false);
                         } : undefined 
                     };
                 });
@@ -183,6 +244,7 @@ const AppHeader = () => {
                             mode="horizontal" 
                             items={menuItems} 
                             disabled={isLoading}
+                            selectedKeys={selectedKeys}
                             className="border-none w-full max-w-2xl justify-center text-base font-medium"
                             style={{ background: 'transparent' }}
                         />
@@ -239,11 +301,12 @@ const AppHeader = () => {
                         items={menuItems} 
                         className="border-none w-full -mx-4 px-2"
                         onClick={(e) => {
-                            if (!e.key.startsWith('sub-')) {
+                            if (!e.keyPath || e.keyPath.length <= 1) {
                                 closeMobileMenu();
                             }
                         }}
-                        selectedKeys={[window.location.pathname.substring(1) || 'home']}
+                        selectedKeys={selectedKeys}
+                        defaultOpenKeys={openKeys}
                     />
 
                     <Divider />
