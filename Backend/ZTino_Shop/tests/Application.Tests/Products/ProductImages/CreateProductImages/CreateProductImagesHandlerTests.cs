@@ -5,14 +5,13 @@ using Application.Features.Products.v1.Commands.ProductImages.CreateProductImage
 using Application.Features.Products.v1.DTOs.ProductImages;
 using Application.Features.Products.v1.Repositories;
 using Domain.Models.Products;
-using ProductVariantEntity = Domain.Models.Products.ProductVariant;
 
 namespace Application.Tests.Products.ProductImages.CreateProductImages
 {
     public class CreateProductImagesHandlerTests
     {
         private readonly Mock<IProductImageRepository> _productImageRepository = new();
-        private readonly Mock<IProductVariantRepository> _productVariantRepository = new();
+        private readonly Mock<IProductColorRepository> _productColorRepository = new();
         private readonly Mock<IFileUploadService> _fileUploadService = new();
         private readonly Mock<IMapper> _mapper = new();
         private readonly Mock<IApplicationDbContext> _context = new();
@@ -23,7 +22,7 @@ namespace Application.Tests.Products.ProductImages.CreateProductImages
         {
             _handler = new CreateProductImagesHandler(
                 _productImageRepository.Object,
-                _productVariantRepository.Object,
+                _productColorRepository.Object,
                 _fileUploadService.Object,
                 _mapper.Object,
                 _context.Object);
@@ -41,11 +40,11 @@ namespace Application.Tests.Products.ProductImages.CreateProductImages
         }
 
         [Fact]
-        public async Task Handle_VariantNotExists_ThrowsNotFoundException()
+        public async Task Handle_ProductColorNotExists_ThrowsNotFoundException()
         {
-            _productVariantRepository
-                .Setup(x => x.FindOneAsync(It.IsAny<Expression<Func<ProductVariantEntity, bool>>>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync((ProductVariantEntity?)null);
+            _productColorRepository
+                .Setup(x => x.FindOneAsync(It.IsAny<Expression<Func<ProductColor, bool>>>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync((ProductColor?)null);
 
             var command = new CreateProductImagesCommand(new List<UpsertProductImageDto>
             {
@@ -59,13 +58,12 @@ namespace Application.Tests.Products.ProductImages.CreateProductImages
         [Fact]
         public async Task Handle_NoExistingImages_FirstImageIsMain()
         {
-            const int variantPkId = 1;
-            const int productColorId = 10;
-            var variant = new ProductVariantEntity { Id = variantPkId, ProductColorId = productColorId };
+            const int productColorId = 1;
+            var productColor = new ProductColor { Id = productColorId };
 
-            _productVariantRepository
-                .Setup(x => x.FindOneAsync(It.IsAny<Expression<Func<ProductVariantEntity, bool>>>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(variant);
+            _productColorRepository
+                .Setup(x => x.FindOneAsync(It.IsAny<Expression<Func<ProductColor, bool>>>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(productColor);
 
             _productImageRepository
                 .Setup(x => x.GetMaxDisplayOrderAsync(productColorId, It.IsAny<CancellationToken>()))
@@ -83,7 +81,7 @@ namespace Application.Tests.Products.ProductImages.CreateProductImages
             {
                 new()
                 {
-                    ProductColorId = variantPkId,
+                    ProductColorId = productColorId,
                     ImgContent = new MemoryStream(new byte[] { 1, 2 }),
                     ImgFileName = "img.jpg"
                 }
@@ -107,13 +105,12 @@ namespace Application.Tests.Products.ProductImages.CreateProductImages
         [Fact]
         public async Task Handle_HasExistingImages_AllNewImagesAreNotMain()
         {
-            const int variantPkId = 1;
-            const int productColorId = 10;
-            var variant = new ProductVariantEntity { Id = variantPkId, ProductColorId = productColorId };
+            const int productColorId = 1;
+            var productColor = new ProductColor { Id = productColorId };
 
-            _productVariantRepository
-                .Setup(x => x.FindOneAsync(It.IsAny<Expression<Func<ProductVariantEntity, bool>>>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(variant);
+            _productColorRepository
+                .Setup(x => x.FindOneAsync(It.IsAny<Expression<Func<ProductColor, bool>>>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(productColor);
 
             _productImageRepository
                 .Setup(x => x.GetMaxDisplayOrderAsync(productColorId, It.IsAny<CancellationToken>()))
@@ -129,8 +126,8 @@ namespace Application.Tests.Products.ProductImages.CreateProductImages
 
             var command = new CreateProductImagesCommand(new List<UpsertProductImageDto>
             {
-                new() { ProductColorId = variantPkId, ImgContent = new MemoryStream(new byte[]{1}), ImgFileName = "a.jpg" },
-                new() { ProductColorId = variantPkId, ImgContent = new MemoryStream(new byte[]{2}), ImgFileName = "b.jpg" }
+                new() { ProductColorId = productColorId, ImgContent = new MemoryStream(new byte[]{1}), ImgFileName = "a.jpg" },
+                new() { ProductColorId = productColorId, ImgContent = new MemoryStream(new byte[]{2}), ImgFileName = "b.jpg" }
             });
 
             await _handler.Handle(command, CancellationToken.None);

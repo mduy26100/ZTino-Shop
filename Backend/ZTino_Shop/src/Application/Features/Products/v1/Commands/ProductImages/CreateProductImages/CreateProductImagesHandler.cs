@@ -10,20 +10,20 @@ namespace Application.Features.Products.v1.Commands.ProductImages.CreateProductI
     public class CreateProductImagesHandler : IRequestHandler<CreateProductImagesCommand, List<UpsertProductImageDto>>
     {
         private readonly IProductImageRepository _productImageRepository;
-        private readonly IProductVariantRepository _productVariantRepository;
+        private readonly IProductColorRepository _productColorRepository;
         private readonly IFileUploadService _fileUploadService;
         private readonly IMapper _mapper;
         private readonly IApplicationDbContext _context;
 
         public CreateProductImagesHandler(
             IProductImageRepository productImageRepository,
-            IProductVariantRepository productVariantRepository,
+            IProductColorRepository productColorRepository,
             IFileUploadService fileUploadService,
             IMapper mapper,
             IApplicationDbContext context)
         {
             _productImageRepository = productImageRepository;
-            _productVariantRepository = productVariantRepository;
+            _productColorRepository = productColorRepository;
             _fileUploadService = fileUploadService;
             _mapper = mapper;
             _context = context;
@@ -31,27 +31,27 @@ namespace Application.Features.Products.v1.Commands.ProductImages.CreateProductI
 
         public async Task<List<UpsertProductImageDto>> Handle(CreateProductImagesCommand request, CancellationToken cancellationToken)
         {
-            if (request.Dtos is null || request.Dtos.Count == 0)
+            if (request.Dtos == null || !request.Dtos.Any())
                 return new List<UpsertProductImageDto>();
 
-            var variantId = request.Dtos[0].ProductColorId;
+            var productColorId = request.Dtos[0].ProductColorId;
 
-            var variant = await _productVariantRepository
-                .FindOneAsync(v => v.Id == variantId, false, cancellationToken);
+            var productColor = await _productColorRepository
+                .FindOneAsync(v => v.Id == productColorId, false, cancellationToken);
 
-            if (variant == null)
-                throw new NotFoundException($"Product Variant with ID {variantId} does not exist.");
+            if (productColor == null)
+                throw new NotFoundException($"Product Color with ID {productColorId} does not exist.");
 
             int currentMaxOrder = await _productImageRepository
-                .GetMaxDisplayOrderAsync(variant.ProductColorId, cancellationToken);
+                .GetMaxDisplayOrderAsync(productColorId, cancellationToken);
 
             bool hasExistingImages = currentMaxOrder > 0;
 
             var uploadTasks = request.Dtos.Select(async dto =>
             {
-                if (dto.ImgContent is null || string.IsNullOrWhiteSpace(dto.ImgFileName))
+                if (dto.ImgContent == null || string.IsNullOrWhiteSpace(dto.ImgFileName))
                 {
-                    return (Dto: dto, Url: dto.ImageUrl ?? string.Empty);
+                    return (Dto: dto, Url: dto.ImageUrl);
                 }
 
                 var uploadRequest = new FileUploadRequest
@@ -66,17 +66,16 @@ namespace Application.Features.Products.v1.Commands.ProductImages.CreateProductI
             });
 
             var uploadResults = await Task.WhenAll(uploadTasks);
+            var entitiesToAdd = new List<ProductImage>();
 
-            var entitiesToAdd = new List<ProductImage>(uploadResults.Length);
-
-            foreach (var (dto, url) in uploadResults)
+            foreach (var result in uploadResults)
             {
-                if (string.IsNullOrWhiteSpace(url)) continue;
+                if (string.IsNullOrWhiteSpace(result.Url)) continue;
 
-                var entity = _mapper.Map<ProductImage>(dto);
+                var entity = _mapper.Map<ProductImage>(result.Dto);
 
-                entity.ImageUrl = url;
-                entity.ProductColorId = variant.ProductColorId;
+                entity.ImageUrl = result.Url;
+                entity.ProductColorId = productColorId;
                 entity.DisplayOrder = ++currentMaxOrder;
 
                 if (!hasExistingImages)
@@ -92,7 +91,7 @@ namespace Application.Features.Products.v1.Commands.ProductImages.CreateProductI
                 entitiesToAdd.Add(entity);
             }
 
-            if (entitiesToAdd.Count > 0)
+            if (entitiesToAdd.Any())
             {
                 await _productImageRepository.AddRangeAsync(entitiesToAdd, cancellationToken);
                 await _context.SaveChangesAsync(cancellationToken);

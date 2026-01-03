@@ -5,7 +5,7 @@ namespace Application.Features.Products.v1.Repositories
 {
     public interface IProductImageRepository : IRepository<ProductImage, int>
     {
-        Task<int> GetMaxDisplayOrderAsync(int productVariantId, CancellationToken cancellationToken = default);
-        Task UnsetMainImageAsync(int productVariantId, CancellationToken cancellationToken = default);
+        Task<int> GetMaxDisplayOrderAsync(int productColorId, CancellationToken cancellationToken = default);
+        Task UnsetMainImageAsync(int productColorId, CancellationToken cancellationToken = default);
     }
 }
