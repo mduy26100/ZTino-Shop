@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Table, Tag, Typography, Image, Space, Empty, Button, Tooltip, theme } from 'antd';
 import { EyeOutlined, PictureOutlined } from '@ant-design/icons';
 import { PencilSquareIcon, TrashIcon } from '@heroicons/react/24/outline';
@@ -9,17 +9,20 @@ const ColorCell = ({ color }) => {
     const { token } = theme.useToken();
     if (!color) return <Text type="secondary">N/A</Text>;
 
+    const colorValue = color.name || color.hex;
+    const isHexColor = colorValue?.startsWith('#');
+
     return (
         <div className="flex items-center gap-2">
             <div 
                 className="w-5 h-5 rounded-full shadow-sm ring-1 ring-gray-100 flex-shrink-0"
                 style={{ 
-                    backgroundColor: color.hex || color.name?.toLowerCase(),
+                    backgroundColor: colorValue,
                     border: `1px solid ${token.colorBorderSecondary}`
                 }}
-                title={color.hex}
+                title={colorValue}
             />
-            <Text>{color.name}</Text>
+            <Text>{isHexColor ? colorValue : color.name}</Text>
         </div>
     );
 };
@@ -31,7 +34,11 @@ const VariantImages = ({ images = [] }) => {
         <Image.PreviewGroup>
             <Space size="small" wrap>
                 {[...images]
-                    .sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0))
+                    .sort((a, b) => {
+                        if (a.isMain && !b.isMain) return -1;
+                        if (!a.isMain && b.isMain) return 1;
+                        return (a.displayOrder || 0) - (b.displayOrder || 0);
+                    })
                     .map((img) => (
                         <div key={img.id} className="relative group">
                             <Image
@@ -54,12 +61,31 @@ const VariantImages = ({ images = [] }) => {
     );
 };
 
-const VariantTable = ({ variants = [], productId, onEdit, onDelete, onManageImages }) => {
+const VariantTable = ({ productColors = [], productId, onEdit, onDelete, onManageImages }) => {
     
-    const dataSource = variants.map(v => ({
-        key: v.id,
-        ...v,
-    }));
+    const dataSource = useMemo(() => {
+        const rows = [];
+        productColors.forEach(productColor => {
+            const { id: productColorId, color, images, variants = [] } = productColor;
+            
+            variants.forEach(variant => {
+                rows.push({
+                    key: `${productColorId}-${variant.id}`,
+                    id: variant.id,
+                    productColorId,
+                    color,
+                    images,
+                    size: variant.size,
+                    price: variant.price,
+                    stockQuantity: variant.stockQuantity,
+                    isActive: variant.isActive,
+                    _originalVariant: variant,
+                    _originalProductColor: productColor
+                });
+            });
+        });
+        return rows;
+    }, [productColors]);
 
     const columns = [
         {
@@ -127,13 +153,13 @@ const VariantTable = ({ variants = [], productId, onEdit, onDelete, onManageImag
             align: 'center',
             render: (_, record) => (
                 <Space>
-                    <Tooltip title="View Images">
+                    <Tooltip title="Manage Images">
                         <Button 
                             type="text" 
                             size="small"
                             icon={<PictureOutlined className="text-blue-500" />} 
                             className="flex items-center justify-center hover:bg-blue-50"
-                            onClick={() => onManageImages?.(record)}
+                            onClick={() => onManageImages?.(record._originalProductColor)}
                         />
                     </Tooltip>
                     <Tooltip title="Edit Variant">
@@ -165,7 +191,7 @@ const VariantTable = ({ variants = [], productId, onEdit, onDelete, onManageImag
             columns={columns}
             dataSource={dataSource}
             pagination={false}
-            rowKey="id"
+            rowKey="key"
             locale={{ 
                 emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="No variants found" /> 
             }}

@@ -269,7 +269,7 @@ const ProductDetailPage = () => {
             label: (
                 <span className="flex items-center gap-2">
                     <SwatchIcon className="w-4 h-4" />
-                    Variants ({product.variants?.length || 0})
+                    Variants ({product.productColors?.reduce((total, pc) => total + (pc.variants?.length || 0), 0) || 0})
                 </span>
             ),
             children: (
@@ -294,7 +294,7 @@ const ProductDetailPage = () => {
                     
                     <Card bordered={false} className="shadow-sm rounded-xl !p-0" bodyStyle={{ padding: 0 }}>
                         <VariantTable 
-                            variants={product.variants} 
+                            productColors={product.productColors} 
                             productId={product.id} 
                             onEdit={handleOpenEditVariant}
                             onDelete={handleDeleteVariant}
