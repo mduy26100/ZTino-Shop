@@ -4,7 +4,7 @@ import { PhotoIcon, PlusIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/
 
 const { Text, Title } = Typography;
 
-const ProductOverview = ({ product, productColors, isLoadingProductColors }) => {
+const ProductOverview = ({ product, productColors, isLoadingProductColors, onAddColor }) => {
 
     const colorColumns = useMemo(() => [
         {
@@ -172,8 +172,8 @@ const ProductOverview = ({ product, productColors, isLoadingProductColors }) => 
                         <Button
                             type="primary"
                             icon={<PlusIcon className="w-4 h-4 stroke-2" />}
-                            className="h-9 px-4 rounded-lg bg-gradient-to-r from-indigo-500 to-purple-500 border-none shadow-md hover:shadow-lg transition-all hover:scale-105"
-                            onClick={() => console.log('Add new color')}
+                            className="h-10 px-6 rounded-lg bg-indigo-600 hover:!bg-indigo-700 border-none shadow-md shadow-indigo-100"
+                            onClick={onAddColor}
                         >
                             Add Color
                         </Button>
