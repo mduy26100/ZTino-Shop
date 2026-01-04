@@ -2,6 +2,7 @@
 using Application.Features.Carts.v1.Commands.Carts.DeleteCart;
 using Application.Features.Carts.v1.Commands.Carts.UpdateCart;
 using Application.Features.Carts.v1.Queries.GetCartById;
+using Application.Features.Carts.v1.Queries.GetMyCart;
 
 namespace WebAPI.Controllers.v1.Carts
 {
@@ -40,9 +41,17 @@ namespace WebAPI.Controllers.v1.Carts
         }
 
         [HttpGet("{cartId:guid}")]
-        public async Task<IActionResult> GetCartById(Guid? cartId, CancellationToken cancellationToken)
+        public async Task<IActionResult> GetCartById(Guid cartId, CancellationToken cancellationToken)
         {
             var query = new GetCartByIdQuery(cartId);
+            var result = await _mediator.Send(query, cancellationToken);
+            return Ok(result);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetMyCart(CancellationToken cancellationToken)
+        {
+            var query = new GetMyCartQuery();
             var result = await _mediator.Send(query, cancellationToken);
             return Ok(result);
         }
