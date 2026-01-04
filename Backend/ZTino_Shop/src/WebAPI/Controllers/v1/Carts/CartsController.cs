@@ -1,4 +1,5 @@
 ﻿using Application.Features.Carts.v1.Commands.Carts.CreateCart;
+using Application.Features.Carts.v1.Commands.Carts.DeleteCart;
 using Application.Features.Carts.v1.Commands.Carts.UpdateCart;
 
 namespace WebAPI.Controllers.v1.Carts
@@ -27,6 +28,14 @@ namespace WebAPI.Controllers.v1.Carts
         {
             var result = await _mediator.Send(command, cancellationToken);
             return Ok(result);
+        }
+
+        [HttpDelete("{cartItemId}")]
+        public async Task<IActionResult> DeleteCartItem(int cartItemId, CancellationToken cancellationToken)
+        {
+            var command = new DeleteCartCommand(cartItemId);
+            await _mediator.Send(command, cancellationToken);
+            return NoContent();
         }
     }
 }
