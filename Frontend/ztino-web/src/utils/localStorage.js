@@ -27,3 +27,15 @@ export const clearAuth = () => {
   removeToken()
   removeUser()
 }
+
+export const setGuestCartId = (cartId) => {
+  localStorage.setItem("guestCartId", cartId)
+}
+
+export const getGuestCartId = () => {
+  return localStorage.getItem("guestCartId")
+}
+
+export const removeGuestCartId = () => {
+  localStorage.removeItem("guestCartId")
+}

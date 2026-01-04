@@ -4,3 +4,4 @@ export {default as ProductListingPage} from "./Product/ProductListingPage";
 export {default as ProductDetailPage} from "./Product/ProductDetailPage";
 export {default as LoginPage} from "./Auth/LoginPage";
 export {default as RegisterPage} from "./Auth/RegisterPage";
+export {default as CartPage} from "./Cart/CartPage";

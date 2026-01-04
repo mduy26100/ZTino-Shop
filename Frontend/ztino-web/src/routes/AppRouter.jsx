@@ -1,5 +1,5 @@
 import { createBrowserRouter, createRoutesFromElements, Route, RouterProvider } from "react-router-dom";
-import { ErrorPage, HomePage, ProductListingPage, ProductDetailPage, LoginPage, RegisterPage } from "../pages";
+import { ErrorPage, HomePage, ProductListingPage, ProductDetailPage, LoginPage, RegisterPage, CartPage } from "../pages";
 import { MainLayout } from "../layouts";
 import PublicRoute from "./PublicRoute";
 
@@ -33,6 +33,7 @@ const router = createBrowserRouter(
 
             <Route path="products/:slug?" element={<ProductListingPage />} />
             <Route path="product/:slug?" element={<ProductDetailPage />} />
+            <Route path="cart" element={<CartPage />} />
         </Route>
 
         </>
