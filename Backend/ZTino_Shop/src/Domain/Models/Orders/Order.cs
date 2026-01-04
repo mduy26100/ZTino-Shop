@@ -8,7 +8,7 @@ namespace Domain.Models.Orders
         public Guid Id { get; set; }
         public string OrderCode { get; set; } = default!;
 
-        public int? UserId { get; set; }
+        public Guid? UserId { get; set; }
         public string CustomerName { get; set; } = default!;
         public string CustomerPhone { get; set; } = default!;
         public string? CustomerEmail { get; set; }
