@@ -1,6 +1,4 @@
-﻿using Application.Common.Interfaces.Persistence.Data;
-using Application.Common.Interfaces.Services.FileUpLoad;
-using Application.Features.Products.v1.Commands.Products.CreateProduct;
+﻿using Application.Features.Products.v1.Commands.Products.CreateProduct;
 using Application.Features.Products.v1.DTOs.Products;
 using Application.Features.Products.v1.Repositories;
 using Domain.Models.Products;

@@ -1,5 +1,5 @@
-﻿using Application.Common.Exceptions;
-using Application.Common.Models.Responses;
+using Application.Common.Exceptions;
+using WebAPI.Responses;
 using System.Net;
 using System.Text.Json;
 

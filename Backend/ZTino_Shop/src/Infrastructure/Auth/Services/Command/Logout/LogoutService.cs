@@ -1,5 +1,5 @@
-﻿using Application.Features.Auth.v1.Services.Command.Logout;
-using Infrastructure.Data;
+using Application.Features.Auth.v1.Services.Command.Logout;
+using Infrastructure.Persistence;
 
 namespace Infrastructure.Auth.Services.Command.Logout
 {
@@ -32,3 +32,4 @@ namespace Infrastructure.Auth.Services.Command.Logout
         }
     }
 }
+

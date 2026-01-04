@@ -1,6 +1,4 @@
-﻿using Application.Common.Interfaces.Identity;
-using Application.Common.Interfaces.Persistence.Data;
-using Application.Features.Carts.v1.Commands.Carts.UpdateCart;
+﻿using Application.Features.Carts.v1.Commands.Carts.UpdateCart;
 using Application.Features.Carts.v1.DTOs;
 using Application.Features.Carts.v1.Repositories;
 using Application.Features.Products.v1.Repositories;

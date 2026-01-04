@@ -1,5 +1,5 @@
-﻿using Application.Common.Interfaces.Persistence.Data;
-using Infrastructure.Data;
+using Application.Common.Abstractions.Persistence;
+using Infrastructure.Persistence;
 
 namespace WebAPI.DependencyInjection.Infrastructure
 {

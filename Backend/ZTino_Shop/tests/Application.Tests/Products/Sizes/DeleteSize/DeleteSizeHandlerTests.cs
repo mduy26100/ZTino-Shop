@@ -1,5 +1,4 @@
-﻿using Application.Common.Interfaces.Persistence.Data;
-using Application.Features.Products.v1.Commands.Sizes.DeleteSize;
+﻿using Application.Features.Products.v1.Commands.Sizes.DeleteSize;
 using Application.Features.Products.v1.Repositories;
 using Domain.Models.Products;
 using MediatR;

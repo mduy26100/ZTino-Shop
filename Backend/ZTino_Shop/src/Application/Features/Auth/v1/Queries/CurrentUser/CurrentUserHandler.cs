@@ -1,4 +1,4 @@
-﻿using Application.Common.Interfaces.Identity;
+using Application.Common.Abstractions.Identity;
 using Application.Features.Auth.v1.DTOs;
 using Application.Features.Auth.v1.Services.Query.CurrentUser;
 
@@ -26,3 +26,4 @@ namespace Application.Features.Auth.v1.Queries.CurrentUser
         }
     }
 }
+

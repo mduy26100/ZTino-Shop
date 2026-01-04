@@ -1,6 +1,5 @@
-﻿using Application.Common.Configurations;
-using Application.Common.Interfaces.Services.FileUpLoad;
-using Infrastructure.Common.Interfaces.Services.FileUpLoad;
+using Application.Common.Abstractions.ExternalServices;
+using Infrastructure.ExternalServices.Cloudinary;
 
 namespace WebAPI.DependencyInjection.Common
 {
@@ -13,8 +12,8 @@ namespace WebAPI.DependencyInjection.Common
             services.Configure<CloudinarySettings>(
                 configuration.GetSection("Cloudinary"));
 
-            //FileUpLoad
-            services.AddScoped<IFileUploadService, FileUploadService>();
+            // FileUpload
+            services.AddScoped<IFileUploadService, CloudinaryFileUploadService>();
 
             return services;
         }

@@ -1,4 +1,3 @@
-﻿using Application.Common.Interfaces.Persistence.Data;
 using Application.Features.Products.v1.DTOs.ProductVariants;
 using Application.Features.Products.v1.Repositories;
 using Domain.Models.Products;

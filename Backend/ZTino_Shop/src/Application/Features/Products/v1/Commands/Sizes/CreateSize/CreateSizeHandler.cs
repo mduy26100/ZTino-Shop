@@ -1,4 +1,3 @@
-﻿using Application.Common.Interfaces.Persistence.Data;
 using Application.Features.Products.v1.DTOs.Sizes;
 using Application.Features.Products.v1.Repositories;
 using Domain.Models.Products;
@@ -35,3 +34,4 @@ namespace Application.Features.Products.v1.Commands.Sizes.CreateSize
         }
     }
 }
+

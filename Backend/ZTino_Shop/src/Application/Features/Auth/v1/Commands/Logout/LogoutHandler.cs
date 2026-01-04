@@ -1,4 +1,4 @@
-﻿using Application.Common.Interfaces.Identity;
+using Application.Common.Abstractions.Identity;
 using Application.Features.Auth.v1.Services.Command.Logout;
 
 namespace Application.Features.Auth.v1.Commands.Logout

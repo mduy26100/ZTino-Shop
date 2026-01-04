@@ -1,4 +1,3 @@
-using Application.Common.Interfaces.Identity;
 using Application.Features.Carts.v1.DTOs;
 using Application.Features.Carts.v1.Services;
 
@@ -50,3 +49,4 @@ namespace Application.Features.Carts.v1.Queries.GetMyCart
         }
     }
 }
+

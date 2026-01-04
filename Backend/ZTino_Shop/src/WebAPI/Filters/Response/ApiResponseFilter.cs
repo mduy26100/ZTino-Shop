@@ -1,4 +1,4 @@
-﻿using Application.Common.Models.Responses;
+using WebAPI.Responses;
 using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace WebAPI.Filters.Response;

@@ -1,7 +1,6 @@
-﻿using Application.Features.Carts.v1.Repositories;
+using Application.Features.Carts.v1.Repositories;
 using Domain.Models.Carts;
-using Infrastructure.Common.Interfaces.Persistence.Base;
-using Infrastructure.Data;
+using Infrastructure.Persistence;
 
 namespace Infrastructure.Carts.Repositories
 {
@@ -12,3 +11,5 @@ namespace Infrastructure.Carts.Repositories
         }
     }
 }
+
+

@@ -1,4 +1,3 @@
-﻿using Application.Common.Interfaces.Persistence.Data;
 using Application.Features.Products.v1.DTOs.Colors;
 using Application.Features.Products.v1.Repositories;
 using Domain.Models.Products;
@@ -36,3 +35,4 @@ namespace Application.Features.Products.v1.Commands.Colors.CreateColor
         }
     }
 }
+

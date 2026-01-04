@@ -1,4 +1,3 @@
-﻿using Application.Common.Interfaces.Persistence.Data;
 using Application.Features.Products.v1.Repositories;
 
 namespace Application.Features.Products.v1.Commands.Products.DeleteProduct
@@ -27,3 +26,4 @@ namespace Application.Features.Products.v1.Commands.Products.DeleteProduct
         }
     }
 }
+

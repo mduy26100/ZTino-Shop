@@ -1,4 +1,4 @@
-﻿using Application.Common.Interfaces.Identity;
+using Application.Common.Abstractions.Identity;
 using Application.Features.Auth.v1.Services.Command.Login;
 using Application.Features.Auth.v1.Services.Command.Login.Factory;
 using Application.Features.Auth.v1.Services.Command.Login.Strategy;
@@ -21,8 +21,8 @@ using Infrastructure.Auth.Services.Command.UpdateProfile.Factory;
 using Infrastructure.Auth.Services.Command.UpdateProfile.Strategies;
 using Infrastructure.Auth.Services.Jwt;
 using Infrastructure.Auth.Services.Query.CurrentUser;
-using Infrastructure.Common.Interfaces.Identity;
-using Infrastructure.Data;
+using Infrastructure.Identity;
+using Infrastructure.Persistence;
 
 namespace WebAPI.DependencyInjection.Auth
 {
@@ -102,3 +102,5 @@ namespace WebAPI.DependencyInjection.Auth
         }
     }
 }
+
+

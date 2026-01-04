@@ -1,5 +1,5 @@
-﻿using Application.Common.Interfaces.Identity;
-using Infrastructure.Common.Interfaces.Identity;
+using Application.Common.Abstractions.Identity;
+using Infrastructure.Identity;
 
 namespace WebAPI.DependencyInjection.Common
 {
@@ -14,3 +14,5 @@ namespace WebAPI.DependencyInjection.Common
         }
     }
 }
+
+

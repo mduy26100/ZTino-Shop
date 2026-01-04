@@ -1,7 +1,7 @@
 using Application.Features.Carts.v1.DTOs;
 using Application.Features.Carts.v1.Expressions;
 using Application.Features.Carts.v1.Services;
-using Infrastructure.Data;
+using Infrastructure.Persistence;
 
 namespace Infrastructure.Carts.Services
 {
@@ -74,3 +74,4 @@ namespace Infrastructure.Carts.Services
         }
     }
 }
+

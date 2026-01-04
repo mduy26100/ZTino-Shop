@@ -1,9 +1,9 @@
-﻿using Application.Common.Exceptions;
+using Application.Common.Exceptions;
 using Application.Features.Auth.v1.DTOs;
 using Application.Features.Auth.v1.Services.Command.TokenRefresh;
 using Application.Features.Auth.v1.Services.Jwt;
 using Infrastructure.Auth.Models;
-using Infrastructure.Data;
+using Infrastructure.Persistence;
 
 namespace Infrastructure.Auth.Services.Command.TokenRefresh
 {
@@ -79,3 +79,4 @@ namespace Infrastructure.Auth.Services.Command.TokenRefresh
         }
     }
 }
+

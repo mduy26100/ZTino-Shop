@@ -3,3 +3,7 @@ global using MediatR;
 global using FluentValidation;
 global using AutoMapper;
 global using Application.Common.Exceptions;
+global using Application.Common.Abstractions.Persistence;
+global using Application.Common.Abstractions.Identity;
+global using Application.Common.Abstractions.ExternalServices;
+global using Application.Common.Contracts;

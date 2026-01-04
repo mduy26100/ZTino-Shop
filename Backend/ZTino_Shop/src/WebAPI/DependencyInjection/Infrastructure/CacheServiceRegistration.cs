@@ -1,5 +1,5 @@
-﻿using Application.Common.Interfaces.Persistence.Caching;
-using Infrastructure.Data.Caching;
+using Application.Common.Abstractions.Caching;
+using Infrastructure.Caching;
 
 namespace WebAPI.DependencyInjection.Infrastructure
 {
@@ -19,3 +19,5 @@ namespace WebAPI.DependencyInjection.Infrastructure
         }
     }
 }
+
+

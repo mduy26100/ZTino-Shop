@@ -1,5 +1,4 @@
-﻿using Application.Common.Interfaces.Persistence.Data;
-using Application.Features.Products.v1.Commands.ProductColor.UpdateProductColor;
+﻿using Application.Features.Products.v1.Commands.ProductColor.UpdateProductColor;
 using Application.Features.Products.v1.DTOs.ProductColor;
 using Application.Features.Products.v1.Repositories;
 using Domain.Models.Products;

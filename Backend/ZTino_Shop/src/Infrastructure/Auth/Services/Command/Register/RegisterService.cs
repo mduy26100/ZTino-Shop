@@ -1,5 +1,5 @@
-﻿using Application.Common.Exceptions;
-using Application.Common.Interfaces.Identity;
+using Application.Common.Exceptions;
+using Application.Common.Abstractions.Identity;
 using Application.Features.Auth.v1.DTOs;
 using Application.Features.Auth.v1.Services.Command.Register;
 using Domain.Consts;
@@ -79,3 +79,4 @@ namespace Infrastructure.Auth.Services.Command.Register
         }
     }
 }
+

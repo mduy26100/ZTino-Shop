@@ -1,5 +1,4 @@
-using Asp.Versioning;
-using Infrastructure.Data.Seeds;
+using Infrastructure.Persistence.Seeds;
 using WebAPI.DependencyInjection;
 using WebAPI.Filters.Response;
 using WebAPI.Middleware.ExceptionHandling;
@@ -59,3 +58,4 @@ using (var scope = app.Services.CreateScope())
 }
 
 app.Run();
+

@@ -1,7 +1,7 @@
-﻿using Application.Features.Products.v1.DTOs.Products;
+using Application.Features.Products.v1.DTOs.Products;
 using Application.Features.Products.v1.Expressions;
 using Application.Features.Products.v1.Services;
-using Infrastructure.Data;
+using Infrastructure.Persistence;
 
 namespace Infrastructure.Products.Services
 {
@@ -43,3 +43,4 @@ namespace Infrastructure.Products.Services
         }
     }
 }
+
