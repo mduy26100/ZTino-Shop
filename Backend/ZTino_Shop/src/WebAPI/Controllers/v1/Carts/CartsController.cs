@@ -1,4 +1,5 @@
 ﻿using Application.Features.Carts.v1.Commands.Carts.CreateCart;
+using Application.Features.Carts.v1.Commands.Carts.UpdateCart;
 
 namespace WebAPI.Controllers.v1.Carts
 {
@@ -16,6 +17,13 @@ namespace WebAPI.Controllers.v1.Carts
 
         [HttpPost]
         public async Task<IActionResult> CreateCart(CreateCartCommand command, CancellationToken cancellationToken)
+        {
+            var result = await _mediator.Send(command, cancellationToken);
+            return Ok(result);
+        }
+
+        [HttpPut]
+        public async Task<IActionResult> UpdateCart(UpdateCartCommand command, CancellationToken cancellationToken)
         {
             var result = await _mediator.Send(command, cancellationToken);
             return Ok(result);
