@@ -3,3 +3,4 @@ export {default as ErrorPage} from "./Error/ErrorPage";
 export {default as ProductListingPage} from "./Product/ProductListingPage";
 export {default as ProductDetailPage} from "./Product/ProductDetailPage";
 export {default as LoginPage} from "./Auth/LoginPage";
+export {default as RegisterPage} from "./Auth/RegisterPage";

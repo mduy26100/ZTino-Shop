@@ -1,5 +1,5 @@
 import { createBrowserRouter, createRoutesFromElements, Route, RouterProvider } from "react-router-dom";
-import { ErrorPage, HomePage, ProductListingPage, ProductDetailPage, LoginPage } from "../pages";
+import { ErrorPage, HomePage, ProductListingPage, ProductDetailPage, LoginPage, RegisterPage } from "../pages";
 import { MainLayout } from "../layouts";
 import PublicRoute from "./PublicRoute";
 
@@ -18,6 +18,15 @@ const router = createBrowserRouter(
                 element={
                     <PublicRoute>
                         <LoginPage />
+                    </PublicRoute>
+                }
+            />
+
+            <Route 
+                path="/register" 
+                element={
+                    <PublicRoute>
+                        <RegisterPage />
                     </PublicRoute>
                 }
             />
