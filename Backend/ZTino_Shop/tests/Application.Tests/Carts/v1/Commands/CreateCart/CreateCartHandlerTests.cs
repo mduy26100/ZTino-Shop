@@ -28,7 +28,7 @@ namespace Application.Tests.Carts.v1.Commands.CreateCart
         }
 
         [Fact]
-        public async Task Handle_Should_Create_New_Cart_When_User_Has_No_Cart()
+        public async Task Handle_Should_Create_New_Cart_For_Authenticated_User()
         {
             var userId = Guid.NewGuid();
             var variantId = 1;
@@ -58,36 +58,26 @@ namespace Application.Tests.Carts.v1.Commands.CreateCart
                     It.IsAny<CancellationToken>()))
                 .ReturnsAsync((CartItem?)null);
 
-            var dto = new UpsertCartDto
+            var command = new CreateCartCommand(new UpsertCartDto
             {
                 ProductVariantId = variantId,
                 Quantity = 2
-            };
+            });
 
-            var command = new CreateCartCommand(dto);
             var handler = CreateHandler();
-
             var result = await handler.Handle(command, CancellationToken.None);
 
-            Assert.NotEqual(Guid.Empty, result.CartId);
             Assert.Equal(variantId, result.ProductVariantId);
             Assert.Equal(2, result.Quantity);
+            Assert.NotEqual(Guid.Empty, result.CartId);
 
-            _cartRepository.Verify(
-                x => x.AddAsync(It.IsAny<Cart>(), It.IsAny<CancellationToken>()),
-                Times.Once);
-
-            _cartItemRepository.Verify(
-                x => x.AddAsync(It.IsAny<CartItem>(), It.IsAny<CancellationToken>()),
-                Times.Once);
-
-            _context.Verify(
-                x => x.SaveChangesAsync(It.IsAny<CancellationToken>()),
-                Times.Once);
+            _cartRepository.Verify(x => x.AddAsync(It.IsAny<Cart>(), It.IsAny<CancellationToken>()), Times.Once);
+            _cartItemRepository.Verify(x => x.AddAsync(It.IsAny<CartItem>(), It.IsAny<CancellationToken>()), Times.Once);
+            _context.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
         }
 
         [Fact]
-        public async Task Handle_Should_Update_Existing_CartItem_When_Item_Exists()
+        public async Task Handle_Should_Update_Quantity_When_CartItem_Exists()
         {
             var userId = Guid.NewGuid();
             var cartId = Guid.NewGuid();
@@ -128,33 +118,71 @@ namespace Application.Tests.Carts.v1.Commands.CreateCart
                     Quantity = 3
                 });
 
-            var dto = new UpsertCartDto
+            var command = new CreateCartCommand(new UpsertCartDto
             {
                 CartId = cartId,
                 ProductVariantId = variantId,
                 Quantity = 2
-            };
+            });
 
-            var command = new CreateCartCommand(dto);
             var handler = CreateHandler();
-
             var result = await handler.Handle(command, CancellationToken.None);
 
             Assert.Equal(5, result.Quantity);
 
-            _cartItemRepository.Verify(
-                x => x.AddAsync(It.IsAny<CartItem>(), It.IsAny<CancellationToken>()),
-                Times.Never);
+            _cartItemRepository.Verify(x => x.AddAsync(It.IsAny<CartItem>(), It.IsAny<CancellationToken>()), Times.Never);
+            _context.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
+        }
 
-            _context.Verify(
-                x => x.SaveChangesAsync(It.IsAny<CancellationToken>()),
-                Times.Once);
+        [Fact]
+        public async Task Handle_Should_Throw_Forbidden_When_User_Tries_To_Modify_Other_User_Cart()
+        {
+            var userId = Guid.NewGuid();
+            var otherUserId = Guid.NewGuid();
+            var cartId = Guid.NewGuid();
+            var variantId = 1;
+
+            _currentUser.Setup(x => x.UserId).Returns(userId);
+
+            _productVariantRepository
+                .Setup(x => x.GetByIdAsync(variantId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new ProductVariant
+                {
+                    Id = variantId,
+                    IsActive = true,
+                    StockQuantity = 10
+                });
+
+            _cartRepository
+                .Setup(x => x.FindOneAsync(
+                    It.IsAny<System.Linq.Expressions.Expression<Func<Cart, bool>>>(),
+                    false,
+                    It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new Cart
+                {
+                    Id = cartId,
+                    UserId = otherUserId,
+                    IsActive = true
+                });
+
+            var command = new CreateCartCommand(new UpsertCartDto
+            {
+                CartId = cartId,
+                ProductVariantId = variantId,
+                Quantity = 1
+            });
+
+            var handler = CreateHandler();
+
+            await Assert.ThrowsAsync<ForbiddenException>(() =>
+                handler.Handle(command, CancellationToken.None));
         }
 
         [Fact]
         public async Task Handle_Should_Throw_When_Quantity_Exceeds_Stock()
         {
             var userId = Guid.NewGuid();
+            var cartId = Guid.NewGuid();
             var variantId = 1;
 
             _currentUser.Setup(x => x.UserId).Returns(userId);
@@ -175,7 +203,7 @@ namespace Application.Tests.Carts.v1.Commands.CreateCart
                     It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new Cart
                 {
-                    Id = Guid.NewGuid(),
+                    Id = cartId,
                     UserId = userId,
                     IsActive = true
                 });
@@ -185,15 +213,20 @@ namespace Application.Tests.Carts.v1.Commands.CreateCart
                     It.IsAny<System.Linq.Expressions.Expression<Func<CartItem, bool>>>(),
                     false,
                     It.IsAny<CancellationToken>()))
-                .ReturnsAsync((CartItem?)null);
+                .ReturnsAsync(new CartItem
+                {
+                    CartId = cartId,
+                    ProductVariantId = variantId,
+                    Quantity = 2
+                });
 
-            var dto = new UpsertCartDto
+            var command = new CreateCartCommand(new UpsertCartDto
             {
+                CartId = cartId,
                 ProductVariantId = variantId,
-                Quantity = 5
-            };
+                Quantity = 1
+            });
 
-            var command = new CreateCartCommand(dto);
             var handler = CreateHandler();
 
             await Assert.ThrowsAsync<BusinessRuleException>(() =>

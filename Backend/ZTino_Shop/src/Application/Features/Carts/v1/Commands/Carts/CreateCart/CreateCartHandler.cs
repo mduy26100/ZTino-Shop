@@ -114,7 +114,19 @@ namespace Application.Features.Carts.v1.Commands.Carts.CreateCart
                 throw new NotFoundException($"Cart with ID {cartId} not found.");
             }
 
-            if (userId.HasValue && !cart.UserId.HasValue)
+            if (cart.UserId.HasValue)
+            {
+                if (!userId.HasValue)
+                {
+                    throw new ForbiddenException("Authentication required to modify this cart.");
+                }
+
+                if (cart.UserId.Value != userId.Value)
+                {
+                    throw new ForbiddenException("You do not have permission to modify this cart.");
+                }
+            }
+            else if (userId.HasValue)
             {
                 cart.UserId = userId;
             }
