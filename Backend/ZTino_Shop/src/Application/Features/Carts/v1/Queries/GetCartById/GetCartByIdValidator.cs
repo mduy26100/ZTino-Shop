@@ -5,8 +5,8 @@
         public GetCartByIdValidator()
         {
             RuleFor(x => x.CartId)
-                .Must(id => id == null || id != Guid.Empty)
-                .WithMessage("CartId must be a valid GUID if provided.");
+                .NotEmpty()
+                .WithMessage("CartId is required.");
         }
     }
 }

@@ -2,5 +2,5 @@
 
 namespace Application.Features.Carts.v1.Queries.GetCartById
 {
-    public record GetCartByIdQuery(Guid? CartId = null) : IRequest<CartDto>;
+    public record GetCartByIdQuery(Guid CartId) : IRequest<CartDto>;
 }
