@@ -29,6 +29,7 @@ namespace WebAPI.DependencyInjection
 
             //Features
             services.AddProductServices();
+            services.AddCartServices();
 
             return services;
         }
