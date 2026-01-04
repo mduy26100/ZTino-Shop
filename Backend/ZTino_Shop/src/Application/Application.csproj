@@ -19,7 +19,6 @@
 
   <ItemGroup>
     <Folder Include="Features\Auth\v1\Configurations\" />
-    <Folder Include="Features\Carts\v1\Queries\" />
   </ItemGroup>
 
   <ItemGroup>

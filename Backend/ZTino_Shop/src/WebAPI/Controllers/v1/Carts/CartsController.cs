@@ -1,6 +1,7 @@
 ﻿using Application.Features.Carts.v1.Commands.Carts.CreateCart;
 using Application.Features.Carts.v1.Commands.Carts.DeleteCart;
 using Application.Features.Carts.v1.Commands.Carts.UpdateCart;
+using Application.Features.Carts.v1.Queries.GetCartById;
 
 namespace WebAPI.Controllers.v1.Carts
 {
@@ -36,6 +37,14 @@ namespace WebAPI.Controllers.v1.Carts
             var command = new DeleteCartCommand(cartItemId);
             await _mediator.Send(command, cancellationToken);
             return NoContent();
+        }
+
+        [HttpGet("{cartId:guid}")]
+        public async Task<IActionResult> GetCartById(Guid? cartId, CancellationToken cancellationToken)
+        {
+            var query = new GetCartByIdQuery(cartId);
+            var result = await _mediator.Send(query, cancellationToken);
+            return Ok(result);
         }
     }
 }
