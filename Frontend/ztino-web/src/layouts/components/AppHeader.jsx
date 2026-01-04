@@ -1,5 +1,5 @@
-import React, { useState, useMemo } from 'react';
-import { Layout, Menu, Input, Badge, Button, Dropdown, Space, Avatar, Typography, Drawer, Divider } from 'antd';
+import React, { useState, useMemo, useCallback, memo } from 'react';
+import { Layout, Menu, Input, Badge, Button, Dropdown, Space, Avatar, Typography, Drawer, Divider, message } from 'antd';
 import { 
     ShoppingCartOutlined, 
     UserOutlined, 
@@ -10,24 +10,33 @@ import {
     ShoppingOutlined,
     HomeOutlined,
     PhoneOutlined,
-    InfoCircleOutlined
+    InfoCircleOutlined,
+    LoginOutlined
 } from '@ant-design/icons';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useGetCategories } from '../../features';
+import { useAuth } from '../../contexts/AuthContext';
 
 const { Header } = Layout;
 const { Text } = Typography;
 
-const AppHeader = () => {
+const AppHeader = memo(() => {
     const navigate = useNavigate();
     const location = useLocation();
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    const { user, isAuthenticated, logout, isInitialized } = useAuth();
     
     const { data: categories, isLoading, error } = useGetCategories();
 
     if (error) {
         console.error("Failed to load menu categories:", error); 
     }
+
+    const handleLogout = useCallback(() => {
+        logout();
+        message.success('Logged out successfully');
+        navigate('/');
+    }, [logout, navigate]);
 
     const selectedKeys = useMemo(() => {
         const pathname = location.pathname;
@@ -138,16 +147,27 @@ const AppHeader = () => {
         return items;
     }, [categories, navigate, mobileMenuOpen]);
 
-    const userMenuItems = [
+    const userMenuItems = useMemo(() => [
         { key: 'profile', label: 'My Profile', icon: <UserOutlined /> },
         { key: 'orders', label: 'My Orders', icon: <ShoppingOutlined /> },
         { type: 'divider' },
-        { key: 'logout', label: 'Logout', danger: true, icon: <LogoutOutlined /> },
-    ];
+        { 
+            key: 'logout', 
+            label: 'Logout', 
+            danger: true, 
+            icon: <LogoutOutlined />,
+            onClick: handleLogout
+        },
+    ], [handleLogout]);
 
-    const closeMobileMenu = () => setMobileMenuOpen(false);
+    const closeMobileMenu = useCallback(() => setMobileMenuOpen(false), []);
 
-    const renderActions = (isMobile = false) => {
+    const displayName = useMemo(() => {
+        if (!user) return '';
+        return user.name || user.email?.split('@')[0] || 'User';
+    }, [user]);
+
+    const renderAuthenticatedActions = useCallback((isMobile = false) => {
         if (!isMobile) {
             return (
                 <Space size="large" className="flex-shrink-0">
@@ -168,7 +188,9 @@ const AppHeader = () => {
                     <Dropdown menu={{ items: userMenuItems }} placement="bottomRight" arrow>
                         <Space className="cursor-pointer hover:bg-gray-50 p-1 pr-2 rounded-full transition-colors">
                             <Avatar icon={<UserOutlined />} className="bg-indigo-100 text-indigo-600" />
-                            <Text strong className="hidden lg:block text-sm text-gray-700">Hi, User</Text>
+                            <Text strong className="hidden lg:block text-sm text-gray-700">
+                                Hi, {displayName}
+                            </Text>
                         </Space>
                     </Dropdown>
                 </Space>
@@ -180,8 +202,10 @@ const AppHeader = () => {
                 <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
                     <Avatar size="large" icon={<UserOutlined />} className="bg-indigo-600 text-white" />
                     <div>
-                        <Text strong className="block text-base">Hi, User</Text>
-                        <Text type="secondary" className="text-xs">Member</Text>
+                        <Text strong className="block text-base">Hi, {displayName}</Text>
+                        <Text type="secondary" className="text-xs">
+                            {user?.roles?.includes('Admin') ? 'Admin' : 'Member'}
+                        </Text>
                     </div>
                 </div>
 
@@ -205,6 +229,10 @@ const AppHeader = () => {
                                 type="text" 
                                 danger={item.danger}
                                 icon={item.icon}
+                                onClick={() => {
+                                    if (item.onClick) item.onClick();
+                                    closeMobileMenu();
+                                }}
                                 className="text-left flex items-center justify-start h-10 px-4"
                             >
                                 {item.label}
@@ -214,7 +242,94 @@ const AppHeader = () => {
                 </div>
             </div>
         );
-    };
+    }, [userMenuItems, displayName, user, navigate, closeMobileMenu]);
+
+    const renderGuestActions = useCallback((isMobile = false) => {
+        if (!isMobile) {
+            return (
+                <Space size="middle" className="flex-shrink-0">
+                    <Badge count={5} size="small" offset={[-2, 2]}>
+                        <Button 
+                            shape="circle" 
+                            icon={<ShoppingCartOutlined />} 
+                            type="text" 
+                            className="text-gray-500 hover:text-indigo-600 hover:bg-indigo-50 transition-colors"
+                            onClick={() => navigate('/cart')}
+                        />
+                    </Badge>
+
+                    <Button 
+                        type="text"
+                        icon={<LoginOutlined />}
+                        onClick={() => navigate('/login')}
+                        className="border border-indigo-600 text-indigo-600 font-medium hover:!text-indigo-700 hover:!border-indigo-700 hover:!bg-indigo-50"                    >
+                        Login
+                    </Button>
+
+                    <Button 
+                        type="primary"
+                        onClick={() => navigate('/register')}
+                        className="bg-indigo-600 font-medium hover:!bg-indigo-700 border-none shadow-none"                    >
+                        Register
+                    </Button>
+                </Space>
+            );
+        }
+
+        return (
+            <div className="flex flex-col gap-4 mt-4">
+                <div className="flex items-center gap-3 p-4 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-lg border border-indigo-100">
+                    <Avatar size="large" icon={<UserOutlined />} className="bg-gray-200 text-gray-500" />
+                    <div className="flex-1">
+                        <Text strong className="block text-base text-gray-800">Welcome, Guest</Text>
+                        <Text type="secondary" className="text-xs">Sign in to access your account</Text>
+                    </div>
+                </div>
+
+                <div className="grid grid-cols-1 gap-3">
+                    <Button 
+                        block 
+                        type="primary" 
+                        icon={<LoginOutlined />}
+                        onClick={() => { navigate('/login'); closeMobileMenu(); }}
+                        className="h-11 bg-indigo-600 hover:bg-indigo-700 border-none font-medium rounded-lg"
+                    >
+                        Login
+                    </Button>
+                    <Button 
+                        block 
+                        onClick={() => { navigate('/register'); closeMobileMenu(); }}
+                        className="h-11 font-medium rounded-lg"
+                    >
+                        Create Account
+                    </Button>
+                </div>
+
+                <Divider style={{ margin: '12px 0' }} />
+
+                <Button 
+                    block 
+                    icon={<ShoppingCartOutlined />} 
+                    onClick={() => { navigate('/cart'); closeMobileMenu(); }} 
+                    className="flex items-center justify-center h-10"
+                >
+                    View Cart <Badge count={5} size="small" className="ml-2" color="blue" />
+                </Button>
+            </div>
+        );
+    }, [navigate, closeMobileMenu]);
+
+    const renderActions = useCallback((isMobile = false) => {
+        if (!isInitialized) {
+            return null;
+        }
+        
+        if (isAuthenticated) {
+            return renderAuthenticatedActions(isMobile);
+        }
+        
+        return renderGuestActions(isMobile);
+    }, [isInitialized, isAuthenticated, renderAuthenticatedActions, renderGuestActions]);
 
     return (
         <>
@@ -317,6 +432,8 @@ const AppHeader = () => {
             </Drawer>
         </>
     );
-};
+});
+
+AppHeader.displayName = 'AppHeader';
 
 export default AppHeader;

@@ -1,6 +1,7 @@
-import { createBrowserRouter, createRoutesFromElements, Navigate, Route, RouterProvider } from "react-router-dom";
-import { ErrorPage, HomePage, ProductListingPage, ProductDetailPage } from "../pages";
+import { createBrowserRouter, createRoutesFromElements, Route, RouterProvider } from "react-router-dom";
+import { ErrorPage, HomePage, ProductListingPage, ProductDetailPage, LoginPage } from "../pages";
 import { MainLayout } from "../layouts";
+import PublicRoute from "./PublicRoute";
 
 const router = createBrowserRouter(
     createRoutesFromElements(
@@ -9,10 +10,22 @@ const router = createBrowserRouter(
             element={<MainLayout />}
             errorElement={<ErrorPage />}
         >
+
             <Route index element={<HomePage />} />
+            
+            <Route 
+                path="/login" 
+                element={
+                    <PublicRoute>
+                        <LoginPage />
+                    </PublicRoute>
+                }
+            />
+
             <Route path="products/:slug?" element={<ProductListingPage />} />
             <Route path="product/:slug?" element={<ProductDetailPage />} />
         </Route>
+
         </>
     )
 )
