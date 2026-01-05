@@ -1,18 +1,17 @@
 using Application.Common.Abstractions.ExternalServices;
 using Infrastructure.ExternalServices.Cloudinary;
 
-namespace WebAPI.DependencyInjection.Common
+namespace WebAPI.DependencyInjection.Infrastructure
 {
-    public static class FileUploadServiceRegistration
+    public static class ExternalServicesRegistration
     {
-        public static IServiceCollection AddFileUploadServices(this IServiceCollection services
-            , IConfiguration configuration)
+        public static IServiceCollection AddExternalServices(
+            this IServiceCollection services, IConfiguration configuration)
         {
-            // Bind Cloudinary settings
+            // Cloudinary file upload
             services.Configure<CloudinarySettings>(
                 configuration.GetSection("Cloudinary"));
 
-            // FileUpload
             services.AddScoped<IFileUploadService, CloudinaryFileUploadService>();
 
             return services;

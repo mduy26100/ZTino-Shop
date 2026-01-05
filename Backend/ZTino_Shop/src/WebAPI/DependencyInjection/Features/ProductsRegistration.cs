@@ -1,15 +1,15 @@
-﻿using Application.Features.Products.v1.Repositories;
+using Application.Features.Products.v1.Repositories;
 using Application.Features.Products.v1.Services;
 using Infrastructure.Products.Repositories;
 using Infrastructure.Products.Services;
 
 namespace WebAPI.DependencyInjection.Features
 {
-    public static class ProductsServiceRegistration
+    public static class ProductsRegistration
     {
-        public static IServiceCollection AddProductServices(this IServiceCollection services)
+        public static IServiceCollection AddProductsFeature(this IServiceCollection services)
         {
-            // Repository
+            // Repositories
             services.AddScoped<IProductRepository, ProductRepository>();
             services.AddScoped<IProductVariantRepository, ProductVariantRepository>();
             services.AddScoped<IProductImageRepository, ProductImageRepository>();
@@ -18,7 +18,7 @@ namespace WebAPI.DependencyInjection.Features
             services.AddScoped<IColorRepository, ColorRepository>();
             services.AddScoped<IProductColorRepository, ProductColorRepository>();
 
-            //Service
+            // Services
             services.AddScoped<IProductQueryService, ProductQueryService>();
 
             return services;

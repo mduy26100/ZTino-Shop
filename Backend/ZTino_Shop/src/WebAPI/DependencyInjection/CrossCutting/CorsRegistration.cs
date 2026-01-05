@@ -1,6 +1,6 @@
-﻿namespace WebAPI.DependencyInjection.Common
+namespace WebAPI.DependencyInjection.CrossCutting
 {
-    public static class CorsServiceRegistration
+    public static class CorsRegistration
     {
         public static IServiceCollection AddCorsPolicies(this IServiceCollection services)
         {

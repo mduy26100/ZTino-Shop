@@ -3,9 +3,9 @@ using Infrastructure.Caching;
 
 namespace WebAPI.DependencyInjection.Infrastructure
 {
-    public static class CacheServiceRegistration
+    public static class CachingRegistration
     {
-        public static IServiceCollection AddCacheServices(
+        public static IServiceCollection AddCaching(
             this IServiceCollection services, IConfiguration configuration)
         {
             services.AddStackExchangeRedisCache(options =>
@@ -19,5 +19,3 @@ namespace WebAPI.DependencyInjection.Infrastructure
         }
     }
 }
-
-

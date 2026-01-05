@@ -3,9 +3,9 @@ using Infrastructure.Persistence;
 
 namespace WebAPI.DependencyInjection.Infrastructure
 {
-    public static class DatabaseServiceRegistration
+    public static class PersistenceRegistration
     {
-        public static IServiceCollection AddDatabaseServices(
+        public static IServiceCollection AddPersistence(
             this IServiceCollection services, IConfiguration configuration)
         {
             services.AddDbContext<ApplicationDbContext>(options =>

@@ -1,10 +1,10 @@
-﻿using Application.Features.Products.v1.Mappings;
+using Application.Features.Products.v1.Mappings;
 
-namespace WebAPI.DependencyInjection.Infrastructure
+namespace WebAPI.DependencyInjection.Application
 {
-    public static class MappingServiceRegistration
+    public static class MappingRegistration
     {
-        public static IServiceCollection AddMappingServices(this IServiceCollection services)
+        public static IServiceCollection AddMapping(this IServiceCollection services)
         {
             services.AddAutoMapper(cfg =>
             {
