@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { updateCategory } from '../../api/category.api';
+import { updateCategory } from '../../api';
 
 export const useUpdateCategory = () => {
     const [isUpdating, setIsUpdating] = useState(false);

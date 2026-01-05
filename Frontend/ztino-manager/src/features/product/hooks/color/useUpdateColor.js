@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { updateColor } from '../../api/color.api';
+import { updateColor } from '../../api';
 
 export const useUpdateColor = () => {
     const [isUpdating, setIsUpdating] = useState(false);

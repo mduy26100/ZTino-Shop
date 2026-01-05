@@ -1,5 +1,5 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
-import { updateSize } from '../../api/size.api';
+import { updateSize } from '../../api';
 
 export const useUpdateSize = (options = {}) => {
     const { onSuccess, onError } = options;

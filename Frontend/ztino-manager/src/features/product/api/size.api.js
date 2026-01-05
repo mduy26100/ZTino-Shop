@@ -1,5 +1,5 @@
-import axiosClient from "../../../services/axiosClient";
-import { ENDPOINTS } from "../../../constants/apiEndpoints";
+import { axiosClient } from "../../../services";
+import { ENDPOINTS } from "../../../constants";
 
 export const getSizes = () => {
     return axiosClient.get(ENDPOINTS.SIZES);

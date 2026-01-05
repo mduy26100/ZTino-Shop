@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import axios from 'axios'; 
-import { getProductImagesByProductColorId } from '../../api/productImage.api';
+import { getProductImagesByProductColorId } from '../../api';
 
 const CACHE = {}; 
 const CACHE_TTL = 5 * 60 * 1000; 

@@ -1,5 +1,5 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
-import { deleteProduct } from '../../api/product.api';
+import { deleteProduct } from '../../api';
 
 export const useDeleteProduct = (options = {}) => {
     const { onSuccess, onError } = options;

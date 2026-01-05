@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { message } from 'antd';
-import { getCategories } from '../../api/category.api';
+import { getCategories } from '../../api';
 
 const CACHE = {
     data: null,

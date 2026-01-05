@@ -1,5 +1,5 @@
-import { ENDPOINTS } from "../../../constants/apiEndpoints";
-import axiosClient from "../../../services/axiosClient";
+import { ENDPOINTS } from "../../../constants";
+import { axiosClient } from "../../../services";
 
 export const getColorsByProductId = (productId) => {
     return axiosClient.get(`${ENDPOINTS.ADMIN.PRODUCT_COLORS}/${productId}`);

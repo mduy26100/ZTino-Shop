@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { loginAPI } from '../../api/auth.api';
-import { decodeToken, getRolesFromToken } from '../../../../utils/jwtDecode';
-import { useAuth } from '../../../../contexts/AuthContext';
+import { decodeToken, getRolesFromToken } from '../../../../utils';
+import { useAuth } from '../../../../contexts';
 
 export const useLogin = () => {
   const [isLoading, setIsLoading] = useState(false);

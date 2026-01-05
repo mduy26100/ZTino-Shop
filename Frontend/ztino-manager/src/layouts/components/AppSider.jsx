@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { Layout, Drawer } from 'antd';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { ChevronDownIcon, XMarkIcon } from "@heroicons/react/24/outline";
-import { getMenuItems } from '../config/menuItems';
-import { useAuth } from '../../contexts/AuthContext';
+import { getMenuItems } from '../config';
+import { useAuth } from '../../contexts';
 
 const { Sider } = Layout;
 

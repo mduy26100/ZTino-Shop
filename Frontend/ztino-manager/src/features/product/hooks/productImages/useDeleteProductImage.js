@@ -1,5 +1,5 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
-import { deleteProductImage } from '../../api/productImage.api';
+import { deleteProductImage } from '../../api';
 
 export const useDeleteProductImage = (options = {}) => {
     const { onSuccess, onError } = options;

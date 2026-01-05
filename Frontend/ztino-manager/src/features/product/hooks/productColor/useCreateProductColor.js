@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { createProductColor } from '../../api/productColor.api';
+import { createProductColor } from '../../api';
 
 export const useCreateProductColor = () => {
     const [isCreating, setIsCreating] = useState(false);

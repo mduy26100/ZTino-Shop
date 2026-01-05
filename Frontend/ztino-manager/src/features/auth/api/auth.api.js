@@ -1,7 +1,7 @@
-import { ENDPOINTS } from "../../../constants/apiEndpoints";
-import axiosClient from "../../../services/axiosClient";
+import { ENDPOINTS } from "../../../constants";
+import { axiosClient } from "../../../services";
 
-const loginAPI = async (data) => {
+export const loginAPI = async (data) => {
     try {
         const response = await axiosClient.post(`${ENDPOINTS.AUTH}/login`, {
             dto: {
@@ -13,8 +13,4 @@ const loginAPI = async (data) => {
     } catch (error) {
         throw error;
     }
-}
-
-export {
-    loginAPI
 }

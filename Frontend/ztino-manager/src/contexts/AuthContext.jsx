@@ -1,8 +1,8 @@
 import React, { createContext, useContext, useState, useEffect, useMemo } from 'react';
 import { 
-    getToken, getUser, setToken, setUser as setStorageUser, clearAuth, 
-} from '../utils/localStorage';
-import { isTokenExpired, hasRole, decodeToken, getRolesFromToken } from '../utils/jwtDecode';
+    getToken, getUser, setToken, setUser as setStorageUser, clearAuth,
+    isTokenExpired, hasRole, decodeToken, getRolesFromToken
+} from '../utils';
 
 const AuthContext = createContext(null);
 

@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { deleteCategory } from '../../api/category.api';
+import { deleteCategory } from '../../api';
 
 export const useDeleteCategory = () => {
     const [isDeleting, setIsDeleting] = useState(false);

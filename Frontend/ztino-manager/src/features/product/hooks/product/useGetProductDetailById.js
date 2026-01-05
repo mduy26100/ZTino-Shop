@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import axios from 'axios'; 
-import { getProductDetailById } from '../../api/product.api';
+import { getProductDetailById } from '../../api';
 
 const CACHE = {}; 
 

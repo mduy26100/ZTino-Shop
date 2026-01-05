@@ -5,7 +5,7 @@ import {
     BellIcon,
     ChevronDownIcon 
 } from '@heroicons/react/24/outline';
-import { useAuth } from '../../contexts/AuthContext';
+import { useAuth } from '../../contexts';
 import { UserOutlined, LogoutOutlined } from '@ant-design/icons';
 
 const { Header } = Layout;

@@ -1,14 +1,15 @@
-import MainLayout from "../layouts/MainLayout";
-import Login from "../pages/Auth/LoginPage";
-import Dashboard from "../pages/Dashboard/Dashboard";
-import ErrorPage from "../pages/Error/ErrorPage";
-import CategoryPage from "../pages/Product/CategoryPage";
-import ColorPage from "../pages/Product/ColorPage";
-import ProductDetailPage from "../pages/Product/ProductDetailPage";
-import ProductPage from "../pages/Product/ProductPage";
-import SizePage from "../pages/Product/SizePage";
-import PrivateRoute from "./PrivateRoute";
-import PublicRoute from "./PublicRoute";
+import { MainLayout } from "../layouts";
+import { 
+    LoginPage, 
+    Dashboard, 
+    ErrorPage, 
+    CategoryPage, 
+    ColorPage, 
+    ProductDetailPage, 
+    ProductPage, 
+    SizePage 
+} from "../pages";
+import { PrivateRoute, PublicRoute } from ".";
 import { createBrowserRouter, createRoutesFromElements, Navigate, Route, RouterProvider } from "react-router-dom";
 
 const router = createBrowserRouter(
@@ -18,7 +19,7 @@ const router = createBrowserRouter(
             path="/login"
             element={
                 <PublicRoute>
-                    <Login />
+                    <LoginPage />
                 </PublicRoute>
             }
         />

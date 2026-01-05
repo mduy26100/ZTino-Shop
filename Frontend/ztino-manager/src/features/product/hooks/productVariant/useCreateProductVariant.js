@@ -1,5 +1,5 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
-import { createProductVariant } from '../../api/productVariant.api';
+import { createProductVariant } from '../../api';
 
 export const useCreateProductVariant = (options = {}) => {
     const { onSuccess, onError } = options;

@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Layout, Grid, theme } from 'antd';
 import { Outlet } from 'react-router-dom';
-import AppSider from './components/AppSider';
-import AppHeader from './components/AppHeader';
+import { AppSider, AppHeader } from './components';
 
 const { Content } = Layout;
 const { useBreakpoint } = Grid;

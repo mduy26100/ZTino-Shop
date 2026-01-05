@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { message } from 'antd';
-import { getColors } from '../../api/color.api';
+import { getColors } from '../../api';
 
 const CACHE = {
     data: null,

@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import axios from 'axios'; 
-import { getSizes } from '../../api/size.api';
+import { getSizes } from '../../api';
 
 const CACHE = {
     data: null,

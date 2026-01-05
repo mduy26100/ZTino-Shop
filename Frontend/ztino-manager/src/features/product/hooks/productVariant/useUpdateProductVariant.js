@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { updateProductVariant } from '../../api/productVariant.api';
+import { updateProductVariant } from '../../api';
 
 export const useUpdateProductVariant = () => {
     const [isUpdating, setIsUpdating] = useState(false);

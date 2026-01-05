@@ -1,5 +1,5 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
-import { deleteSize } from '../../api/size.api';
+import { deleteSize } from '../../api';
 
 export const useDeleteSize = (options = {}) => {
     const { onSuccess, onError } = options;

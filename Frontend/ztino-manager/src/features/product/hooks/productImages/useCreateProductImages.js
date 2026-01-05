@@ -1,5 +1,5 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
-import { createProductImages } from '../../api/productImage.api';
+import { createProductImages } from '../../api';
 
 export const useCreateProductImages = (options = {}) => {
     const { onSuccess, onError } = options;

@@ -1,5 +1,5 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
-import { createSize } from '../../api/size.api';
+import { createSize } from '../../api';
 
 export const useCreateSize = (options = {}) => {
     const { onSuccess, onError } = options;

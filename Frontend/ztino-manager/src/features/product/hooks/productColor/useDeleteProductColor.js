@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { deleteProductColor } from '../../api/productColor.api';
+import { deleteProductColor } from '../../api';
 
 export const useDeleteProductColor = () => {
     const [isDeleting, setIsDeleting] = useState(false);

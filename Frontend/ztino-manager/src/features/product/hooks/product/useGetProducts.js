@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import axios from 'axios'; 
-import { getProducts } from '../../api/product.api';
+import { getProducts } from '../../api';
 
 const CACHE = {
     data: null,

@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { createCategory } from '../../api/category.api';
+import { createCategory } from '../../api';
 
 export const useCreateCategory = () => {
     const [isLoading, setIsLoading] = useState(false);

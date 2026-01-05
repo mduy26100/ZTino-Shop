@@ -1,5 +1,5 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
-import { createProduct } from '../../api/product.api';
+import { createProduct } from '../../api';
 
 export const useCreateProduct = (options = {}) => {
     const { onSuccess, onError } = options;
