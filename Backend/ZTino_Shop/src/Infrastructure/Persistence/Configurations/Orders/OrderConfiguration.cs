@@ -15,7 +15,7 @@ namespace Infrastructure.Persistence.Configurations.Orders
 
             builder.Property(o => o.OrderCode)
                 .IsRequired()
-                .HasMaxLength(20);
+                .HasMaxLength(30);
 
             builder.Property(o => o.UserId)
                 .IsRequired(false);
