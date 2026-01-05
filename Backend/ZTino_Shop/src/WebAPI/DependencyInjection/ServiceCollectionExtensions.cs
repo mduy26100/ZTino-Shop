@@ -67,6 +67,7 @@ namespace WebAPI.DependencyInjection
             services.AddAuthFeature();
             services.AddProductsFeature();
             services.AddCartsFeature();
+            services.AddOrdersFeature();
             return services;
         }
 

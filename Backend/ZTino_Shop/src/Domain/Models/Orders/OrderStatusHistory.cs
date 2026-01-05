@@ -14,5 +14,16 @@ namespace Domain.Models.Orders
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         public Order Order { get; set; } = default!;
+
+        public static OrderStatusHistory CreateInitial(Guid orderId)
+        {
+            return new OrderStatusHistory
+            {
+                OrderId = orderId,
+                Status = OrderStatus.Pending,
+                Note = "Order created.",
+                CreatedAt = DateTime.UtcNow
+            };
+        }
     }
 }
