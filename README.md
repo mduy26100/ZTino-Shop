@@ -24,7 +24,7 @@ ZTino-Shop/
 │
 ├── Backend/
 │   └── ZTino_Shop/           # .NET 8 Web API
-│       └── README.md
+│       └── README.md         # Detailed documentation
 │
 └── README.md                 # Project overview documentation
 ```
@@ -177,6 +177,7 @@ Detailed instructions for each part are provided in their respective README file
 
 ### Completed
 - **Product:** Manage products, categories, and related information
+- **Cart:** Shopping cart management (add/update/remove items, guest & authenticated carts)
 - **Authentication & Authorization (JWT):** Login, role-based authorization (Manager / User)
 
 ### In Progress
