@@ -23,7 +23,7 @@ namespace Application.Tests.Carts.v1.Commands.DeleteCart
         }
 
         [Fact]
-        public async Task Handle_Should_Remove_CartItem_And_Cart_When_Last_Item()
+        public async Task Handle_Should_Remove_CartItem_And_Update_Cart()
         {
             var userId = Guid.NewGuid();
             var cartId = Guid.NewGuid();
@@ -54,12 +54,6 @@ namespace Application.Tests.Carts.v1.Commands.DeleteCart
                     It.IsAny<CancellationToken>()))
                 .ReturnsAsync(cart);
 
-            _cartItemRepositoryMock
-                .Setup(x => x.AnyAsync(
-                    It.IsAny<Expression<Func<CartItem, bool>>>(),
-                    It.IsAny<CancellationToken>()))
-                .ReturnsAsync(false);
-
             var handler = CreateHandler();
             var command = new DeleteCartCommand(cartItem.Id);
 
@@ -68,56 +62,8 @@ namespace Application.Tests.Carts.v1.Commands.DeleteCart
             Assert.Equal(Unit.Value, result);
 
             _cartItemRepositoryMock.Verify(x => x.Remove(cartItem), Times.Once);
-            _cartRepositoryMock.Verify(x => x.Remove(cart), Times.Once);
             _contextMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
-        }
-
-        [Fact]
-        public async Task Handle_Should_Remove_CartItem_Only_When_Cart_Has_Other_Items()
-        {
-            var userId = Guid.NewGuid();
-            var cartId = Guid.NewGuid();
-
-            var cart = new Cart
-            {
-                Id = cartId,
-                UserId = userId,
-                IsActive = true
-            };
-
-            var cartItem = new CartItem
-            {
-                Id = 2,
-                CartId = cartId
-            };
-
-            _currentUserMock.Setup(x => x.UserId).Returns(userId);
-
-            _cartItemRepositoryMock
-                .Setup(x => x.GetByIdAsync(cartItem.Id, It.IsAny<CancellationToken>()))
-                .ReturnsAsync(cartItem);
-
-            _cartRepositoryMock
-                .Setup(x => x.FindOneAsync(
-                    It.IsAny<Expression<Func<Cart, bool>>>(),
-                    false,
-                    It.IsAny<CancellationToken>()))
-                .ReturnsAsync(cart);
-
-            _cartItemRepositoryMock
-                .Setup(x => x.AnyAsync(
-                    It.IsAny<Expression<Func<CartItem, bool>>>(),
-                    It.IsAny<CancellationToken>()))
-                .ReturnsAsync(true);
-
-            var handler = CreateHandler();
-            var command = new DeleteCartCommand(cartItem.Id);
-
-            await handler.Handle(command, CancellationToken.None);
-
-            _cartItemRepositoryMock.Verify(x => x.Remove(cartItem), Times.Once);
-            _cartRepositoryMock.Verify(x => x.Remove(It.IsAny<Cart>()), Times.Never);
-            _contextMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
+            Assert.NotNull(cart.UpdatedAt);
         }
 
         [Fact]
@@ -131,6 +77,71 @@ namespace Application.Tests.Carts.v1.Commands.DeleteCart
             var command = new DeleteCartCommand(99);
 
             await Assert.ThrowsAsync<NotFoundException>(
+                () => handler.Handle(command, CancellationToken.None));
+        }
+
+        [Fact]
+        public async Task Handle_Should_Throw_NotFound_When_Cart_Not_Exist()
+        {
+            var cartItem = new CartItem
+            {
+                Id = 2,
+                CartId = Guid.NewGuid()
+            };
+
+            _cartItemRepositoryMock
+                .Setup(x => x.GetByIdAsync(cartItem.Id, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(cartItem);
+
+            _cartRepositoryMock
+                .Setup(x => x.FindOneAsync(
+                    It.IsAny<Expression<Func<Cart, bool>>>(),
+                    false,
+                    It.IsAny<CancellationToken>()))
+                .ReturnsAsync((Cart?)null);
+
+            var handler = CreateHandler();
+            var command = new DeleteCartCommand(cartItem.Id);
+
+            await Assert.ThrowsAsync<NotFoundException>(
+                () => handler.Handle(command, CancellationToken.None));
+        }
+
+        [Fact]
+        public async Task Handle_Should_Throw_Forbidden_When_User_Not_Authenticated()
+        {
+            var cartId = Guid.NewGuid();
+
+            var cart = new Cart
+            {
+                Id = cartId,
+                UserId = Guid.NewGuid(),
+                IsActive = true
+            };
+
+            var cartItem = new CartItem
+            {
+                Id = 3,
+                CartId = cartId
+            };
+
+            _currentUserMock.Setup(x => x.UserId).Returns(Guid.Empty);
+
+            _cartItemRepositoryMock
+                .Setup(x => x.GetByIdAsync(cartItem.Id, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(cartItem);
+
+            _cartRepositoryMock
+                .Setup(x => x.FindOneAsync(
+                    It.IsAny<Expression<Func<Cart, bool>>>(),
+                    false,
+                    It.IsAny<CancellationToken>()))
+                .ReturnsAsync(cart);
+
+            var handler = CreateHandler();
+            var command = new DeleteCartCommand(cartItem.Id);
+
+            await Assert.ThrowsAsync<ForbiddenException>(
                 () => handler.Handle(command, CancellationToken.None));
         }
 
@@ -150,7 +161,7 @@ namespace Application.Tests.Carts.v1.Commands.DeleteCart
 
             var cartItem = new CartItem
             {
-                Id = 3,
+                Id = 4,
                 CartId = cartId
             };
 
