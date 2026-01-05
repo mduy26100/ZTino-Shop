@@ -32,18 +32,7 @@ namespace Application.Features.Carts.v1.Commands.Carts.DeleteCart
 
             _cartItemRepository.Remove(cartItem);
 
-            var hasRemainingItems = await _cartItemRepository.AnyAsync(
-                ci => ci.CartId == cart.Id && ci.Id != cartItem.Id,
-                cancellationToken);
-
-            if (!hasRemainingItems)
-            {
-                _cartRepository.Remove(cart);
-            }
-            else
-            {
-                cart.UpdatedAt = DateTime.UtcNow;
-            }
+            cart.UpdatedAt = DateTime.UtcNow;
 
             await _context.SaveChangesAsync(cancellationToken);
 
@@ -97,5 +86,3 @@ namespace Application.Features.Carts.v1.Commands.Carts.DeleteCart
         }
     }
 }
-
-
