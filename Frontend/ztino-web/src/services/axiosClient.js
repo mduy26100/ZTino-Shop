@@ -1,5 +1,5 @@
 import axios from "axios";
-import { clearAuth } from "../utils/localStorage";
+import { clearAuth } from "../utils";
 
 const API_URL = import.meta.env.VITE_API_URL;
 

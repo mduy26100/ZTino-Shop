@@ -1,7 +1,8 @@
-//hooks
-export {useLogin} from "./hooks/auth/useLogin";
-export {useRegister} from "./hooks/auth/useRegister";
+// API
+export * from './api';
 
-//components
-export {default as LoginForm} from "./components/auth/LoginForm";
-export {default as RegisterForm} from "./components/auth/RegisterForm";
+// Hooks
+export * from './hooks';
+
+// Components
+export * from './components';

@@ -2,9 +2,9 @@ import React, { memo, useMemo } from 'react';
 import { Typography, Breadcrumb, Alert } from 'antd';
 import { HomeOutlined, ShoppingCartOutlined } from '@ant-design/icons';
 import { Link } from 'react-router-dom';
-import { useAuth } from '../../contexts/AuthContext';
+import { useAuth } from '../../contexts';
 import { useGetMyCart, useGetCartById, CartItemList, CartSummary } from '../../features';
-import { getGuestCartId } from '../../utils/localStorage';
+import { getGuestCartId } from '../../utils';
 
 const { Title } = Typography;
 

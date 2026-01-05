@@ -2,8 +2,7 @@ import React, { useEffect } from 'react';
 import { Layout, FloatButton } from 'antd';
 import { Outlet, useLocation } from 'react-router-dom';
 import { ArrowUpOutlined } from '@ant-design/icons';
-import AppHeader from './components/AppHeader';
-import AppFooter from './components/AppFooter';
+import { AppHeader, AppFooter } from './components';
 
 const { Content } = Layout;
 

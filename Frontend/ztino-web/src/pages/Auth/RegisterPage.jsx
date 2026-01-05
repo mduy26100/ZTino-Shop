@@ -1,7 +1,7 @@
 import React, { memo, useMemo } from 'react';
 import { Card, Typography } from 'antd';
 import { Link } from 'react-router-dom';
-import RegisterForm from '../../features/auth/components/auth/RegisterForm';
+import { RegisterForm } from '../../features';
 
 const { Title, Text } = Typography;
 
