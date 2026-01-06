@@ -10,9 +10,11 @@ const CACHE = {
 
 const CACHE_TTL = 1 * 60 * 1000; 
 
-export const useGetMyCart = () => {
+export const useGetMyCart = (options = {}) => {
+    const { enabled = true } = options;
+    
     const [data, setData] = useState(CACHE.data || null);
-    const [isLoading, setIsLoading] = useState(!CACHE.data);
+    const [isLoading, setIsLoading] = useState(enabled && !CACHE.data);
     const [error, setError] = useState(null);
     const isMounted = useRef(true);
 
@@ -24,6 +26,13 @@ export const useGetMyCart = () => {
     }, []);
 
     const fetchData = useCallback(async (forceUpdate = false) => {
+        if (!enabled && !forceUpdate) {
+            if (isMounted.current) {
+                setIsLoading(false);
+            }
+            return;
+        }
+
         const now = Date.now();
 
         if (
@@ -76,11 +85,17 @@ export const useGetMyCart = () => {
         } finally {
             if (isMounted.current) setIsLoading(false);
         }
-    }, []);
+    }, [enabled]);
 
     useEffect(() => {
-        fetchData();
-    }, [fetchData]);
+        if (enabled) {
+            fetchData();
+        } else {
+            setData(null);
+            setIsLoading(false);
+            setError(null);
+        }
+    }, [enabled, fetchData]);
 
     const refetch = useCallback(() => fetchData(true), [fetchData]);
 

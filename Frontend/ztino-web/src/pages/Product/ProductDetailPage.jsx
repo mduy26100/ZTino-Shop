@@ -1,19 +1,22 @@
 import React, { useState, useMemo, useCallback } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
-import { Spin, Breadcrumb, Result, Button } from 'antd';
+import { Spin, Breadcrumb, Result, Button, message } from 'antd';
 import { HomeOutlined } from '@ant-design/icons';
 import { ProductGallery, ProductInfo, useGetProductDetailBySlug } from '../../features';
+import { useCreateCart } from '../../features/cart/hooks';
 
 const ProductDetailPage = () => {
     const { slug } = useParams(); 
     const navigate = useNavigate();
     const location = useLocation();
+    const [messageApi, contextHolder] = message.useMessage();
     
     const [selectedProductColorId, setSelectedProductColorId] = useState(null);
 
     const productId = location.state?.id || slug;
 
     const { data: productData, isLoading, error } = useGetProductDetailBySlug(productId);
+    const { create: addToCart, isLoading: isAddingToCart } = useCreateCart();
 
     const product = useMemo(() => {
         if (!productData) return null;
@@ -92,6 +95,24 @@ const ProductDetailPage = () => {
         setSelectedProductColorId(null);
     }, []);
 
+    const handleAddToCart = useCallback((cartData) => {
+        addToCart(cartData, {
+            onSuccess: (response) => {
+                messageApi.open({
+                    type: 'success',
+                    content: response?.message || 'Added to cart!',
+                });
+            },
+            onError: (error) => {
+                messageApi.open({
+                    type: 'error',
+                    content: error?.error?.message || error?.message || 'Failed to add to cart',
+                    duration: 5
+                });
+            }
+        });
+    }, [addToCart, messageApi]);
+
     if (isLoading) {
         return (
             <div className="h-screen flex items-center justify-center">
@@ -115,6 +136,7 @@ const ProductDetailPage = () => {
 
     return (
         <div className="bg-white min-h-screen pb-20">
+            {contextHolder}
             <div className="max-w-[1440px] mx-auto px-6 py-6">
                 <Breadcrumb 
                     items={[
@@ -151,6 +173,8 @@ const ProductDetailPage = () => {
                         selectedProductColorId={selectedProductColorId}
                         setSelectedProductColorId={setSelectedProductColorId}
                         onResetSelection={handleResetSelection}
+                        onAddToCart={handleAddToCart}
+                        isAddingToCart={isAddingToCart}
                     />
                 </div>
             </div>

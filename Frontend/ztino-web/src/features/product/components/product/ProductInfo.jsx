@@ -8,8 +8,11 @@ const ProductInfo = ({
     product, 
     selectedProductColorId, 
     setSelectedProductColorId,
-    onResetSelection 
+    onResetSelection,
+    onAddToCart,
+    isAddingToCart
 }) => {
+    const [messageApi, contextHolder] = message.useMessage();
     const [selectedSizeId, setSelectedSizeId] = useState(null);
     const [quantity, setQuantity] = useState(1);
 
@@ -72,25 +75,27 @@ const ProductInfo = ({
     const handleAddToCart = useCallback(() => {
         if (!isAddToCartEnabled) {
             if (!selectedProductColorId) {
-                message.warning("Please select a color");
+                messageApi.open({
+                    type: 'warning',
+                    content: 'Please select a color',
+                });
                 return;
             }
             if (!selectedSizeId) {
-                message.warning("Please select a size");
+                messageApi.open({
+                    type: 'warning',
+                    content: 'Please select a size',
+                });
                 return;
             }
             return;
         }
 
-        console.log("Add to Cart:", { 
-            productId: product?.id,
-            productColorId: selectedProductColorId,
-            variantId: activeVariant?.id, 
-            sizeId: selectedSizeId,
-            quantity 
+        onAddToCart?.({
+            productVariantId: activeVariant?.id,
+            quantity
         });
-        message.success("Added to cart successfully!");
-    }, [isAddToCartEnabled, product?.id, selectedProductColorId, selectedSizeId, activeVariant, quantity]);
+    }, [isAddToCartEnabled, selectedProductColorId, selectedSizeId, activeVariant, quantity, onAddToCart, messageApi]);
 
     const selectedColorName = useMemo(() => {
         if (!activeProductColor) return null;
@@ -99,6 +104,7 @@ const ProductInfo = ({
 
     return (
         <div className="flex flex-col h-full sticky top-24">
+            {contextHolder}
             <div className="mb-4">
                 <Text className="text-gray-400 uppercase tracking-widest text-xs font-bold">
                     {product?.category?.name || "Collection"}
@@ -279,7 +285,8 @@ const ProductInfo = ({
                             : 'bg-gray-200 text-gray-400 border-gray-200 cursor-not-allowed'}
                     `}
                     onClick={handleAddToCart}
-                    disabled={!isAddToCartEnabled}
+                    disabled={!isAddToCartEnabled || isAddingToCart}
+                    loading={isAddingToCart}
                 >
                     {!selectedProductColorId ? "Select a Color" 
                         : !selectedSizeId ? "Select a Size" 

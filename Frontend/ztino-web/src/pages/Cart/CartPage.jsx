@@ -13,7 +13,7 @@ const CartPage = memo(() => {
     
     const guestCartId = useMemo(() => getGuestCartId(), []);
     
-    const authenticatedCart = useGetMyCart();
+    const authenticatedCart = useGetMyCart({ enabled: isAuthenticated });
     const guestCart = useGetCartById(guestCartId, { 
         enabled: !isAuthenticated && !!guestCartId 
     });
