@@ -74,42 +74,50 @@ ZTino_Shop/
 
 ## Documentation
 
-Detailed documentation is available in the [docs/](ZTino_Shop/docs/) folder:
+Detailed documentation is available in the [docs/](./docs/) folder:
 
 ### Architecture
-- [Architecture Overview](ZTino_Shop/docs/architecture/architecture-overview.md) - System design and data flow
-- [Layer Responsibilities](ZTino_Shop/docs/architecture/layer-responsibilities.md) - What each layer does
-- [Request Flow](ZTino_Shop/docs/architecture/request-flow.md) - Request lifecycle
-- [Directory Structure](ZTino_Shop/docs/architecture/directory-structure.md) - Project organization
+
+- [Architecture Overview](./docs/architecture/architecture-overview.md) - System design and data flow
+- [Layer Responsibilities](./docs/architecture/layer-responsibilities.md) - What each layer does
+- [Request Flow](./docs/architecture/request-flow.md) - Request lifecycle
+- [Directory Structure](./docs/architecture/directory-structure.md) - Project organization
 
 ### Domain
-- [Domain Modeling](ZTino_Shop/docs/domain/domain-modeling.md) - Entities, aggregates, business logic
+
+- [Domain Modeling](./docs/domain/domain-modeling.md) - Entities, aggregates, business logic
 
 ### API
-- [API Standards](ZTino_Shop/docs/api/api-standards.md) - REST conventions, response format, versioning
+
+- [API Standards](./docs/api/api-standards.md) - REST conventions, response format, versioning
 
 ### Features
-- [Feature Organization](ZTino_Shop/docs/features/feature-organization.md) - Module structure
-- [CQRS Pattern](ZTino_Shop/docs/features/cqrs-pattern.md) - Command/Query separation
+
+- [Feature Organization](./docs/features/feature-organization.md) - Module structure
+- [CQRS Pattern](./docs/features/cqrs-pattern.md) - Command/Query separation
 
 ### Security
-- [Authentication](ZTino_Shop/docs/security/authentication.md) - JWT, OAuth providers
-- [Authorization](ZTino_Shop/docs/security/authorization.md) - Roles and policies
+
+- [Authentication](./docs/security/authentication.md) - JWT, OAuth providers
+- [Authorization](./docs/security/authorization.md) - Roles and policies
 
 ### Data Access
-- [Database Access](ZTino_Shop/docs/data-access/database-access.md) - EF Core setup
-- [Repository Pattern](ZTino_Shop/docs/data-access/repository-pattern.md) - Data access layer
-- [Entity Configurations](ZTino_Shop/docs/data-access/entity-configurations.md) - Fluent API
+
+- [Database Access](./docs/data-access/database-access.md) - EF Core setup
+- [Repository Pattern](./docs/data-access/repository-pattern.md) - Data access layer
+- [Entity Configurations](./docs/data-access/entity-configurations.md) - Fluent API
 
 ### Cross-Cutting Concerns
-- [Dependency Injection](ZTino_Shop/docs/cross-cutting/dependency-injection.md) - Service registration
-- [Exception Handling](ZTino_Shop/docs/cross-cutting/exception-handling.md) - Error handling
-- [Validation](ZTino_Shop/docs/cross-cutting/validation.md) - Request validation
-- [Caching](ZTino_Shop/docs/cross-cutting/caching.md) - Redis caching
+
+- [Dependency Injection](./docs/cross-cutting/dependency-injection.md) - Service registration
+- [Exception Handling](./docs/cross-cutting/exception-handling.md) - Error handling
+- [Validation](./docs/cross-cutting/validation.md) - Request validation
+- [Caching](./docs/cross-cutting/caching.md) - Redis caching
 
 ### Testing & Setup
-- [Testing Strategy](ZTino_Shop/docs/testing/testing-strategy.md) - Test organization
-- [Local Setup](ZTino_Shop/docs/setup/local-setup.md) - Detailed setup guide
+
+- [Testing Strategy](./docs/testing/testing-strategy.md) - Test organization
+- [Local Setup](./docs/setup/local-setup.md) - Detailed setup guide
 
 ## API Versioning
 
