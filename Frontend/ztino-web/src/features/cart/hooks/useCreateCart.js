@@ -5,6 +5,8 @@ import {
     getGuestCartId, 
     setGuestCartId
 } from '../../../utils';
+import { invalidateMyCartCache } from './useGetMyCart';
+import { invalidateGuestCartCache } from './useGetCartById';
 
 export const useCreateCart = () => {
     const [isLoading, setIsLoading] = useState(false);
@@ -34,6 +36,9 @@ export const useCreateCart = () => {
                 if (returnedCartId) {
                     setGuestCartId(returnedCartId);
                 }
+                invalidateGuestCartCache(response?.cartId);
+            } else {
+                invalidateMyCartCache();
             }
 
             onSuccess?.(response);

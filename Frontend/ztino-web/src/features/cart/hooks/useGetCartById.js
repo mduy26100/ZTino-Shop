@@ -5,7 +5,15 @@ import { getCartById } from '../api/cart.api';
 
 const CACHE = {}; 
 
-const CACHE_TTL = 5 * 60 * 1000;
+const CACHE_TTL = 0;
+
+export const invalidateGuestCartCache = (cartId = null) => {
+    if (cartId) {
+        delete CACHE[cartId];
+    } else {
+        Object.keys(CACHE).forEach(key => delete CACHE[key]);
+    }
+};
 
 export const useGetCartById = (id, options = {}) => {
     const { onSuccess, onError } = options;

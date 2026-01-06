@@ -8,7 +8,13 @@ const CACHE = {
     promise: null,
 };
 
-const CACHE_TTL = 1 * 60 * 1000; 
+const CACHE_TTL = 0;
+
+export const invalidateMyCartCache = () => {
+    CACHE.data = null;
+    CACHE.timestamp = null;
+    CACHE.promise = null;
+};
 
 export const useGetMyCart = (options = {}) => {
     const { enabled = true } = options;

@@ -1,3 +1,3 @@
-export { useGetMyCart } from './useGetMyCart';
-export { useGetCartById } from './useGetCartById';
+export { useGetMyCart, invalidateMyCartCache } from './useGetMyCart';
+export { useGetCartById, invalidateGuestCartCache } from './useGetCartById';
 export { useCreateCart } from './useCreateCart';
