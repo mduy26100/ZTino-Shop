@@ -67,9 +67,7 @@ namespace Infrastructure.Carts.Services
             return new CartDto
             {
                 CartId = cartId,
-                Items = items,
-                TotalPrice = items.Sum(i => i.ItemTotal),
-                TotalItems = items.Sum(i => i.Quantity)
+                Items = items
             };
         }
     }

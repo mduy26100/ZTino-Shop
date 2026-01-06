@@ -112,8 +112,6 @@ namespace Application.Tests.Carts.v1.Queries.GetCartById
 
             Assert.Equal(Guid.Empty, result.CartId);
             Assert.Empty(result.Items);
-            Assert.Equal(0, result.TotalItems);
-            Assert.Equal(0, result.TotalPrice);
         }
     }
 }

@@ -49,9 +49,7 @@ namespace Application.Features.Carts.v1.Queries.GetCartById
             return new CartDto
             {
                 CartId = Guid.Empty,
-                Items = new List<CartItemDto>(),
-                TotalPrice = 0,
-                TotalItems = 0
+                Items = new List<CartItemDto>()
             };
         }
     }
