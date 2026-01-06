@@ -1,5 +1,5 @@
 import { ENDPOINTS } from "../../../constants/apiEndpoints";
-import axiosClient from "../../../services/axiosClient";
+import axiosClient from "../../../config/axiosClient";
 
 export const loginAPI = async (payload) => {
     const dto = {

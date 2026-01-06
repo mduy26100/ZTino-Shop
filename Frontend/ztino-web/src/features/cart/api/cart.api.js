@@ -1,4 +1,4 @@
-import axiosClient from "../../../services/axiosClient";
+import axiosClient from "../../../config/axiosClient";
 import { ENDPOINTS } from "../../../constants/apiEndpoints";
 
 export const getMyCart = () => {
