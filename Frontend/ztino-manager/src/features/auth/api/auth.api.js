@@ -1,5 +1,5 @@
 import { ENDPOINTS } from "../../../constants";
-import { axiosClient } from "../../../services";
+import { axiosClient } from "../../../config";
 
 export const loginAPI = async (data) => {
     try {

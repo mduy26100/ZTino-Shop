@@ -1,4 +1,4 @@
-import { axiosClient } from "../../../services";
+import { axiosClient } from "../../../config";
 import { ENDPOINTS } from "../../../constants";
 
 export const getProductImagesByProductColorId = (productColorId) => {
