@@ -81,7 +81,7 @@ const CartItemList = memo(({
                 </Title>
             </div>
 
-            <div className="space-y-0">
+            <div className="flex flex-col gap-4">
                 {sortedItems.map(item => (
                     <CartItemCard
                         key={item.cartItemId}

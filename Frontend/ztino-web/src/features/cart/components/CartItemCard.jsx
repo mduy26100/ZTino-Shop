@@ -56,7 +56,7 @@ const CartItemCard = memo(({
 
     return (
         <Card 
-            className={`mb-4 border rounded-xl transition-all ${
+            className={`border rounded-xl transition-all ${
                 isOutOfStock ? 'border-red-200 bg-red-50' : 'border-gray-200 hover:shadow-md'
             }`}
             styles={{ body: { padding: '16px' } }}
