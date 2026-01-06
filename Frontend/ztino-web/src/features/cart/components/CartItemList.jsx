@@ -1,5 +1,5 @@
-import React, { memo, useMemo } from 'react';
-import { Empty, Skeleton, Typography, Button } from 'antd';
+import React, { memo, useMemo, useCallback } from 'react';
+import { Empty, Skeleton, Typography, Button, Checkbox } from 'antd';
 import { ShoppingOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import CartItemCard from './CartItemCard';
@@ -11,7 +11,9 @@ const CartItemList = memo(({
     isLoading = false, 
     onQuantityChange, 
     onRemove,
-    isUpdating = false 
+    isUpdating = false,
+    selectedItems = [],
+    onSelectedItemsChange 
 }) => {
     const navigate = useNavigate();
 
@@ -22,6 +24,43 @@ const CartItemList = memo(({
             return a.isAvailable ? -1 : 1;
         });
     }, [items]);
+
+    // Get available items for "select all" logic
+    const availableItems = useMemo(() => {
+        return items.filter(item => item.isAvailable && item.stockQuantity > 0);
+    }, [items]);
+
+    const isAllSelected = useMemo(() => {
+        if (availableItems.length === 0) return false;
+        return availableItems.every(item => selectedItems.includes(item.cartItemId));
+    }, [availableItems, selectedItems]);
+
+    const isIndeterminate = useMemo(() => {
+        if (availableItems.length === 0) return false;
+        const selectedCount = availableItems.filter(item => selectedItems.includes(item.cartItemId)).length;
+        return selectedCount > 0 && selectedCount < availableItems.length;
+    }, [availableItems, selectedItems]);
+
+    const handleSelectAll = useCallback((e) => {
+        if (onSelectedItemsChange) {
+            if (e.target.checked) {
+                const allAvailableIds = availableItems.map(item => item.cartItemId);
+                onSelectedItemsChange(allAvailableIds);
+            } else {
+                onSelectedItemsChange([]);
+            }
+        }
+    }, [availableItems, onSelectedItemsChange]);
+
+    const handleItemSelectChange = useCallback((cartItemId, isSelected) => {
+        if (onSelectedItemsChange) {
+            if (isSelected) {
+                onSelectedItemsChange([...selectedItems, cartItemId]);
+            } else {
+                onSelectedItemsChange(selectedItems.filter(id => id !== cartItemId));
+            }
+        }
+    }, [selectedItems, onSelectedItemsChange]);
 
     if (isLoading) {
         return (
@@ -76,9 +115,24 @@ const CartItemList = memo(({
     return (
         <div>
             <div className="flex items-center justify-between mb-4">
-                <Title level={4} className="!mb-0 !text-gray-800">
-                    Shopping Cart ({items.length} {items.length === 1 ? 'item' : 'items'})
-                </Title>
+                <div className="flex items-center gap-4">
+                    <Checkbox
+                        checked={isAllSelected}
+                        indeterminate={isIndeterminate}
+                        onChange={handleSelectAll}
+                        disabled={availableItems.length === 0}
+                    >
+                        <span className="text-gray-600 font-medium">Select All</span>
+                    </Checkbox>
+                    <Title level={4} className="!mb-0 !text-gray-800">
+                        Shopping Cart ({items.length} {items.length === 1 ? 'item' : 'items'})
+                    </Title>
+                </div>
+                {selectedItems.length > 0 && (
+                    <span className="text-indigo-600 font-medium">
+                        {selectedItems.length} item{selectedItems.length > 1 ? 's' : ''} selected
+                    </span>
+                )}
             </div>
 
             <div className="flex flex-col gap-4">
@@ -89,6 +143,8 @@ const CartItemList = memo(({
                         onQuantityChange={onQuantityChange}
                         onRemove={onRemove}
                         isUpdating={isUpdating}
+                        isSelected={selectedItems.includes(item.cartItemId)}
+                        onSelectChange={handleItemSelectChange}
                     />
                 ))}
             </div>

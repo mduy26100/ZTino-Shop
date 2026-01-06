@@ -1,5 +1,5 @@
 import React, { memo, useMemo, useCallback } from 'react';
-import { Card, Image, Typography, InputNumber, Button, Tag, Tooltip } from 'antd';
+import { Card, Image, Typography, InputNumber, Button, Tag, Tooltip, Checkbox } from 'antd';
 import { DeleteOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
 import { Link } from 'react-router-dom';
 
@@ -9,7 +9,9 @@ const CartItemCard = memo(({
     item, 
     onQuantityChange, 
     onRemove, 
-    isUpdating = false 
+    isUpdating = false,
+    isSelected = false,
+    onSelectChange 
 }) => {
     const {
         cartItemId,
@@ -51,6 +53,12 @@ const CartItemCard = memo(({
         }
     }, [cartItemId, onRemove]);
 
+    const handleSelectChange = useCallback((e) => {
+        if (onSelectChange) {
+            onSelectChange(cartItemId, e.target.checked);
+        }
+    }, [cartItemId, onSelectChange]);
+
     const isOutOfStock = !isAvailable || stockQuantity === 0;
     const isLowStock = stockQuantity > 0 && stockQuantity <= 5;
 
@@ -62,6 +70,14 @@ const CartItemCard = memo(({
             styles={{ body: { padding: '16px' } }}
         >
             <div className="flex gap-4">
+                <div className="flex-shrink-0 flex items-center">
+                    <Checkbox
+                        checked={isSelected}
+                        onChange={handleSelectChange}
+                        disabled={isOutOfStock || isUpdating}
+                    />
+                </div>
+                
                 <div className="flex-shrink-0">
                     <Link to={`/product/${productId}`}>
                         <Image

@@ -38,15 +38,25 @@ const CartSummary = memo(({
             </Title>
 
             <div className="space-y-3">
-                <div className="flex justify-between items-center">
-                    <Text className="text-gray-600">Items ({totalItems})</Text>
-                    <Text className="font-medium">{formattedTotalPrice}</Text>
-                </div>
+                {totalItems === 0 ? (
+                    <div className="text-center py-4">
+                        <Text className="text-gray-500 text-sm">
+                            Please select items to see the order summary
+                        </Text>
+                    </div>
+                ) : (
+                    <>
+                        <div className="flex justify-between items-center">
+                            <Text className="text-gray-600">Items ({totalItems})</Text>
+                            <Text className="font-medium">{formattedTotalPrice}</Text>
+                        </div>
 
-                <div className="flex justify-between items-center">
-                    <Text className="text-gray-600">Shipping</Text>
-                    <Text className="text-green-600 font-medium">Free</Text>
-                </div>
+                        <div className="flex justify-between items-center">
+                            <Text className="text-gray-600">Shipping</Text>
+                            <Text className="text-green-600 font-medium">Free</Text>
+                        </div>
+                    </>
+                )}
             </div>
 
             <Divider className="my-4" />

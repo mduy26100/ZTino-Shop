@@ -1,4 +1,4 @@
-import React, { memo, useMemo } from 'react';
+import React, { memo, useMemo, useState, useCallback } from 'react';
 import { Typography, Breadcrumb, Alert } from 'antd';
 import { HomeOutlined, ShoppingCartOutlined } from '@ant-design/icons';
 import { Link } from 'react-router-dom';
@@ -10,6 +10,7 @@ const { Title } = Typography;
 
 const CartPage = memo(() => {
     const { isAuthenticated, isInitialized } = useAuth();
+    const [selectedItems, setSelectedItems] = useState([]);
     
     const guestCartId = useMemo(() => getGuestCartId(), []);
     
@@ -35,8 +36,25 @@ const CartPage = memo(() => {
     const { data, isLoading, error, refetch } = cartData;
 
     const cartItems = useMemo(() => data?.items || [], [data]);
-    const totalPrice = useMemo(() => data?.totalPrice || 0, [data]);
-    const totalItems = useMemo(() => data?.totalItems || cartItems.length, [data, cartItems]);
+    
+    const { totalItems, totalPrice } = useMemo(() => {
+        if (!cartItems.length || !selectedItems.length) {
+            return { totalItems: 0, totalPrice: 0 };
+        }
+        
+        const selectedCartItems = cartItems.filter(item => 
+            selectedItems.includes(item.cartItemId) && item.isAvailable
+        );
+        
+        return {
+            totalItems: selectedCartItems.reduce((sum, item) => sum + item.quantity, 0),
+            totalPrice: selectedCartItems.reduce((sum, item) => sum + item.itemTotal, 0)
+        };
+    }, [cartItems, selectedItems]);
+
+    const handleSelectedItemsChange = useCallback((newSelectedItems) => {
+        setSelectedItems(newSelectedItems);
+    }, []);
 
     const handleQuantityChange = (cartItemId, newQuantity) => {
         console.log('Quantity change:', cartItemId, newQuantity);
@@ -118,6 +136,8 @@ const CartPage = memo(() => {
                             isLoading={false}
                             onQuantityChange={handleQuantityChange}
                             onRemove={handleRemoveItem}
+                            selectedItems={selectedItems}
+                            onSelectedItemsChange={handleSelectedItemsChange}
                         />
                     </div>
                 ) : (
@@ -128,6 +148,8 @@ const CartPage = memo(() => {
                                 isLoading={isLoading || !isInitialized}
                                 onQuantityChange={handleQuantityChange}
                                 onRemove={handleRemoveItem}
+                                selectedItems={selectedItems}
+                                onSelectedItemsChange={handleSelectedItemsChange}
                             />
                         </div>
 
