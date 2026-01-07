@@ -32,7 +32,7 @@ namespace WebAPI.Controllers.v1.Carts
             return Ok(result);
         }
 
-        [HttpDelete("{cartItemId}")]
+        [HttpDelete("{cartItemId:int}")]
         public async Task<IActionResult> DeleteCartItem(int cartItemId, CancellationToken cancellationToken)
         {
             var command = new DeleteCartCommand(cartItemId);
