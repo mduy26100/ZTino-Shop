@@ -83,10 +83,18 @@ namespace Application.Features.Products.v1.Commands.Categories.UpdateCategory
                     .UploadAsync(uploadRequest, cancellationToken);
             }
 
+            var currentImageUrl = entity.ImageUrl;
+
             _mapper.Map(dto, entity);
 
             if (!string.IsNullOrWhiteSpace(uploadedImageUrl))
+            {
                 entity.ImageUrl = uploadedImageUrl;
+            }
+            else
+            {
+                entity.ImageUrl = currentImageUrl;
+            }
 
             _categoryRepository.Update(entity);
             await _context.SaveChangesAsync(cancellationToken);
@@ -95,5 +103,3 @@ namespace Application.Features.Products.v1.Commands.Categories.UpdateCategory
         }
     }
 }
-
-

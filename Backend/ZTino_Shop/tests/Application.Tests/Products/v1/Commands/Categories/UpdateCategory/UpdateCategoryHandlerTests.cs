@@ -183,7 +183,7 @@ namespace Application.Tests.Products.v1.Commands.Categories.UpdateCategory
         }
 
         [Fact]
-        public async Task Handle_ShouldUpdateAndUploadImage_WhenRootCategory()
+        public async Task Handle_ShouldUpdateAndUploadImage_WhenNewImageProvided()
         {
             var dto = new UpsertCategoryDto
             {
@@ -195,7 +195,7 @@ namespace Application.Tests.Products.v1.Commands.Categories.UpdateCategory
             };
 
             var command = new UpdateCategoryCommand(dto);
-            var entity = new Category { Id = 1, Name = "Old", Slug = "old" };
+            var entity = new Category { Id = 1, Name = "Old", Slug = "old", ImageUrl = "old-url.jpg" };
 
             _categoryRepoMock
                 .Setup(r => r.GetByIdAsync(dto.Id, It.IsAny<CancellationToken>()))
@@ -210,9 +210,16 @@ namespace Application.Tests.Products.v1.Commands.Categories.UpdateCategory
 
             _fileUploadMock
                 .Setup(f => f.UploadAsync(It.IsAny<FileUploadRequest>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync("https://cdn.com/root.jpg");
+                .ReturnsAsync("https://cdn.com/new-image.jpg");
 
-            _mapperMock.Setup(m => m.Map(dto, entity));
+            _mapperMock
+                .Setup(m => m.Map(dto, entity))
+                .Callback<UpsertCategoryDto, Category>((d, e) =>
+                {
+                    e.Name = d.Name;
+                    e.Slug = d.Slug;
+                });
+
             _mapperMock.Setup(m => m.Map<UpsertCategoryDto>(entity)).Returns(dto);
 
             _contextMock
@@ -221,11 +228,64 @@ namespace Application.Tests.Products.v1.Commands.Categories.UpdateCategory
 
             var result = await _handler.Handle(command, CancellationToken.None);
 
-            Assert.Equal("Root", result.Name);
+            Assert.Equal("https://cdn.com/new-image.jpg", entity.ImageUrl);
             _categoryRepoMock.Verify(r => r.Update(entity), Times.Once);
             _fileUploadMock.Verify(f =>
                 f.UploadAsync(It.IsAny<FileUploadRequest>(), It.IsAny<CancellationToken>()),
                 Times.Once);
+        }
+
+        [Fact]
+        public async Task Handle_ShouldPreserveOldImage_WhenNoNewImageIsUploaded()
+        {
+            var dto = new UpsertCategoryDto
+            {
+                Id = 1,
+                Name = "Root Updated",
+                Slug = "root-updated",
+                ImgContent = null,
+                ImgFileName = null
+            };
+
+            var command = new UpdateCategoryCommand(dto);
+            var existingUrl = "https://cdn.com/existing-image.jpg";
+            var entity = new Category { Id = 1, Name = "Root", Slug = "root", ImageUrl = existingUrl };
+
+            _categoryRepoMock
+                .Setup(r => r.GetByIdAsync(dto.Id, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(entity);
+
+            _categoryRepoMock
+                .Setup(r => r.FindOneAsync(
+                    It.IsAny<Expression<Func<Category, bool>>>(),
+                    true,
+                    It.IsAny<CancellationToken>()))
+                .ReturnsAsync((Category?)null);
+
+            _mapperMock
+                .Setup(m => m.Map(dto, entity))
+                .Callback<UpsertCategoryDto, Category>((d, e) =>
+                {
+                    e.Name = d.Name;
+                    e.Slug = d.Slug;
+                    e.ImageUrl = null;
+                });
+
+            _mapperMock.Setup(m => m.Map<UpsertCategoryDto>(entity)).Returns(dto);
+
+            _contextMock
+                .Setup(c => c.SaveChangesAsync(It.IsAny<CancellationToken>()))
+                .ReturnsAsync(1);
+
+            await _handler.Handle(command, CancellationToken.None);
+
+            Assert.Equal(existingUrl, entity.ImageUrl);
+
+            _fileUploadMock.Verify(f =>
+                f.UploadAsync(It.IsAny<FileUploadRequest>(), It.IsAny<CancellationToken>()),
+                Times.Never);
+
+            _categoryRepoMock.Verify(r => r.Update(entity), Times.Once);
         }
     }
 }
