@@ -19,10 +19,6 @@
 
   <ItemGroup>
     <Folder Include="Features\Auth\v1\Configurations\" />
-    <Folder Include="Features\Orders\v1\DTOs\" />
-    <Folder Include="Features\Orders\v1\Expessions\" />
-    <Folder Include="Features\Orders\v1\Services\" />
-    <Folder Include="Features\Orders\v1\Queries\" />
   </ItemGroup>
 
   <ItemGroup>
