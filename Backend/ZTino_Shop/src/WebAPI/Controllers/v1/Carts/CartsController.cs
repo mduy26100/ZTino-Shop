@@ -25,8 +25,8 @@ namespace WebAPI.Controllers.v1.Carts
             return Ok(result);
         }
 
-        [HttpPut]
-        public async Task<IActionResult> UpdateCart(UpdateCartCommand command, CancellationToken cancellationToken)
+        [HttpPut("{cartId:guid}")]
+        public async Task<IActionResult> UpdateCart(Guid cartId, UpdateCartCommand command, CancellationToken cancellationToken)
         {
             var result = await _mediator.Send(command, cancellationToken);
             return Ok(result);
