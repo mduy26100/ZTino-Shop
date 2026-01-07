@@ -38,9 +38,9 @@ namespace Application.Features.Carts.v1.Commands.Carts.CreateCart
             var cart = await GetOrCreateCartAsync(dto.CartId, userId, cancellationToken);
 
             var (totalQuantity, message) = await AddToCartItemAsync(
-                cart.Id, 
-                variant, 
-                dto.Quantity, 
+                cart.Id,
+                variant,
+                dto.Quantity,
                 cancellationToken);
 
             cart.UpdatedAt = DateTime.UtcNow;
@@ -123,10 +123,6 @@ namespace Application.Features.Carts.v1.Commands.Carts.CreateCart
                 {
                     throw new ForbiddenException("You do not have permission to modify this cart.");
                 }
-            }
-            else if (userId.HasValue)
-            {
-                cart.UserId = userId;
             }
 
             return cart;
