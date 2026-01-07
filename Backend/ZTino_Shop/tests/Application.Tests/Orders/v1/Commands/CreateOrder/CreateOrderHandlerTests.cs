@@ -1,7 +1,7 @@
-﻿using Application.Features.Orders.v1.Commands.Orders.CreateOrder;
+﻿using Application.Features.Carts.v1.Repositories;
+using Application.Features.Orders.v1.Commands.Orders.CreateOrder;
 using Application.Features.Orders.v1.DTOs;
 using Application.Features.Orders.v1.Repositories;
-using Application.Features.Carts.v1.Repositories;
 using Application.Features.Products.v1.Repositories;
 using Domain.Models.Carts;
 using Domain.Models.Orders;
@@ -30,7 +30,7 @@ namespace Application.Tests.Orders.v1.Commands.CreateOrder
             );
         }
 
-        private static CreateOrderCommand CreateValidCommand(Guid cartId, int cartItemId)
+        private static CreateOrderCommand CreateCommand(Guid cartId, int cartItemId)
         {
             return new CreateOrderCommand(new CreateOrderDto
             {
@@ -86,7 +86,7 @@ namespace Application.Tests.Orders.v1.Commands.CreateOrder
                 .ReturnsAsync(new List<CartItem> { cartItem });
 
             _variantRepo.Setup(x =>
-                    x.FindOneAsync(It.IsAny<Expression<Func<ProductVariant, bool>>>(), false, It.IsAny<CancellationToken>()))
+                    x.GetWithDetailsForOrderAsync(variantId, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(variant);
 
             _cartItemRepo.Setup(x =>
@@ -94,9 +94,7 @@ namespace Application.Tests.Orders.v1.Commands.CreateOrder
                 .ReturnsAsync(new List<CartItem>());
 
             var handler = CreateHandler();
-            var command = CreateValidCommand(cartId, cartItemId);
-
-            var result = await handler.Handle(command, CancellationToken.None);
+            var result = await handler.Handle(CreateCommand(cartId, cartItemId), CancellationToken.None);
 
             Assert.NotEqual(Guid.Empty, result.OrderId);
             Assert.Equal(8, variant.StockQuantity);
@@ -107,29 +105,22 @@ namespace Application.Tests.Orders.v1.Commands.CreateOrder
         }
 
         [Fact]
-        public async Task Handle_Should_Throw_NotFound_When_Cart_Not_Exist()
+        public async Task Handle_Should_Throw_NotFound_When_Cart_Not_Found()
         {
             _cartRepo.Setup(x =>
                     x.FindOneAsync(It.IsAny<Expression<Func<Cart, bool>>>(), false, It.IsAny<CancellationToken>()))
                 .ReturnsAsync((Cart?)null);
 
             var handler = CreateHandler();
-            var command = CreateValidCommand(Guid.NewGuid(), 1);
 
             await Assert.ThrowsAsync<NotFoundException>(() =>
-                handler.Handle(command, CancellationToken.None));
+                handler.Handle(CreateCommand(Guid.NewGuid(), 1), CancellationToken.None));
         }
 
         [Fact]
-        public async Task Handle_Should_Throw_BusinessRule_When_No_CartItem_Selected()
+        public async Task Handle_Should_Throw_BusinessRule_When_No_Item_Selected()
         {
-            var cartId = Guid.NewGuid();
-
-            var cart = new Cart
-            {
-                Id = cartId,
-                IsActive = true
-            };
+            var cart = new Cart { Id = Guid.NewGuid(), IsActive = true };
 
             _cartRepo.Setup(x =>
                     x.FindOneAsync(It.IsAny<Expression<Func<Cart, bool>>>(), false, It.IsAny<CancellationToken>()))
@@ -139,7 +130,7 @@ namespace Application.Tests.Orders.v1.Commands.CreateOrder
 
             var command = new CreateOrderCommand(new CreateOrderDto
             {
-                CartId = cartId,
+                CartId = cart.Id,
                 SelectedCartItemIds = new List<int>(),
                 CustomerName = "John",
                 CustomerPhone = "0123456789",
@@ -172,10 +163,9 @@ namespace Application.Tests.Orders.v1.Commands.CreateOrder
                 .ReturnsAsync(new List<CartItem>());
 
             var handler = CreateHandler();
-            var command = CreateValidCommand(cart.Id, 99);
 
             await Assert.ThrowsAsync<NotFoundException>(() =>
-                handler.Handle(command, CancellationToken.None));
+                handler.Handle(CreateCommand(cart.Id, 99), CancellationToken.None));
         }
 
         [Fact]
@@ -208,14 +198,13 @@ namespace Application.Tests.Orders.v1.Commands.CreateOrder
                 .ReturnsAsync(new List<CartItem> { cartItem });
 
             _variantRepo.Setup(x =>
-                    x.FindOneAsync(It.IsAny<Expression<Func<ProductVariant, bool>>>(), false, It.IsAny<CancellationToken>()))
+                    x.GetWithDetailsForOrderAsync(variantId, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(variant);
 
             var handler = CreateHandler();
-            var command = CreateValidCommand(cartId, cartItem.Id);
 
             await Assert.ThrowsAsync<BusinessRuleException>(() =>
-                handler.Handle(command, CancellationToken.None));
+                handler.Handle(CreateCommand(cartId, cartItem.Id), CancellationToken.None));
         }
 
         [Fact]
@@ -254,13 +243,11 @@ namespace Application.Tests.Orders.v1.Commands.CreateOrder
                 .ReturnsAsync(new List<CartItem>());
 
             _variantRepo.Setup(x =>
-                    x.FindOneAsync(It.IsAny<Expression<Func<ProductVariant, bool>>>(), false, It.IsAny<CancellationToken>()))
+                    x.GetWithDetailsForOrderAsync(variantId, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(variant);
 
             var handler = CreateHandler();
-            var command = CreateValidCommand(cartId, cartItem.Id);
-
-            await handler.Handle(command, CancellationToken.None);
+            await handler.Handle(CreateCommand(cartId, cartItem.Id), CancellationToken.None);
 
             _cartRepo.Verify(x => x.Remove(cart), Times.Once);
         }
