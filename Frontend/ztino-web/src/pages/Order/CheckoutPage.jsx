@@ -101,22 +101,20 @@ const CheckoutPage = memo(() => {
         }
 
         const payload = {
-            dto: {
-                cartId,
-                selectedCartItemIds: selectedIds,
-                customerName: values.customerName,
-                customerPhone: values.customerPhone,
-                customerEmail: values.customerEmail || null,
-                shippingAddress: {
-                    recipientName: values.recipientName,
-                    phoneNumber: values.shippingPhoneNumber,
-                    street: values.street,
-                    ward: values.ward,
-                    district: values.district,
-                    city: values.city
-                },
-                note: values.note || null
-            }
+            cartId,
+            selectedCartItemIds: selectedIds,
+            customerName: values.customerName,
+            customerPhone: values.customerPhone,
+            customerEmail: values.customerEmail || null,
+            shippingAddress: {
+                recipientName: values.recipientName,
+                phoneNumber: values.shippingPhoneNumber,
+                street: values.street,
+                ward: values.ward,
+                district: values.district,
+                city: values.city
+            },
+            note: values.note || null
         };
 
         createOrder(payload, {
