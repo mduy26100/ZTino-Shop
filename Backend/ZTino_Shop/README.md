@@ -49,6 +49,84 @@ The API will be available at: `https://localhost:<ZTino_SHOP-PORT>/api/v1/`
 
 Swagger UI: `https://localhost:<ZTino_SHOP-PORT>/swagger`
 
+## 🐳 Docker
+
+### Quick Start with Docker
+
+The recommended way to run the backend is via Docker Compose from the project root:
+
+```bash
+# Production
+docker compose up backend --build
+
+# Development
+docker compose -f docker-compose.dev.yml up backend --build
+```
+
+### Standalone Docker Build
+
+```bash
+# Build the image
+docker build -t ztino-backend .
+
+# Run the container
+docker run -d \
+  -p 8080:8080 \
+  -e "ConnectionStrings__DefaultConnection=Server=host.docker.internal;Database=ZTinoShop;User=sa;Password=YourPassword;TrustServerCertificate=True" \
+  -e "Redis__ConnectionString=host.docker.internal:6379" \
+  --name ztino-backend \
+  ztino-backend
+```
+
+### Multi-Stage Dockerfile
+
+The Dockerfile uses a multi-stage build for optimal image size:
+
+| Stage | Base Image | Purpose |
+|-------|------------|---------|
+| `build` | `mcr.microsoft.com/dotnet/sdk:8.0` | Compile code, create migration bundle |
+| `runtime` | `mcr.microsoft.com/dotnet/aspnet:8.0-alpine` | Run the application (~100MB) |
+
+### Database Migrations
+
+Migrations run automatically when the container starts via `entrypoint.sh`:
+
+```bash
+# The entrypoint executes:
+./efbundle --connection "$ConnectionStrings__DefaultConnection"
+```
+
+The migration bundle is a self-contained executable created during the build stage, eliminating the need for .NET SDK in the runtime image.
+
+### Environment Variables in Docker
+
+| Variable | Description | Example |
+|----------|-------------|---------|
+| `ASPNETCORE_ENVIRONMENT` | Runtime environment | `Development`, `Production` |
+| `ConnectionStrings__DefaultConnection` | SQL Server connection | `Server=sqlserver;Database=...` |
+| `Redis__ConnectionString` | Redis connection | `redis:6379` |
+| `Jwt__Secret` | JWT signing key | 32+ character string |
+| `Jwt__ValidIssuer` | JWT issuer | `ZTinoShop` |
+| `Jwt__ValidAudience` | JWT audience | `ZTinoShopUsers` |
+
+### Health Check
+
+The container exposes port 8080 and the API provides health endpoints:
+
+```bash
+# Check if API is running
+curl http://localhost:8080/health
+```
+
+### Docker Networking Note
+
+> [!IMPORTANT]
+> Inside Docker, use container names as hostnames:
+> - ❌ `Server=localhost` 
+> - ✅ `Server=sqlserver`
+
+For more details, see the [Docker Guide](../../docs/docker.md).
+
 ## Project Structure
 
 ```
