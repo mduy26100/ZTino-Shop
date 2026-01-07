@@ -9,5 +9,19 @@ namespace Infrastructure.Products.Repositories
         public ProductVariantRepository(ApplicationDbContext context) : base(context)
         {
         }
+
+        public async Task<ProductVariant?> GetWithDetailsForOrderAsync(int id, CancellationToken cancellationToken = default)
+        {
+            return await _dbSet
+                .Include(v => v.Size)
+                .Include(v => v.ProductColor)
+                    .ThenInclude(pc => pc.Color)
+                .Include(v => v.ProductColor)
+                    .ThenInclude(pc => pc.Product)
+                        .ThenInclude(p => p.Category)
+                .Include(v => v.ProductColor)
+                    .ThenInclude(pc => pc.Images)
+                .FirstOrDefaultAsync(v => v.Id == id, cancellationToken);
+        }
     }
 }

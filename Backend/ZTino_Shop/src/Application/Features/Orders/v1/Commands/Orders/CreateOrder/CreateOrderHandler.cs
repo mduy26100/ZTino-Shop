@@ -148,10 +148,8 @@ namespace Application.Features.Orders.v1.Commands.Orders.CreateOrder
 
             foreach (var item in cartItems)
             {
-                var variant = await _productVariantRepository.FindOneAsync(
-                    v => v.Id == item.ProductVariantId,
-                    asNoTracking: false,
-                    cancellationToken)
+                var variant = await _productVariantRepository.GetWithDetailsForOrderAsync(
+                    item.ProductVariantId, cancellationToken)
                     ?? throw new NotFoundException($"Product variant {item.ProductVariantId} not found.");
 
                 if (!variant.IsActive)
