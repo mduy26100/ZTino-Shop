@@ -1,3 +1,4 @@
+using Infrastructure.Persistence;
 using Infrastructure.Persistence.Seeds;
 
 namespace WebAPI.DependencyInjection
@@ -14,7 +15,21 @@ namespace WebAPI.DependencyInjection
         {
             using var scope = app.Services.CreateScope();
             var services = scope.ServiceProvider;
-            await SeedIdentityData.SeedAsync(services);
+
+            try
+            {
+                var context = services.GetRequiredService<ApplicationDbContext>();
+
+                Console.WriteLine("--> Checking and applying pending migrations...");
+                await context.Database.MigrateAsync();
+                Console.WriteLine("--> Migrations applied successfully!");
+
+                await SeedIdentityData.SeedAsync(services);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"--> Error during startup: {ex.Message}");
+            }
         }
     }
 }
