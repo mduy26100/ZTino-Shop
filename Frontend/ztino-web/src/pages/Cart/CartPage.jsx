@@ -234,6 +234,7 @@ const CartPage = memo(() => {
                                 totalItems={totalItems}
                                 totalPrice={totalPrice}
                                 isLoading={isLoading}
+                                selectedItems={selectedItems}
                             />
                         </div>
                     </div>

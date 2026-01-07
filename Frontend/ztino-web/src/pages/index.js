@@ -5,3 +5,5 @@ export {default as ProductDetailPage} from "./Product/ProductDetailPage";
 export {default as LoginPage} from "./Auth/LoginPage";
 export {default as RegisterPage} from "./Auth/RegisterPage";
 export {default as CartPage} from "./Cart/CartPage";
+export {default as CheckoutPage} from "./Order/CheckoutPage";
+export {default as OrderSuccessPage} from "./Order/OrderSuccessPage";

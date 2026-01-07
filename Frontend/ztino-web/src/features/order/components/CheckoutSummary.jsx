@@ -1,40 +1,21 @@
-import React, { memo, useMemo, useCallback } from 'react';
-import { Card, Typography, Button, Divider, Statistic, message } from 'antd';
-import { ShoppingOutlined, SafetyOutlined, TruckOutlined } from '@ant-design/icons';
-import { useNavigate } from 'react-router-dom';
+import React, { memo, useMemo } from 'react';
+import { Card, Typography, Button, Divider, Statistic } from 'antd';
+import { ShoppingOutlined, SafetyOutlined, TruckOutlined, CheckCircleOutlined } from '@ant-design/icons';
 
 const { Text, Title } = Typography;
 
-const CartSummary = memo(({ 
+const CheckoutSummary = memo(({ 
     totalItems = 0, 
     totalPrice = 0,
     isLoading = false,
-    selectedItems = [],
-    onCheckout 
+    onSubmit
 }) => {
-    const navigate = useNavigate();
-
     const formattedTotalPrice = useMemo(() => {
         return new Intl.NumberFormat('vi-VN', {
             style: 'currency',
             currency: 'VND'
         }).format(totalPrice);
     }, [totalPrice]);
-
-    const handleCheckout = useCallback(() => {
-        if (onCheckout) {
-            onCheckout();
-            return;
-        }
-
-        if (!selectedItems.length) {
-            message.warning('Please select at least one item to checkout.');
-            return;
-        }
-
-        const selectedParam = selectedItems.join(',');
-        navigate(`/checkout?selected=${selectedParam}`);
-    }, [onCheckout, selectedItems, navigate]);
 
     return (
         <Card 
@@ -46,25 +27,15 @@ const CartSummary = memo(({
             </Title>
 
             <div className="space-y-3">
-                {totalItems === 0 ? (
-                    <div className="text-center py-4">
-                        <Text className="text-gray-500 text-sm">
-                            Please select items to see the order summary
-                        </Text>
-                    </div>
-                ) : (
-                    <>
-                        <div className="flex justify-between items-center">
-                            <Text className="text-gray-600">Items ({totalItems})</Text>
-                            <Text className="font-medium">{formattedTotalPrice}</Text>
-                        </div>
+                <div className="flex justify-between items-center">
+                    <Text className="text-gray-600">Items ({totalItems})</Text>
+                    <Text className="font-medium">{formattedTotalPrice}</Text>
+                </div>
 
-                        <div className="flex justify-between items-center">
-                            <Text className="text-gray-600">Shipping</Text>
-                            <Text className="text-green-600 font-medium">Free</Text>
-                        </div>
-                    </>
-                )}
+                <div className="flex justify-between items-center">
+                    <Text className="text-gray-600">Shipping</Text>
+                    <Text className="text-green-600 font-medium">Free</Text>
+                </div>
             </div>
 
             <Divider className="my-4" />
@@ -89,13 +60,13 @@ const CartSummary = memo(({
                 type="primary"
                 size="large"
                 block
-                icon={<ShoppingOutlined />}
-                onClick={handleCheckout}
+                icon={<CheckCircleOutlined />}
+                onClick={onSubmit}
                 loading={isLoading}
                 disabled={totalItems === 0}
                 className="h-12 bg-indigo-600 hover:!bg-indigo-700 border-none font-medium rounded-lg shadow-none"
             >
-                Proceed to Checkout
+                Place Order
             </Button>
 
             <div className="mt-6 space-y-3">
@@ -112,6 +83,6 @@ const CartSummary = memo(({
     );
 });
 
-CartSummary.displayName = 'CartSummary';
+CheckoutSummary.displayName = 'CheckoutSummary';
 
-export default CartSummary;
+export default CheckoutSummary;
