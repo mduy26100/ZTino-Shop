@@ -1,6 +1,8 @@
 import axiosClient from "../../../config/axiosClient";
 import { ENDPOINTS } from "../../../constants/apiEndpoints";
 
+const MY_ORDER_ENDPOINT = `${ENDPOINTS.ORDER}/my-orders`;
+
 export const createOrder = (payload) => {
     const dto = {
         cartId: payload.cartId,
@@ -20,4 +22,8 @@ export const createOrder = (payload) => {
     }
 
     return axiosClient.post(`${ENDPOINTS.ORDER}`, {dto});
+};
+
+export const getMyOrders = () => {
+    return axiosClient.get(MY_ORDER_ENDPOINT);
 };

@@ -149,7 +149,7 @@ const AppHeader = memo(() => {
 
     const userMenuItems = useMemo(() => [
         { key: 'profile', label: 'My Profile', icon: <UserOutlined /> },
-        { key: 'orders', label: 'My Orders', icon: <ShoppingOutlined /> },
+        { key: 'orders', label: 'My Orders', icon: <ShoppingOutlined />, onClick: () => navigate('/orders') },
         { type: 'divider' },
         { 
             key: 'logout', 
