@@ -9,7 +9,9 @@ import {
     CartPage, 
     CheckoutPage, 
     OrderSuccessPage,
-    OrderPage } from "../pages";
+    OrderPage,
+    OrderDetailPage 
+} from "../pages";
 import { MainLayout } from "../layouts";
 import PublicRoute from "./PublicRoute";
 import PrivateRoute from "./PrivateRoute";
@@ -53,6 +55,15 @@ const router = createBrowserRouter(
                 element={
                     <PrivateRoute>
                         <OrderPage />
+                    </PrivateRoute>
+                }
+            />
+
+            <Route 
+                path="/orders/:orderCode" 
+                element={
+                    <PrivateRoute>
+                        <OrderDetailPage />
                     </PrivateRoute>
                 }
             />

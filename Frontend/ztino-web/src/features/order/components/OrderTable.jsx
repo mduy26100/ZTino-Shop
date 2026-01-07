@@ -27,8 +27,8 @@ const OrderTable = memo(({ orders = [], loading = false }) => {
         message.success('Order code copied');
     }, []);
 
-    const handleViewDetails = useCallback((orderId) => {
-        navigate(`/orders/${orderId}`);
+    const handleViewDetails = useCallback((orderCode) => {
+        navigate(`/orders/${orderCode}`);
     }, [navigate]);
 
     const columns = useMemo(() => [
@@ -123,7 +123,7 @@ const OrderTable = memo(({ orders = [], loading = false }) => {
                 <Button
                     type="link"
                     icon={<EyeOutlined />}
-                    onClick={() => handleViewDetails(record.id)}
+                    onClick={() => handleViewDetails(record.orderCode)}
                     className="p-0"
                 >
                     Details

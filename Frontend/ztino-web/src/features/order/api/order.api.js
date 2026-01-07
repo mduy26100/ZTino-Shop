@@ -27,3 +27,7 @@ export const createOrder = (payload) => {
 export const getMyOrders = () => {
     return axiosClient.get(MY_ORDER_ENDPOINT);
 };
+
+export const getOrderDetail = (orderCode) => {
+    return axiosClient.get(`${ENDPOINTS.ORDER}/${orderCode}`);
+};

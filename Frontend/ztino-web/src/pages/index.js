@@ -8,3 +8,4 @@ export {default as CartPage} from "./Cart/CartPage";
 export {default as CheckoutPage} from "./Order/CheckoutPage";
 export {default as OrderSuccessPage} from "./Order/OrderSuccessPage";
 export {default as OrderPage} from "./Order/OrderPage";
+export {default as OrderDetailPage} from "./Order/OrderDetailPage";
