@@ -1,0 +1,127 @@
+# ============================================
+# ZTino Shop - Development Docker Compose
+# ============================================
+# Usage: docker compose -f docker-compose.dev.yml up
+# Features: Hot reload, volume mounts, source code changes reflected immediately
+# ============================================
+
+services:
+  # ============================================
+  # SQL Server Database
+  # ============================================
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: ztino-sqlserver-dev
+    environment:
+      SA_PASSWORD: ${SA_PASSWORD:-YourStrong@Passw0rd123}
+      ACCEPT_EULA: "Y"
+      MSSQL_PID: Developer
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqlserver_data_dev:/var/opt/mssql
+    healthcheck:
+      test: /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "$${SA_PASSWORD:-YourStrong@Passw0rd123}" -Q "SELECT 1" -C || exit 1
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    networks:
+      - ztino-dev-network
+
+  # ============================================
+  # Redis Cache
+  # ============================================
+  redis:
+    image: redis:alpine
+    container_name: ztino-redis-dev
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data_dev:/data
+    networks:
+      - ztino-dev-network
+
+  # ============================================
+  # Backend API (.NET 8) - Development Mode
+  # ============================================
+  backend:
+    build:
+      context: ./Backend/ZTino_Shop
+      dockerfile: Dockerfile
+    container_name: ztino-backend-dev
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Server=sqlserver;Database=ZTinoShop;User=sa;Password=${SA_PASSWORD:-YourStrong@Passw0rd123};TrustServerCertificate=True
+      - Redis__ConnectionString=redis:6379
+    ports:
+      - "5000:8080"
+    networks:
+      - ztino-dev-network
+
+  # ============================================
+  # Manager Dashboard - Development Mode (Hot Reload)
+  # ============================================
+  ztino-manager:
+    image: node:20-alpine
+    container_name: ztino-manager-dev
+    working_dir: /app
+    depends_on:
+      backend:
+        condition: service_started
+    environment:
+      - VITE_API_URL=http://localhost:5000/api/v1
+    volumes:
+      - ./Frontend/ztino-manager:/app
+      - manager_node_modules:/app/node_modules
+    command: sh -c "npm install && npm run dev -- --host 0.0.0.0"
+    ports:
+      - "5174:5173"
+    networks:
+      - ztino-dev-network
+
+  # ============================================
+  # Customer E-commerce Web - Development Mode (Hot Reload)
+  # ============================================
+  ztino-web:
+    image: node:20-alpine
+    container_name: ztino-web-dev
+    working_dir: /app
+    depends_on:
+      backend:
+        condition: service_started
+    environment:
+      - VITE_API_URL=http://localhost:5000/api/v1
+    volumes:
+      - ./Frontend/ztino-web:/app
+      - web_node_modules:/app/node_modules
+    command: sh -c "npm install && npm run dev -- --host 0.0.0.0"
+    ports:
+      - "5173:5173"
+    networks:
+      - ztino-dev-network
+
+# ============================================
+# Networks
+# ============================================
+networks:
+  ztino-dev-network:
+    driver: bridge
+
+# ============================================
+# Volumes
+# ============================================
+volumes:
+  sqlserver_data_dev:
+    driver: local
+  redis_data_dev:
+    driver: local
+  manager_node_modules:
+    driver: local
+  web_node_modules:
+    driver: local

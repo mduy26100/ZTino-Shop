@@ -1,0 +1,126 @@
+# ============================================
+# ZTino Shop - Production Docker Compose
+# ============================================
+# Usage: docker compose up --build
+# ============================================
+
+services:
+  # ============================================
+  # SQL Server Database
+  # ============================================
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: ztino-sqlserver
+    environment:
+      SA_PASSWORD: ${SA_PASSWORD:-YourStrong@Passw0rd123}
+      ACCEPT_EULA: "Y"
+      MSSQL_PID: Developer
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqlserver_data:/var/opt/mssql
+    healthcheck:
+      test: /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "$${SA_PASSWORD:-YourStrong@Passw0rd123}" -Q "SELECT 1" -C || exit 1
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    networks:
+      - ztino-network
+    restart: unless-stopped
+
+  # ============================================
+  # Redis Cache
+  # ============================================
+  redis:
+    image: redis:alpine
+    container_name: ztino-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - ztino-network
+    restart: unless-stopped
+
+  # ============================================
+  # Backend API (.NET 8)
+  # ============================================
+  backend:
+    build:
+      context: ./Backend/ZTino_Shop
+      dockerfile: Dockerfile
+    container_name: ztino-backend
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ConnectionStrings__DefaultConnection=Server=sqlserver;Database=ZTinoShop;User=sa;Password=${SA_PASSWORD:-YourStrong@Passw0rd123};TrustServerCertificate=True
+      - Redis__ConnectionString=redis:6379
+      # Add other environment variables as needed
+      # - Jwt__Secret=${JWT_SECRET}
+      # - Jwt__ValidIssuer=${JWT_ISSUER}
+      # - Jwt__ValidAudience=${JWT_AUDIENCE}
+      # - Cloudinary__CloudName=${CLOUDINARY_CLOUD_NAME}
+      # - Cloudinary__ApiKey=${CLOUDINARY_API_KEY}
+      # - Cloudinary__ApiSecret=${CLOUDINARY_API_SECRET}
+    networks:
+      - ztino-network
+    restart: unless-stopped
+
+  # ============================================
+  # Manager Dashboard (React + Vite)
+  # ============================================
+  ztino-manager:
+    build:
+      context: ./Frontend/ztino-manager
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: /api/v1
+    container_name: ztino-manager
+    depends_on:
+      backend:
+        condition: service_started
+    ports:
+      - "3001:80"
+    networks:
+      - ztino-network
+    restart: unless-stopped
+
+  # ============================================
+  # Customer E-commerce Web (React + Vite)
+  # ============================================
+  ztino-web:
+    build:
+      context: ./Frontend/ztino-web
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: /api/v1
+    container_name: ztino-web
+    depends_on:
+      backend:
+        condition: service_started
+    ports:
+      - "3000:80"
+    networks:
+      - ztino-network
+    restart: unless-stopped
+
+# ============================================
+# Networks
+# ============================================
+networks:
+  ztino-network:
+    driver: bridge
+
+# ============================================
+# Volumes (Persistent Data)
+# ============================================
+volumes:
+  sqlserver_data:
+    driver: local
+  redis_data:
+    driver: local

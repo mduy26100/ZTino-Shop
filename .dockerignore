@@ -1,0 +1,78 @@
+# ============================================
+# Docker Ignore File - ZTino Shop
+# ============================================
+# Reduces build context size and speeds up Docker builds
+# ============================================
+
+# ===== Git =====
+.git
+.gitignore
+.gitattributes
+.github
+
+# ===== IDE & Editor =====
+.idea
+.vs
+.vscode
+*.code-workspace
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# ===== Node / Frontend =====
+**/node_modules
+**/dist
+**/build
+**/.next
+**/out
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.eslintcache
+
+# ===== .NET / Backend =====
+**/bin
+**/obj
+**/out
+**/publish
+**/TestResults
+**/*.nupkg
+**/*.snupkg
+
+# ===== Environment & Secrets =====
+**/.env
+**/.env.*
+**/appsettings.json
+**/appsettings.Development.json
+**/appsettings.*.local.json
+
+# ===== Logs & Temp =====
+**/*.log
+**/*.tmp
+**/*.temp
+**/*.bak
+**/*.swp
+
+# ===== OS Generated =====
+.DS_Store
+Thumbs.db
+Desktop.ini
+$RECYCLE.BIN
+
+# ===== Documentation (optional - remove if you want docs in image) =====
+**/docs
+**/*.md
+!**/README.md
+
+# ===== Docker files that should not be in context =====
+**/Dockerfile*
+**/docker-compose*
+**/.dockerignore
+
+# ===== Test files =====
+**/tests
+**/*.Tests
+**/coverage
+**/.nyc_output
