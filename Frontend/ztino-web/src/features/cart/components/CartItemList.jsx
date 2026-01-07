@@ -12,6 +12,7 @@ const CartItemList = memo(({
     onQuantityChange, 
     onRemove,
     updatingItemId = null,
+    deletingItemId = null,
     selectedItems = [],
     onSelectedItemsChange 
 }) => {
@@ -142,6 +143,7 @@ const CartItemList = memo(({
                         onQuantityChange={onQuantityChange}
                         onRemove={onRemove}
                         isUpdating={updatingItemId === item.cartItemId}
+                        isDeleting={deletingItemId === item.cartItemId}
                         isSelected={selectedItems.includes(item.cartItemId)}
                         onSelectChange={handleItemSelectChange}
                     />

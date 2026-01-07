@@ -3,12 +3,13 @@ import { Typography, Breadcrumb, Alert, message } from 'antd';
 import { HomeOutlined, ShoppingCartOutlined } from '@ant-design/icons';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../contexts';
-import { useGetMyCart, useGetCartById, useUpdateCart, CartItemList, CartSummary } from '../../features';
+import { useGetMyCart, useGetCartById, useUpdateCart, useDeleteCart, CartItemList, CartSummary } from '../../features';
 import { getGuestCartId } from '../../utils';
 
 const { Title } = Typography;
 
 const CartPage = memo(() => {
+    const [messageApi, contextHolder] = message.useMessage();
     const { isAuthenticated, isInitialized } = useAuth();
     const [selectedItems, setSelectedItems] = useState([]);
     
@@ -69,17 +70,26 @@ const CartPage = memo(() => {
         const item = cartItems.find(i => i.cartItemId === cartItemId);
         if (!item) return;
         if (newQuantity > item.stockQuantity) {
-            message.warning(`Only ${item.stockQuantity} items available in stock`);
+            messageApi.open({
+                type: 'warning',
+                content: `Only ${item.stockQuantity} items available in stock`,
+            });
             return;
         }
 
         if (newQuantity < 1) {
-            message.warning('Quantity must be at least 1');
+            messageApi.open({
+                type: 'warning',
+                content: 'Quantity must be at least 1',
+            });
             return;
         }
 
         if (!cartId) {
-            message.error('Cart ID not found');
+            messageApi.open({
+                type: 'error',
+                content: 'Cart ID not found',
+            });
             return;
         }
 
@@ -95,16 +105,35 @@ const CartPage = memo(() => {
                     refetch();
                 },
                 onError: (error) => {
-                    message.error(error?.message || 'Failed to update cart');
-                    refetch()
+                    messageApi.open({
+                        type: 'error',
+                        content: error?.error?.message || error?.message || 'Failed to update cart',
+                    });
+                    refetch();
                 }
             }
         );
-    }, [cartItems, cartId, updateCartItem, refetch]);
+    }, [cartItems, cartId, updateCartItem, refetch, messageApi]);
 
-    const handleRemoveItem = (cartItemId) => {
-        console.log('Remove item:', cartItemId);
-    };
+    const { remove: removeCartItem, isLoading: isDeleting, deletingItemId } = useDeleteCart();
+
+    const handleRemoveItem = useCallback((cartItemId) => {
+        removeCartItem(
+            cartItemId,
+            {
+                onSuccess: () => {
+                    setSelectedItems(prev => prev.filter(id => id !== cartItemId));
+                    refetch();
+                },
+                onError: (error) => {
+                    messageApi.open({
+                        type: 'error',
+                        content: error?.error?.message || error?.message || 'Failed to remove item',
+                    });
+                }
+            }
+        );
+    }, [removeCartItem, refetch, messageApi]);
 
     const breadcrumbItems = useMemo(() => [
         {
@@ -129,6 +158,7 @@ const CartPage = memo(() => {
 
     return (
         <div className="bg-gray-50 min-h-screen py-6 sm:py-8">
+            {contextHolder}
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <Breadcrumb items={breadcrumbItems} className="mb-4 sm:mb-6" />
 
@@ -141,7 +171,7 @@ const CartPage = memo(() => {
                 {error && (
                     <Alert
                         message="Failed to load cart"
-                        description={error?.message || "An error occurred while loading your cart."}
+                        description={error?.error?.message || error?.message || "An error occurred while loading your cart."}
                         type="error"
                         showIcon
                         className="mb-6"
@@ -179,6 +209,7 @@ const CartPage = memo(() => {
                             onQuantityChange={handleQuantityChange}
                             onRemove={handleRemoveItem}
                             updatingItemId={updatingItemId}
+                            deletingItemId={deletingItemId}
                             selectedItems={selectedItems}
                             onSelectedItemsChange={handleSelectedItemsChange}
                         />
@@ -192,6 +223,7 @@ const CartPage = memo(() => {
                                 onQuantityChange={handleQuantityChange}
                                 onRemove={handleRemoveItem}
                                 updatingItemId={updatingItemId}
+                                deletingItemId={deletingItemId}
                                 selectedItems={selectedItems}
                                 onSelectedItemsChange={handleSelectedItemsChange}
                             />

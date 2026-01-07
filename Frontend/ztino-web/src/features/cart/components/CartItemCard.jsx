@@ -10,6 +10,7 @@ const CartItemCard = memo(({
     onQuantityChange, 
     onRemove, 
     isUpdating = false,
+    isDeleting = false,
     isSelected = false,
     onSelectChange 
 }) => {
@@ -153,7 +154,8 @@ const CartItemCard = memo(({
                                 danger
                                 icon={<DeleteOutlined />}
                                 onClick={handleRemove}
-                                disabled={isUpdating}
+                                disabled={isUpdating || isDeleting}
+                                loading={isDeleting}
                                 className="hidden sm:flex items-center justify-center"
                             />
                         </Tooltip>
@@ -195,7 +197,8 @@ const CartItemCard = memo(({
                                 danger
                                 icon={<DeleteOutlined />}
                                 onClick={handleRemove}
-                                disabled={isUpdating}
+                                disabled={isUpdating || isDeleting}
+                                loading={isDeleting}
                                 className="sm:hidden"
                             >
                                 Remove

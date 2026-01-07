@@ -31,3 +31,7 @@ export const updateCart = (cart) => {
 
     return axiosClient.put(`${ENDPOINTS.CART}/${cart.cartId}`, { dto });
 };
+
+export const deleteCart = (cartItemId) => {
+    return axiosClient.delete(`${ENDPOINTS.CART}/${cartItemId}`);
+};
