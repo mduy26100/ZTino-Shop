@@ -24,5 +24,15 @@ namespace Infrastructure.Orders.Services
                 .Select(OrderExpressions.OrderLookupProjection)
                 .FirstOrDefaultAsync(cancellationToken);
         }
+
+        public async Task<IEnumerable<OrderSummaryDto>> GetMyOrdersAsync(Guid userId, CancellationToken cancellationToken = default)
+        {
+            return await _context.Orders
+                .AsNoTracking()
+                .Where(x => x.UserId == userId)
+                .OrderByDescending(x => x.CreatedAt)
+                .Select(OrderExpressions.SummaryProjection)
+                .ToListAsync(cancellationToken);
+        }
     }
 }

@@ -47,5 +47,19 @@ namespace Application.Features.Orders.v1.Expressions
                     CreatedAt = h.CreatedAt
                 }).ToList()
         };
+
+        public static Expression<Func<Order, OrderSummaryDto>> SummaryProjection => order => new OrderSummaryDto
+        {
+            Id = order.Id,
+            OrderCode = order.OrderCode,
+            CreatedAt = order.CreatedAt,
+            Status = order.Status,
+            TotalAmount = order.TotalAmount,
+            PaymentStatus = order.PaymentStatus,
+            ItemCount = order.OrderItems.Count,
+            FirstProductName = order.OrderItems.FirstOrDefault() != null
+                                ? order.OrderItems.FirstOrDefault()!.ProductName
+                                : ""
+        };
     }
 }
