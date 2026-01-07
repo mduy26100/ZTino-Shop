@@ -25,6 +25,16 @@ namespace Infrastructure.Orders.Services
                 .FirstOrDefaultAsync(cancellationToken);
         }
 
+        public async Task<OrderLookupResponseDto?> GetMyOrderDetail(string orderCode, Guid userId, CancellationToken cancellationToken = default)
+        {
+            return await _context.Orders
+                .AsNoTracking()
+                .Where(x => x.OrderCode == orderCode
+                            && x.UserId == userId)
+                .Select(OrderExpressions.OrderLookupProjection)
+                .FirstOrDefaultAsync(cancellationToken);
+        }
+
         public async Task<IEnumerable<OrderSummaryDto>> GetMyOrdersAsync(Guid userId, CancellationToken cancellationToken = default)
         {
             return await _context.Orders

@@ -1,5 +1,6 @@
 ﻿using Application.Features.Orders.v1.Commands.Orders.CreateOrder;
 using Application.Features.Orders.v1.DTOs;
+using Application.Features.Orders.v1.Queries.GetMyOrderDetail;
 using Application.Features.Orders.v1.Queries.GetMyOrders;
 using Application.Features.Orders.v1.Queries.GetOrderLookup;
 
@@ -37,6 +38,15 @@ namespace WebAPI.Controllers.v1.Orders
         public async Task<IActionResult> GetMyOrders(CancellationToken cancellationToken)
         {
             var query = new GetMyOrdersQuery();
+            var result = await _mediator.Send(query, cancellationToken);
+            return Ok(result);
+        }
+
+        [HttpGet("{orderCode}")]
+        [Authorize]
+        public async Task<IActionResult> GetMyOrderDetail(string orderCode, CancellationToken cancellationToken)
+        {
+            var query = new GetMyOrderDetailQuery(orderCode);
             var result = await _mediator.Send(query, cancellationToken);
             return Ok(result);
         }
