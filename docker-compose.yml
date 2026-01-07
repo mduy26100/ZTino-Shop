@@ -1,7 +1,9 @@
 # ============================================
 # ZTino Shop - Production Docker Compose
 # ============================================
-# Usage: docker compose up --build
+# Usage: 
+#   1. Copy .env.template to .env and configure
+#   2. Run: docker compose up --build
 # ============================================
 
 services:
@@ -12,15 +14,15 @@ services:
     image: mcr.microsoft.com/mssql/server:2022-latest
     container_name: ztino-sqlserver
     environment:
-      SA_PASSWORD: ${SA_PASSWORD:-YourStrong@Passw0rd123}
+      SA_PASSWORD: ${SA_PASSWORD}
       ACCEPT_EULA: "Y"
       MSSQL_PID: Developer
     ports:
-      - "1433:1433"
+      - "${SQL_PORT:-1433}:1433"
     volumes:
       - sqlserver_data:/var/opt/mssql
     healthcheck:
-      test: /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "$${SA_PASSWORD:-YourStrong@Passw0rd123}" -Q "SELECT 1" -C || exit 1
+      test: /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "$${SA_PASSWORD}" -Q "SELECT 1" -C || exit 1
       interval: 10s
       timeout: 5s
       retries: 10
@@ -36,7 +38,7 @@ services:
     image: redis:alpine
     container_name: ztino-redis
     ports:
-      - "6379:6379"
+      - "${REDIS_PORT:-6379}:6379"
     volumes:
       - redis_data:/data
     networks:
@@ -57,16 +59,23 @@ services:
       redis:
         condition: service_started
     environment:
+      # Core Settings
       - ASPNETCORE_ENVIRONMENT=Production
-      - ConnectionStrings__DefaultConnection=Server=sqlserver;Database=ZTinoShop;User=sa;Password=${SA_PASSWORD:-YourStrong@Passw0rd123};TrustServerCertificate=True
-      - Redis__ConnectionString=redis:6379
-      # Add other environment variables as needed
-      # - Jwt__Secret=${JWT_SECRET}
-      # - Jwt__ValidIssuer=${JWT_ISSUER}
-      # - Jwt__ValidAudience=${JWT_AUDIENCE}
-      # - Cloudinary__CloudName=${CLOUDINARY_CLOUD_NAME}
-      # - Cloudinary__ApiKey=${CLOUDINARY_API_KEY}
-      # - Cloudinary__ApiSecret=${CLOUDINARY_API_SECRET}
+      - ConnectionStrings__DefaultConnection=Server=sqlserver;Database=ZTinoShop;User=sa;Password=${SA_PASSWORD};TrustServerCertificate=True
+      - Redis__ConnectionString=${REDIS_CONNECTION_STRING:-redis:6379}
+      # JWT Configuration
+      - Jwt__Secret=${JWT_SECRET:-}
+      - Jwt__ValidIssuer=${JWT_ISSUER:-}
+      - Jwt__ValidAudience=${JWT_AUDIENCE:-}
+      # Cloudinary Configuration
+      - Cloudinary__CloudName=${CLOUDINARY_CLOUD_NAME:-}
+      - Cloudinary__ApiKey=${CLOUDINARY_API_KEY:-}
+      - Cloudinary__ApiSecret=${CLOUDINARY_API_SECRET:-}
+      # OAuth Configuration
+      - Authentication__Google__ClientId=${GOOGLE_CLIENT_ID:-}
+      - Authentication__Google__ClientSecret=${GOOGLE_CLIENT_SECRET:-}
+      - Authentication__Facebook__AppId=${FACEBOOK_APP_ID:-}
+      - Authentication__Facebook__AppSecret=${FACEBOOK_APP_SECRET:-}
     networks:
       - ztino-network
     restart: unless-stopped
@@ -79,13 +88,13 @@ services:
       context: ./Frontend/ztino-manager
       dockerfile: Dockerfile
       args:
-        VITE_API_URL: /api/v1
+        VITE_API_URL: ${VITE_API_URL:-/api/v1}
     container_name: ztino-manager
     depends_on:
       backend:
         condition: service_started
     ports:
-      - "3001:80"
+      - "${MANAGER_PORT:-3001}:80"
     networks:
       - ztino-network
     restart: unless-stopped
@@ -98,13 +107,13 @@ services:
       context: ./Frontend/ztino-web
       dockerfile: Dockerfile
       args:
-        VITE_API_URL: /api/v1
+        VITE_API_URL: ${VITE_API_URL:-/api/v1}
     container_name: ztino-web
     depends_on:
       backend:
         condition: service_started
     ports:
-      - "3000:80"
+      - "${WEB_PORT:-3000}:80"
     networks:
       - ztino-network
     restart: unless-stopped

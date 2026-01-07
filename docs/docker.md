@@ -315,9 +315,15 @@ From your host machine (outside Docker), use `localhost` with the exposed port:
 
 ## Environment Variables
 
-### .env File Reference
+### .env File Setup
 
-Create a `.env` file in the project root:
+Copy the template to create your local configuration:
+
+```bash
+cp .env.template .env
+```
+
+### Variable Reference
 
 ```env
 # Required

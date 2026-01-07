@@ -128,18 +128,27 @@ cd ZTino-Shop
 
 ### Step 2: Create Environment File
 
-Create a `.env` file in the project root:
+Copy the template and configure your settings:
+
+```bash
+# Copy template to .env
+cp .env.template .env
+
+# Edit .env with your settings (at minimum, set SA_PASSWORD)
+```
+
+The `.env` file contains:
 
 ```env
-# Database
+# Database (Required)
 SA_PASSWORD=YourStrong@Passw0rd123
 
-# JWT Configuration (optional - has defaults)
+# JWT Configuration (Optional - has defaults)
 # JWT_SECRET=your-super-secret-key-here
 # JWT_ISSUER=ZTinoShop
 # JWT_AUDIENCE=ZTinoShopUsers
 
-# Cloudinary (optional - for image uploads)
+# Cloudinary (Optional - for image uploads)
 # CLOUDINARY_CLOUD_NAME=your-cloud-name
 # CLOUDINARY_API_KEY=your-api-key
 # CLOUDINARY_API_SECRET=your-api-secret
@@ -264,7 +273,8 @@ ZTino-Shop/
 │
 ├── 📄 docker-compose.yml        # Production Docker config
 ├── 📄 docker-compose.dev.yml    # Development Docker config
-├── 📄 .env                      # Environment variables (create this)
+├── 📄 .env.template             # Environment variables template
+├── 📄 .env                      # Your local config (copy from .env.template)
 │
 └── 📄 README.md                 # This file
 ```
@@ -297,17 +307,44 @@ ZTino-Shop/
 
 ## 🔐 Environment Variables
 
-Create a `.env` file in the project root with these variables:
+Copy `.env.template` to `.env` and configure:
 
-| Variable | Required | Default | Description |
-|----------|----------|---------|-------------|
-| `SA_PASSWORD` | Yes | `YourStrong@Passw0rd123` | SQL Server SA password |
-| `JWT_SECRET` | No | (from appsettings) | JWT signing key |
-| `JWT_ISSUER` | No | (from appsettings) | JWT issuer |
-| `JWT_AUDIENCE` | No | (from appsettings) | JWT audience |
-| `CLOUDINARY_CLOUD_NAME` | No | - | Cloudinary cloud name |
-| `CLOUDINARY_API_KEY` | No | - | Cloudinary API key |
-| `CLOUDINARY_API_SECRET` | No | - | Cloudinary API secret |
+```bash
+cp .env.template .env
+```
+
+### Required Variables
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `SA_PASSWORD` | - | SQL Server SA password (required) |
+
+### Optional Variables
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `JWT_SECRET` | (from appsettings) | JWT signing key |
+| `JWT_ISSUER` | (from appsettings) | JWT issuer |
+| `JWT_AUDIENCE` | (from appsettings) | JWT audience |
+| `CLOUDINARY_CLOUD_NAME` | - | Cloudinary cloud name |
+| `CLOUDINARY_API_KEY` | - | Cloudinary API key |
+| `CLOUDINARY_API_SECRET` | - | Cloudinary API secret |
+| `GOOGLE_CLIENT_ID` | - | Google OAuth client ID |
+| `GOOGLE_CLIENT_SECRET` | - | Google OAuth client secret |
+| `FACEBOOK_APP_ID` | - | Facebook OAuth app ID |
+| `FACEBOOK_APP_SECRET` | - | Facebook OAuth app secret |
+
+### Port Configuration (Optional)
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `SQL_PORT` | 1433 | SQL Server host port |
+| `REDIS_PORT` | 6379 | Redis host port |
+| `BACKEND_PORT` | 5000 | Backend API host port (dev) |
+| `MANAGER_PORT` | 3001 | Manager dashboard port (prod) |
+| `MANAGER_DEV_PORT` | 5174 | Manager dashboard port (dev) |
+| `WEB_PORT` | 3000 | Customer web port (prod) |
+| `WEB_DEV_PORT` | 5173 | Customer web port (dev) |
 
 > [!CAUTION]
 > Never commit `.env` files to version control. The `.gitignore` already excludes them.
