@@ -15,10 +15,19 @@ export const createCart = (cart) => {
         quantity: cart.quantity,
     };
 
-    // Only include cartId if provided (for guest cart or merge scenario)
     if (cart.cartId) {
         dto.cartId = cart.cartId;
     }
 
     return axiosClient.post(`${ENDPOINTS.CART}`, { dto });
+};
+
+export const updateCart = (cart) => {
+    const dto = {
+        cartId: cart.cartId,
+        productVariantId: cart.productVariantId,
+        quantity: cart.quantity,
+    };
+
+    return axiosClient.put(`${ENDPOINTS.CART}/${cart.cartId}`, { dto });
 };

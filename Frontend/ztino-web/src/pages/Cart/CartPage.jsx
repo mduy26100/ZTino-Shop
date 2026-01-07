@@ -1,9 +1,9 @@
 import React, { memo, useMemo, useState, useCallback } from 'react';
-import { Typography, Breadcrumb, Alert } from 'antd';
+import { Typography, Breadcrumb, Alert, message } from 'antd';
 import { HomeOutlined, ShoppingCartOutlined } from '@ant-design/icons';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../contexts';
-import { useGetMyCart, useGetCartById, CartItemList, CartSummary } from '../../features';
+import { useGetMyCart, useGetCartById, useUpdateCart, CartItemList, CartSummary } from '../../features';
 import { getGuestCartId } from '../../utils';
 
 const { Title } = Typography;
@@ -56,9 +56,51 @@ const CartPage = memo(() => {
         setSelectedItems(newSelectedItems);
     }, []);
 
-    const handleQuantityChange = (cartItemId, newQuantity) => {
-        console.log('Quantity change:', cartItemId, newQuantity);
-    };
+    const cartId = useMemo(() => {
+        if (isAuthenticated) {
+            return data?.cartId || data?.id;
+        }
+        return guestCartId;
+    }, [isAuthenticated, data?.cartId, data?.id, guestCartId]);
+
+    const { update: updateCartItem, isLoading: isUpdating, updatingItemId } = useUpdateCart();
+
+    const handleQuantityChange = useCallback((cartItemId, newQuantity, productVariantId) => {
+        const item = cartItems.find(i => i.cartItemId === cartItemId);
+        if (!item) return;
+        if (newQuantity > item.stockQuantity) {
+            message.warning(`Only ${item.stockQuantity} items available in stock`);
+            return;
+        }
+
+        if (newQuantity < 1) {
+            message.warning('Quantity must be at least 1');
+            return;
+        }
+
+        if (!cartId) {
+            message.error('Cart ID not found');
+            return;
+        }
+
+        updateCartItem(
+            {
+                cartId,
+                cartItemId,
+                productVariantId,
+                quantity: newQuantity
+            },
+            {
+                onSuccess: () => {
+                    refetch();
+                },
+                onError: (error) => {
+                    message.error(error?.message || 'Failed to update cart');
+                    refetch()
+                }
+            }
+        );
+    }, [cartItems, cartId, updateCartItem, refetch]);
 
     const handleRemoveItem = (cartItemId) => {
         console.log('Remove item:', cartItemId);
@@ -136,6 +178,7 @@ const CartPage = memo(() => {
                             isLoading={false}
                             onQuantityChange={handleQuantityChange}
                             onRemove={handleRemoveItem}
+                            updatingItemId={updatingItemId}
                             selectedItems={selectedItems}
                             onSelectedItemsChange={handleSelectedItemsChange}
                         />
@@ -148,6 +191,7 @@ const CartPage = memo(() => {
                                 isLoading={isLoading || !isInitialized}
                                 onQuantityChange={handleQuantityChange}
                                 onRemove={handleRemoveItem}
+                                updatingItemId={updatingItemId}
                                 selectedItems={selectedItems}
                                 onSelectedItemsChange={handleSelectedItemsChange}
                             />

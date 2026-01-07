@@ -11,7 +11,7 @@ const CartItemList = memo(({
     isLoading = false, 
     onQuantityChange, 
     onRemove,
-    isUpdating = false,
+    updatingItemId = null,
     selectedItems = [],
     onSelectedItemsChange 
 }) => {
@@ -25,7 +25,6 @@ const CartItemList = memo(({
         });
     }, [items]);
 
-    // Get available items for "select all" logic
     const availableItems = useMemo(() => {
         return items.filter(item => item.isAvailable && item.stockQuantity > 0);
     }, [items]);
@@ -142,7 +141,7 @@ const CartItemList = memo(({
                         item={item}
                         onQuantityChange={onQuantityChange}
                         onRemove={onRemove}
-                        isUpdating={isUpdating}
+                        isUpdating={updatingItemId === item.cartItemId}
                         isSelected={selectedItems.includes(item.cartItemId)}
                         onSelectChange={handleItemSelectChange}
                     />

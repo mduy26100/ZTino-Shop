@@ -1,4 +1,4 @@
-import React, { memo, useMemo, useCallback } from 'react';
+import React, { memo, useMemo, useCallback, useState, useEffect } from 'react';
 import { Card, Image, Typography, InputNumber, Button, Tag, Tooltip, Checkbox } from 'antd';
 import { DeleteOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
 import { Link } from 'react-router-dom';
@@ -24,8 +24,29 @@ const CartItemCard = memo(({
         unitPrice,
         itemTotal,
         stockQuantity,
-        isAvailable
+        isAvailable,
+        productVariantId
     } = item;
+
+    const [localQty, setLocalQty] = useState(quantity);
+
+    useEffect(() => {
+        setLocalQty(quantity);
+    }, [quantity]);
+
+    useEffect(() => {
+        if (localQty === quantity) return;
+        
+        if (localQty < 1 || localQty > stockQuantity) return;
+
+        const timer = setTimeout(() => {
+            if (onQuantityChange) {
+                onQuantityChange(cartItemId, localQty, productVariantId);
+            }
+        }, 400);
+
+        return () => clearTimeout(timer);
+    }, [localQty, quantity, cartItemId, productVariantId, stockQuantity, onQuantityChange]);
 
     const formattedUnitPrice = useMemo(() => {
         return new Intl.NumberFormat('vi-VN', {
@@ -38,14 +59,14 @@ const CartItemCard = memo(({
         return new Intl.NumberFormat('vi-VN', {
             style: 'currency',
             currency: 'VND'
-        }).format(itemTotal);
-    }, [itemTotal]);
+        }).format(localQty * unitPrice);
+    }, [localQty, unitPrice]);
 
-    const handleQuantityChange = useCallback((value) => {
-        if (onQuantityChange && value !== quantity) {
-            onQuantityChange(cartItemId, value);
+    const handleLocalQuantityChange = useCallback((value) => {
+        if (value !== null && value >= 1) {
+            setLocalQty(Math.min(value, stockQuantity));
         }
-    }, [cartItemId, quantity, onQuantityChange]);
+    }, [stockQuantity]);
 
     const handleRemove = useCallback(() => {
         if (onRemove) {
@@ -61,6 +82,7 @@ const CartItemCard = memo(({
 
     const isOutOfStock = !isAvailable || stockQuantity === 0;
     const isLowStock = stockQuantity > 0 && stockQuantity <= 5;
+    const isAtMaxStock = localQty >= stockQuantity;
 
     return (
         <Card 
@@ -143,11 +165,14 @@ const CartItemCard = memo(({
                             <InputNumber
                                 min={1}
                                 max={stockQuantity}
-                                value={quantity}
-                                onChange={handleQuantityChange}
+                                value={localQty}
+                                onChange={handleLocalQuantityChange}
                                 disabled={isOutOfStock || isUpdating}
                                 size="middle"
                                 className="w-20"
+                                controls={{
+                                    upIcon: isAtMaxStock ? null : undefined,
+                                }}
                             />
                             {isLowStock && (
                                 <Tag color="orange" className="flex items-center gap-1">
