@@ -20,6 +20,7 @@ namespace WebAPI.DependencyInjection.Features
 
             // Services
             services.AddScoped<IProductQueryService, ProductQueryService>();
+            services.AddScoped<IStockService, StockService>();
 
             return services;
         }

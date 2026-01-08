@@ -68,6 +68,8 @@ namespace WebAPI.DependencyInjection
             services.AddProductsFeature();
             services.AddCartsFeature();
             services.AddOrdersFeature();
+            services.AddFinancesFeature();
+            services.AddStatsFeature();
             return services;
         }
 

@@ -18,6 +18,7 @@ namespace WebAPI.DependencyInjection.Features
 
             // Services
             services.AddScoped<IOrderQueryService, OrderQueryService>();
+            services.AddScoped<IOrderStatusService, OrderStatusService>();
 
             return services;
         }
