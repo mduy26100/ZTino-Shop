@@ -16,3 +16,4 @@ export { default as SizePage } from './Product/SizePage';
 
 // Order Pages
 export { default as OrderPage } from './Orders/OrderPage';
+export { default as OrderDetailPage } from './Orders/OrderDetailPage';
