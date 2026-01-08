@@ -15,5 +15,6 @@ export const ENDPOINTS = {
     PRODUCT_VARIANTS: "/admin/product-variants",
     PRODUCT_IMAGES: "/admin/product-images",
     PRODUCT_COLORS: "/admin/product-colors",
+    ORDER: "/admin/orders",
   },
 };

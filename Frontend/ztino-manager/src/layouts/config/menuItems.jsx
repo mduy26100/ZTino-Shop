@@ -31,7 +31,6 @@ export const MENU_ITEMS = [
     label: 'Orders',
     icon: ShoppingCartIcon,
     roles: ['Manager'],
-    comingSoon: true,
   },
   {
     type: 'divider',

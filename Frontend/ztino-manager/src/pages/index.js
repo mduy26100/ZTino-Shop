@@ -13,3 +13,6 @@ export { default as ProductDetailPage } from './Product/ProductDetailPage';
 export { default as CategoryPage } from './Product/CategoryPage';
 export { default as ColorPage } from './Product/ColorPage';
 export { default as SizePage } from './Product/SizePage';
+
+// Order Pages
+export { default as OrderPage } from './Orders/OrderPage';

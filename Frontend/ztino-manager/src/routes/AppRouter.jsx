@@ -7,7 +7,8 @@ import {
     ColorPage, 
     ProductDetailPage, 
     ProductPage, 
-    SizePage 
+    SizePage, 
+    OrderPage
 } from "../pages";
 import { PrivateRoute, PublicRoute } from ".";
 import { createBrowserRouter, createRoutesFromElements, Navigate, Route, RouterProvider } from "react-router-dom";
@@ -43,6 +44,8 @@ const router = createBrowserRouter(
             <Route path="categories" element={<CategoryPage />} />
             <Route path="colors" element={<ColorPage />} />
             <Route path="sizes" element={<SizePage />} />
+
+            <Route path="orders" element={<OrderPage />} />
         </Route>
         </>
     )
