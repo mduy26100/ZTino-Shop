@@ -53,5 +53,14 @@ namespace Infrastructure.Orders.Services
                 .Select(OrderExpressions.SummaryProjection)
                 .ToListAsync(cancellationToken);
         }
+
+        public async Task<OrderLookupResponseDto?> GetOrderDetail(string orderCode, CancellationToken cancellationToken = default)
+        {
+            return await _context.Orders
+                .AsNoTracking()
+                .Where(x => x.OrderCode == orderCode)
+                .Select(OrderExpressions.OrderLookupProjection)
+                .FirstOrDefaultAsync(cancellationToken);
+        }
     }
 }

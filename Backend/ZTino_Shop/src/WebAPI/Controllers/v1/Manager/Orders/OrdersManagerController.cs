@@ -1,4 +1,5 @@
 ﻿using Application.Features.Orders.v1.Queries.GetAllOrders;
+using Application.Features.Orders.v1.Queries.GetOrderDetail;
 using Domain.Consts;
 
 namespace WebAPI.Controllers.v1.Manager.Orders
@@ -20,6 +21,14 @@ namespace WebAPI.Controllers.v1.Manager.Orders
         public async Task<IActionResult> GetAllOrders(CancellationToken cancellationToken)
         {
             var query = new GetAllOrdersQuery();
+            var result = await _mediator.Send(query, cancellationToken);
+            return Ok(result);
+        }
+
+        [HttpGet("{orderCode}")]
+        public async Task<IActionResult> GetOrderDetail(string orderCode, CancellationToken cancellationToken)
+        {
+            var query = new GetOrderDetailQuery(orderCode);
             var result = await _mediator.Send(query, cancellationToken);
             return Ok(result);
         }
