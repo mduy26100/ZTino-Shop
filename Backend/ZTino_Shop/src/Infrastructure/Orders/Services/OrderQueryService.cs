@@ -14,6 +14,15 @@ namespace Infrastructure.Orders.Services
             _context = context;
         }
 
+        public async Task<IEnumerable<OrderSummaryDto>> GetAllOrdersAsync(CancellationToken cancellationToken = default)
+        {
+            return await _context.Orders
+                .AsNoTracking()
+                .OrderByDescending(x => x.CreatedAt)
+                .Select(OrderExpressions.SummaryProjection)
+                .ToListAsync(cancellationToken);
+        }
+
         public async Task<OrderLookupResponseDto?> GetGuestOrderByCodeAndPhoneAsync(string orderCode, string phoneNumber, CancellationToken cancellationToken = default)
         {
             return await _context.Orders
