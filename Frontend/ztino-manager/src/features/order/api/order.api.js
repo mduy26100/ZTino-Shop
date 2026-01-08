@@ -8,3 +8,14 @@ export const getAllOrders = () => {
 export const getOrderDetail = (orderCode) => {
     return axiosClient.get(`${ENDPOINTS.ADMIN.ORDER}/${orderCode}`);
 };
+
+export const updateOrderStatus = (payload) => {
+    const dto = {
+        orderId: payload.orderId,
+        newStatus: payload.newStatus,
+        note: payload.note,
+        cancelReason: payload.cancelReason
+    }
+
+    return axiosClient.put(`${ENDPOINTS.ADMIN.ORDER}/${payload.orderId}`, {dto});
+};
