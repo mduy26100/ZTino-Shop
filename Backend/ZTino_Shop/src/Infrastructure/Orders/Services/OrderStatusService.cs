@@ -73,19 +73,15 @@ namespace Infrastructure.Orders.Services
 
         private async Task ProcessDeliveryAsync(Order order, CancellationToken cancellationToken)
         {
-            // Handle COD payment
             if (order.PaymentMethod == PaymentMethod.COD)
             {
                 order.PaymentStatus = PaymentStatus.Completed;
             }
 
-            // Create or update payment record
             await UpsertOrderPaymentAsync(order, PaymentStatus.Completed, cancellationToken);
 
-            // Create or update invoice
             await _invoiceService.UpsertInvoiceAsync(order, cancellationToken);
 
-            // Update statistics
             await _salesStatsService.UpdateDailyRevenueStatsAsync(order, cancellationToken);
             await _salesStatsService.UpdateProductSalesStatsAsync(order.OrderItems, cancellationToken);
         }
@@ -94,10 +90,8 @@ namespace Infrastructure.Orders.Services
         {
             order.PaymentStatus = PaymentStatus.Failed;
 
-            // Update payment status if exists
             UpdateExistingPaymentStatus(order);
 
-            // Restore stock
             await _stockService.RestoreStockAsync(order.OrderItems, cancellationToken);
         }
 
@@ -105,10 +99,8 @@ namespace Infrastructure.Orders.Services
         {
             order.PaymentStatus = PaymentStatus.Refunded;
 
-            // Update payment status if exists
             UpdateExistingPaymentStatus(order);
 
-            // Restore stock
             await _stockService.RestoreStockAsync(order.OrderItems, cancellationToken);
         }
 

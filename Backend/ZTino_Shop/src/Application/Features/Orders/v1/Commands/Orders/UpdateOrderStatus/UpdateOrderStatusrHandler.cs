@@ -32,14 +32,11 @@ namespace Application.Features.Orders.v1.Commands.Orders.UpdateOrderStatus
         {
             var dto = request.Dto;
 
-            // 1. Get order with all related data
             var order = await _orderRepository.GetWithDetailsForUpdateAsync(dto.OrderId, cancellationToken)
                 ?? throw new NotFoundException($"Order with ID {dto.OrderId} not found.");
 
-            // 2. Validate status transition
             _orderStatusService.ValidateStatusTransition(order.Status, dto.NewStatus);
 
-            // 3. Update order status
             order.Status = dto.NewStatus;
             order.UpdatedAt = DateTime.UtcNow;
 
@@ -48,13 +45,10 @@ namespace Application.Features.Orders.v1.Commands.Orders.UpdateOrderStatus
                 order.CancelReason = dto.CancelReason;
             }
 
-            // 4. Add status history
             await AddStatusHistoryAsync(order.Id, dto.NewStatus, dto.Note, cancellationToken);
 
-            // 5. Process status-specific actions (delivery, cancellation, return)
             await _orderStatusService.ProcessStatusChangeAsync(order, dto.NewStatus, cancellationToken);
 
-            // 6. Save all changes
             await _context.SaveChangesAsync(cancellationToken);
 
             return new UpdateOrderResponseDto

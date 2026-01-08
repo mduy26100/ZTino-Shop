@@ -55,7 +55,6 @@ namespace Infrastructure.Stats.Services
 
         public async Task UpdateProductSalesStatsAsync(ICollection<OrderItem> orderItems, CancellationToken cancellationToken = default)
         {
-            // Group items by ProductId to avoid duplicate key insertion
             var groupedItems = orderItems
                 .GroupBy(item => item.ProductId)
                 .Select(group => new
