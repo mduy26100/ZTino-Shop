@@ -10,3 +10,5 @@ export { default as OrderDetailInfo } from './OrderDetailInfo';
 export { default as OrderDetailItems } from './OrderDetailItems';
 export { default as OrderDetailSummary } from './OrderDetailSummary';
 export { default as OrderDetailHistory } from './OrderDetailHistory';
+export { default as UpdateStatusButton } from './UpdateStatusButton';
+export { default as UpdateStatusModal } from './UpdateStatusModal';

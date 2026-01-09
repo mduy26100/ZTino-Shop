@@ -1,8 +1,8 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
-import { Spin, Alert, Button, Row, Col } from 'antd';
+import { Spin, Alert, Button, Row, Col, message } from 'antd';
 import { ReloadOutlined } from '@ant-design/icons';
-import { useGetOrderDetail } from '../../features/order';
+import { useGetOrderDetail, useUpdateMyOrderStatus } from '../../features/order';
 import { 
     OrderDetailHeader,
     OrderDetailInfo,
@@ -13,7 +13,9 @@ import {
 
 const OrderDetailPage = () => {
     const { orderCode } = useParams();
+    const [messageApi, contextHolder] = message.useMessage();
     const { data: order, isLoading, error, refetch } = useGetOrderDetail(orderCode);
+    const { updateStatus, isUpdating } = useUpdateMyOrderStatus();
 
     const items = useMemo(() => {
         return order?.items || [];
@@ -23,9 +25,33 @@ const OrderDetailPage = () => {
         return order?.histories || [];
     }, [order]);
 
+    const handleUpdateStatus = useCallback((payload, options = {}) => {
+        const { onSuccess: externalOnSuccess } = options;
+
+        updateStatus(payload, {
+            onSuccess: (response) => {
+                messageApi.open({
+                    type: 'success',
+                    content: response?.message || 'Order status updated successfully',
+                });
+                refetch();
+                if (typeof externalOnSuccess === 'function') {
+                    externalOnSuccess(response);
+                }
+            },
+            onError: (error) => {
+                messageApi.open({
+                    type: 'error',
+                    content: error?.error?.message || error?.message || 'Failed to update order status',
+                });
+            }
+        });
+    }, [updateStatus, refetch, messageApi]);
+
     if (isLoading) {
         return (
             <div className="container mx-auto px-4 py-8">
+                {contextHolder}
                 <div className="flex justify-center items-center py-20">
                     <Spin size="large" tip="Loading order details..." />
                 </div>
@@ -36,6 +62,7 @@ const OrderDetailPage = () => {
     if (error) {
         return (
             <div className="container mx-auto px-4 py-8">
+                {contextHolder}
                 <Alert
                     type="error"
                     message="Failed to load order"
@@ -58,6 +85,7 @@ const OrderDetailPage = () => {
     if (!order) {
         return (
             <div className="container mx-auto px-4 py-8">
+                {contextHolder}
                 <Alert
                     type="warning"
                     message="Order not found"
@@ -70,7 +98,13 @@ const OrderDetailPage = () => {
 
     return (
         <div className="container mx-auto px-4 py-8 max-w-7xl">
-            <OrderDetailHeader order={order} onRefresh={refetch} />
+            {contextHolder}
+            <OrderDetailHeader 
+                order={order} 
+                onRefresh={refetch}
+                onUpdateStatus={handleUpdateStatus}
+                isUpdating={isUpdating}
+            />
 
             <Row gutter={[24, 24]}>
                 <Col xs={24} xl={16}>

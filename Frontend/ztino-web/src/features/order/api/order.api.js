@@ -31,3 +31,14 @@ export const getMyOrders = () => {
 export const getOrderDetail = (orderCode) => {
     return axiosClient.get(`${ENDPOINTS.ORDER}/${orderCode}`);
 };
+
+export const updateMyOrderStatus = (payload) => {
+    const dto = {
+        orderId: payload.orderId,
+        newStatus: payload.newStatus,
+        note: payload.note,
+        cancelReason: payload.cancelReason
+    }
+
+    return axiosClient.patch(`${ENDPOINTS.ORDER}/${payload.orderId}/status`, {dto});
+};
