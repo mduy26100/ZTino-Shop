@@ -17,5 +17,5 @@ export const updateOrderStatus = (payload) => {
         cancelReason: payload.cancelReason
     }
 
-    return axiosClient.put(`${ENDPOINTS.ADMIN.ORDER}/${payload.orderId}`, {dto});
+    return axiosClient.patch(`${ENDPOINTS.ADMIN.ORDER}/${payload.orderId}`, {dto});
 };
