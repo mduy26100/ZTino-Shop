@@ -6,5 +6,6 @@ namespace Application.Features.Orders.v1.Repositories
     {
         Task<bool> HasPreviousDeliveredOrdersAsync(Guid? userId, Guid excludeOrderId, CancellationToken cancellationToken = default);
         Task<Order?> GetWithDetailsForUpdateAsync(Guid orderId, CancellationToken cancellationToken = default);
+        Task<Order?> GetByIdAndUserIdAsync(Guid orderId, Guid userId, CancellationToken cancellationToken = default);
     }
 }

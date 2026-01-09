@@ -1,4 +1,5 @@
 ﻿using Application.Features.Orders.v1.Commands.Orders.CreateOrder;
+using Application.Features.Orders.v1.Commands.Orders.UpdateMyOrderStatus;
 using Application.Features.Orders.v1.DTOs;
 using Application.Features.Orders.v1.Queries.GetMyOrderDetail;
 using Application.Features.Orders.v1.Queries.GetMyOrders;
@@ -48,6 +49,17 @@ namespace WebAPI.Controllers.v1.Orders
         {
             var query = new GetMyOrderDetailQuery(orderCode);
             var result = await _mediator.Send(query, cancellationToken);
+            return Ok(result);
+        }
+
+        [HttpPatch("{orderId:guid}/status")]
+        [Authorize]
+        public async Task<IActionResult> UpdateMyOrderStatus(
+            Guid orderId,
+            UpdateMyOrderStatusCommand command,
+            CancellationToken cancellationToken)
+        {
+            var result = await _mediator.Send(command, cancellationToken);
             return Ok(result);
         }
     }

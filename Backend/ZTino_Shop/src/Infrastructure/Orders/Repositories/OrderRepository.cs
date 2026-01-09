@@ -40,5 +40,19 @@ namespace Infrastructure.Orders.Repositories
                 .Include(o => o.Invoice)
                 .FirstOrDefaultAsync(o => o.Id == orderId, cancellationToken);
         }
+
+        public async Task<Order?> GetByIdAndUserIdAsync(
+            Guid orderId,
+            Guid userId,
+            CancellationToken cancellationToken = default)
+        {
+            return await _dbSet
+                .Include(o => o.OrderItems)
+                .Include(o => o.Payments)
+                .Include(o => o.Invoice)
+                .FirstOrDefaultAsync(
+                    o => o.Id == orderId && o.UserId == userId,
+                    cancellationToken);
+        }
     }
 }
