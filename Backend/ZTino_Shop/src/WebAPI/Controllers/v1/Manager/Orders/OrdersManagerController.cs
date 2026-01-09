@@ -34,7 +34,7 @@ namespace WebAPI.Controllers.v1.Manager.Orders
             return Ok(result);
         }
 
-        [HttpPut("{orderId:guid}")]
+        [HttpPatch("{orderId:guid}")]
         public async Task<IActionResult> UpdateOrderStatus(Guid orderId, UpdateOrderStatusCommand command, CancellationToken cancellationToken)
         {
             var result = await _mediator.Send(command, cancellationToken);
