@@ -1,3 +1,4 @@
+using Application.Common.Abstractions.Security;
 using Infrastructure.Persistence;
 using Infrastructure.Persistence.Seeds;
 
@@ -19,12 +20,14 @@ namespace WebAPI.DependencyInjection
             try
             {
                 var context = services.GetRequiredService<ApplicationDbContext>();
+                var encryptionService = services.GetRequiredService<IEncryptionService>();
 
                 Console.WriteLine("--> Checking and applying pending migrations...");
                 await context.Database.MigrateAsync();
                 Console.WriteLine("--> Migrations applied successfully!");
 
                 await SeedIdentityData.SeedAsync(services);
+                await AppSettingSeeder.SeedAsync(context, encryptionService);
             }
             catch (Exception ex)
             {
