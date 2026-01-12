@@ -71,6 +71,7 @@ namespace WebAPI.DependencyInjection
             services.AddOrdersFeature();
             services.AddFinancesFeature();
             services.AddStatsFeature();
+            services.AddAppSettingsFeature();
             return services;
         }
 
