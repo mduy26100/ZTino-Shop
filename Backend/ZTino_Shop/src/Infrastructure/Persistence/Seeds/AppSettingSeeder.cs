@@ -8,8 +8,8 @@ namespace Infrastructure.Persistence.Seeds
     {
         public static async Task SeedAsync(ApplicationDbContext context, IEncryptionService encryptionService)
         {
-            var group = AppSettingConstants.Groups.GeminiAI;
-            var key = AppSettingConstants.Keys.GeminiFlashApiKey;
+            var group = AppSettingConstants.Gemini.Group;
+            var key = AppSettingConstants.Gemini.Keys.FlashApiKey;
 
             var isExist = await context.AppSettings
                 .AnyAsync(x => x.Group == group && x.Key == key);
