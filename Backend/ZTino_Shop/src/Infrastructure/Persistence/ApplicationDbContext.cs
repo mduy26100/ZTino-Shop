@@ -1,10 +1,12 @@
 using Application.Common.Abstractions.Persistence;
+using Domain.Models.AppSettings;
 using Domain.Models.Carts;
 using Domain.Models.Finances;
 using Domain.Models.Orders;
 using Domain.Models.Products;
 using Domain.Models.Stats;
 using Infrastructure.Auth.Models;
+using Infrastructure.Persistence.Configurations.AppSettings;
 using Infrastructure.Persistence.Configurations.Auth;
 using Infrastructure.Persistence.Configurations.Carts;
 using Infrastructure.Persistence.Configurations.Finances;
@@ -59,6 +61,9 @@ namespace Infrastructure.Persistence
             // Stats
             builder.ApplyConfiguration(new DailyRevenueStatsConfiguration());
             builder.ApplyConfiguration(new ProductSalesStatsConfiguration());
+
+            //AppSettings
+            builder.ApplyConfiguration(new AppSettingConfiguration());
         }
 
 
@@ -96,5 +101,8 @@ namespace Infrastructure.Persistence
         // Stats
         public DbSet<DailyRevenueStats> DailyRevenueStats { get; set; }
         public DbSet<ProductSalesStats> ProductSalesStats { get; set; }
+
+        // AppSettings
+        public DbSet<AppSetting> AppSettings { get; set; }
     }
 }
