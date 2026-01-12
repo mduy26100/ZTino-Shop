@@ -1,30 +1,7 @@
-import { useState, useCallback } from 'react';
+import { useMutation } from '../../../../hooks/utils';
 import { deleteColor } from '../../api';
 
 export const useDeleteColor = () => {
-    const [isDeleting, setIsDeleting] = useState(false);
-
-    const remove = useCallback(async (id, options = {}) => {
-        const { onSuccess, onError } = options;
-        
-        setIsDeleting(true);
-        try {
-            const response = await deleteColor(id);
-            
-            if (onSuccess) {
-                onSuccess(response);
-            }
-            
-            return response;
-        } catch (error) {
-            if (onError) {
-                onError(error);
-            }
-            throw error;
-        } finally {
-            setIsDeleting(false);
-        }
-    }, []);
-
-    return { remove, isDeleting };
+    const { mutate, isLoading } = useMutation(deleteColor);
+    return { remove: mutate, isDeleting: isLoading };
 };
