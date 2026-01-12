@@ -3,6 +3,7 @@ import {
     getToken, getUser, setToken, setUser as setStorageUser, clearAuth, 
 } from '../utils/localStorage';
 import { isTokenExpired } from '../utils/jwtDecode';
+import { clearGlobalCache } from '../hooks/utils';
 
 const AuthContext = createContext(null);
 
@@ -34,6 +35,7 @@ export const AuthProvider = ({ children }) => {
 
     const handleLogout = () => {
         clearAuth();
+        clearGlobalCache();
         setUser(null);
     };
 

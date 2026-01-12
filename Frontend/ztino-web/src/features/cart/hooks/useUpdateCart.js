@@ -1,28 +1,16 @@
-import { useState, useCallback } from 'react';
+import { useMutation, invalidateCartCacheByAuth } from '../../../hooks/utils';
 import { useAuth } from '../../../contexts';
-import { getGuestCartId } from '../../../utils';
-import { invalidateMyCartCache } from './useGetMyCart';
-import { invalidateGuestCartCache } from './useGetCartById';
 import { updateCart } from '../api';
 
 export const useUpdateCart = () => {
-    const [isLoading, setIsLoading] = useState(false);
-    const [updatingItemId, setUpdatingItemId] = useState(null);
     const { isAuthenticated } = useAuth();
 
-    const update = useCallback(async (updateData, options = {}) => {
-        const { onSuccess, onError } = options;
+    const { mutate, isLoading, mutatingVariables } = useMutation(
+        async (updateData) => {
+            if (!updateData.cartId) {
+                throw new Error('cartId is required for update');
+            }
 
-        if (!updateData.cartId) {
-            const error = new Error('cartId is required for update');
-            onError?.(error);
-            throw error;
-        }
-
-        setIsLoading(true);
-        setUpdatingItemId(updateData.cartItemId || null);
-
-        try {
             const payload = {
                 cartId: updateData.cartId,
                 productVariantId: updateData.productVariantId,
@@ -30,24 +18,14 @@ export const useUpdateCart = () => {
             };
 
             const response = await updateCart(payload);
-
-            if (isAuthenticated) {
-                invalidateMyCartCache();
-            } else {
-                const guestCartId = getGuestCartId();
-                invalidateGuestCartCache(guestCartId);
-            }
-
-            onSuccess?.(response);
+            invalidateCartCacheByAuth(isAuthenticated);
             return response;
-        } catch (error) {
-            onError?.(error);
-            throw error;
-        } finally {
-            setIsLoading(false);
-            setUpdatingItemId(null);
         }
-    }, [isAuthenticated]);
+    );
 
-    return { update, isLoading, updatingItemId };
+    return {
+        update: mutate,
+        isLoading,
+        updatingItemId: mutatingVariables?.cartItemId || null,
+    };
 };
