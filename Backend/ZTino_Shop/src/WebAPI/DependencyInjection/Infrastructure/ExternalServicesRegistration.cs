@@ -1,5 +1,6 @@
 using Application.Common.Abstractions.ExternalServices;
 using Application.Common.Abstractions.ExternalServices.AI;
+using Application.Features.AI.v1.Services;
 using Infrastructure.ExternalServices.AI;
 using Infrastructure.ExternalServices.Cloudinary;
 
@@ -19,6 +20,8 @@ namespace WebAPI.DependencyInjection.Infrastructure
             // AI Services
             services.AddScoped<IAIService, GeminiService>();
             services.AddScoped<IAIFactory, AIFactory>();
+            services.AddScoped<IAIContextService, AIContextService>();
+            services.AddScoped<IAIChatHistoryService, AIChatHistoryService>();
 
             return services;
         }

@@ -27,6 +27,60 @@ namespace Infrastructure.ExternalServices.AI
 
         public async Task<string> GenerateContentAsync(string prompt, CancellationToken cancellationToken)
         {
+            var apiKey = await GetApiKeyAsync(cancellationToken);
+
+            var requestBody = new GeminiRequest
+            {
+                Contents = new List<RequestContent>
+                {
+                    new RequestContent
+                    {
+                        Role = "user",
+                        Parts = new List<RequestPart>
+                        {
+                            new RequestPart { Text = prompt }
+                        }
+                    }
+                }
+            };
+
+            return await SendRequestAsync(apiKey, requestBody, cancellationToken);
+        }
+
+        public async Task<string> GenerateContentAsync(
+            string systemPrompt,
+            string userPrompt,
+            CancellationToken cancellationToken)
+        {
+            var apiKey = await GetApiKeyAsync(cancellationToken);
+
+            var requestBody = new GeminiRequest
+            {
+                SystemInstruction = new SystemInstruction
+                {
+                    Parts = new List<RequestPart>
+                    {
+                        new RequestPart { Text = systemPrompt }
+                    }
+                },
+                Contents = new List<RequestContent>
+                {
+                    new RequestContent
+                    {
+                        Role = "user",
+                        Parts = new List<RequestPart>
+                        {
+                            new RequestPart { Text = userPrompt }
+                        }
+                    }
+                }
+            };
+
+            return await SendRequestAsync(apiKey, requestBody, cancellationToken);
+        }
+
+        private async Task<string> GetApiKeyAsync(CancellationToken cancellationToken)
+        {
             var setting = await _appSettingRepository.GetByGroupAndKeyAsync(
                 AppSettingConstants.Gemini.Group,
                 AppSettingConstants.Gemini.Keys.FlashApiKey,
@@ -44,20 +98,14 @@ namespace Infrastructure.ExternalServices.AI
                 throw new InvalidOperationException("Decrypted Gemini API Key is empty.");
             }
 
-            var requestBody = new GeminiRequest
-            {
-                Contents = new List<RequestContent>
-                {
-                    new RequestContent
-                    {
-                        Parts = new List<RequestPart>
-                        {
-                            new RequestPart { Text = prompt }
-                        }
-                    }
-                }
-            };
+            return apiKey;
+        }
 
+        private async Task<string> SendRequestAsync(
+            string apiKey,
+            GeminiRequest requestBody,
+            CancellationToken cancellationToken)
+        {
             var url = $"{AppSettingConstants.Gemini.BaseUrl}?key={apiKey}";
 
             var response = await _httpClient.PostAsJsonAsync(url, requestBody, cancellationToken);
