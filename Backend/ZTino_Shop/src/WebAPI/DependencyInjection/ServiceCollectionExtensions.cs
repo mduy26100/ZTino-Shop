@@ -35,6 +35,7 @@ namespace WebAPI.DependencyInjection
             services.AddPersistence(configuration);
             services.AddCaching(configuration);
             services.AddExternalServices(configuration);
+            services.AddInfrastructureSecurity();
             return services;
         }
 
