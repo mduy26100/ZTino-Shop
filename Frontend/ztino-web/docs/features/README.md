@@ -10,6 +10,7 @@ This directory contains detailed documentation for each feature module in the ap
 | **Cart** | Shopping cart management | [cart.md](./cart.md) |
 | **Product** | Product catalog and details | [product.md](./product.md) |
 | **Home** | Homepage components | [home.md](./home.md) |
+| **Order** | Order management and checkout | [order.md](./order.md) |
 
 ## Feature Module Pattern
 

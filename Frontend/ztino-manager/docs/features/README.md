@@ -10,6 +10,7 @@ The application is organized into self-contained feature modules located in `src
 |---------|-------------|
 | [auth](./auth.md) | Authentication and login functionality |
 | [product](./product.md) | Product management including categories, colors, sizes, variants, and images |
+| [order](./order.md) | Order management and status updates |
 
 ## Feature Module Structure
 

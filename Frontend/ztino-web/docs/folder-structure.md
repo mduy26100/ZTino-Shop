@@ -61,6 +61,22 @@ Utility functions and helpers.
 | `jwtDecode.js` | JWT decoding, role extraction, expiration check |
 | `index.js` | Barrel export |
 
+### `src/hooks/`
+Custom hook utilities and base hooks.
+
+| Subdirectory | Purpose |
+|--------------|---------|
+| `utils/` | Base hooks for queries, mutations, and cache management |
+
+#### `src/hooks/utils/`
+
+| File | Purpose | Exports |
+|------|---------|---------|
+| `useMutation.js` | Mutation operations with loading/error state | `useMutation` |
+| `useQuery.js` | Queries with caching and abort control | `useQuery`, `invalidateCache`, `clearGlobalCache` |
+| `invalidateCartCache.js` | Cart-specific cache invalidation helper | `invalidateCartCacheByAuth` |
+| `index.js` | Barrel exports | All utilities |
+
 ### `src/routes/`
 Routing configuration and guards.
 

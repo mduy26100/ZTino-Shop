@@ -116,60 +116,94 @@ export default ComponentName;
 
 ## Custom Hook Guidelines
 
-### Data Fetching Hook Pattern
+### Using Base Hooks
+
+All feature hooks **must** use base hooks from `src/hooks/utils/`.
+
+#### Query Hooks
 
 ```javascript
-import { useState, useEffect, useCallback } from 'react';
-import { fetchData } from '../api';
+import { useQuery } from '../../../hooks/utils';
+import { getCategories } from '../api';
 
-export const useGetData = (id) => {
-  const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  const fetch = useCallback(async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const result = await fetchData(id);
-      setData(result);
-    } catch (err) {
-      setError(err);
-    } finally {
-      setLoading(false);
-    }
-  }, [id]);
-
-  useEffect(() => {
-    fetch();
-  }, [fetch]);
-
-  return { data, loading, error, refetch: fetch };
+export const useGetCategories = () => {
+    return useQuery('categories', getCategories, { 
+        initialData: [] 
+    });
 };
 ```
 
-### Mutation Hook Pattern
+#### Mutation Hooks
 
 ```javascript
-export const useCreateItem = () => {
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+import { useMutation } from '../../../hooks/utils';
+import { createProduct } from '../api';
 
-  const create = useCallback(async (payload) => {
-    try {
-      setLoading(true);
-      setError(null);
-      const result = await createItem(payload);
-      return result;
-    } catch (err) {
-      setError(err);
-      throw err;
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+export const useCreateProduct = () => {
+    const { mutate, isLoading, error } = useMutation(createProduct);
+    return { create: mutate, isLoading, error };
+};
+```
 
-  return { create, loading, error };
+#### Query with Dynamic Key
+
+```javascript
+export const useGetProductDetailBySlug = (slug) => {
+    return useQuery(
+        slug ? `product-${slug}` : null,  // null disables fetch
+        () => getProductDetailBySlug(slug),
+        { enabled: !!slug }
+    );
+};
+```
+
+#### Mutation with Cache Invalidation
+
+```javascript
+import { useMutation, invalidateCartCacheByAuth } from '../../../hooks/utils';
+import { useAuth } from '../../../contexts';
+
+export const useCreateCart = () => {
+    const { isAuthenticated } = useAuth();
+    
+    const { mutate, isLoading } = useMutation(async (data) => {
+        const response = await createCart(data);
+        invalidateCartCacheByAuth(isAuthenticated, response?.cartId);
+        return response;
+    });
+    
+    return { create: mutate, isLoading };
+};
+```
+
+### ❌ Anti-Pattern: Manual State Management
+
+Do NOT manually implement loading/error state:
+
+```javascript
+// DON'T DO THIS
+export const useGetProducts = () => {
+    const [data, setData] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    
+    useEffect(() => {
+        fetchProducts()
+            .then(setData)
+            .catch(setError)
+            .finally(() => setLoading(false));
+    }, []);
+    
+    return { data, loading, error };
+};
+```
+
+### ✅ Correct Pattern: Base Hooks
+
+```javascript
+// DO THIS
+export const useGetProducts = () => {
+    return useQuery('products', fetchProducts, { initialData: [] });
 };
 ```
 

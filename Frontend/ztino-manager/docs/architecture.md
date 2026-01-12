@@ -46,12 +46,38 @@ This encapsulation allows features to evolve independently while maintaining cle
 
 ### 2. Custom Hooks Pattern
 
-All data operations are encapsulated in custom hooks following a consistent naming convention:
+All data operations use a **two-layer hook architecture**:
 
-- `useGet*` - Data fetching (GET requests)
-- `useCreate*` - Creation operations (POST requests)
-- `useUpdate*` - Update operations (PUT requests)
-- `useDelete*` - Deletion operations (DELETE requests)
+```
+┌───────────────────────────────────────────────────────────┐
+│                   Base Hooks Layer                         │
+│                 (src/hooks/utils/)                         │
+│  ┌─────────────────────┐  ┌───────────────────────────┐   │
+│  │     useQuery        │  │      useMutation          │   │
+│  │  - Global caching   │  │  - Loading state          │   │
+│  │  - TTL support      │  │  - Error handling         │   │
+│  │  - Abort control    │  │  - Lifecycle callbacks    │   │
+│  │  - Refetch          │  │  - Variables tracking     │   │
+│  └─────────────────────┘  └───────────────────────────┘   │
+└───────────────────────────────────────────────────────────┘
+                            │
+                            ▼
+┌───────────────────────────────────────────────────────────┐
+│                 Feature Hooks Layer                        │
+│              (src/features/*/hooks/)                       │
+│  useGetProducts, useCreateCategory, useUpdateOrder, ...   │
+└───────────────────────────────────────────────────────────┘
+```
+
+**Base Hooks** abstract common patterns:
+- `useQuery(key, queryFn, options)` - Data fetching with caching
+- `useMutation(mutationFn, options)` - Mutation operations
+
+**Feature Hooks** naming convention:
+- `useGet*` - Wraps `useQuery` for GET requests
+- `useCreate*` - Wraps `useMutation` for POST requests
+- `useUpdate*` - Wraps `useMutation` for PUT/PATCH requests
+- `useDelete*` - Wraps `useMutation` for DELETE requests
 
 Each hook manages its own loading, error, and data states, providing a clean interface for components.
 

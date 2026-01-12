@@ -69,6 +69,7 @@ All errors follow a consistent structure:
 | `CATEGORIES` | `/categories` | Product categories |
 | `PRODUCTS` | `/products` | Product operations |
 | `CART` | `/carts` | Shopping cart operations |
+| `ORDER` | `/orders` | Order operations |
 
 ## API Layer Structure
 

@@ -59,24 +59,85 @@ function Component() {
 }
 ```
 
-## Data Fetching with Custom Hooks
+## Data Fetching with Base Hooks
 
-Instead of a centralized store, the application uses custom hooks that encapsulate data fetching logic with local state.
+The application uses **base hooks** that abstract common data fetching patterns.
 
-### Hook Pattern
+**Location**: `src/hooks/utils/`
 
-Each data-fetching hook follows a consistent pattern:
+### Base Hook Architecture
 
 ```
-┌─────────────────────────────────────────────────────────┐
-│                    Custom Hook                          │
-│  ┌─────────────────────────────────────────────────┐   │
-│  │  State: data, loading, error                    │   │
-│  │  Effect: fetch on mount or dependency change    │   │
-│  │  Return: { data, loading, error, refetch }      │   │
-│  └─────────────────────────────────────────────────┘   │
-└─────────────────────────────────────────────────────────┘
+┌───────────────────────────────────────────────────────────────┐
+│                     Base Hooks Layer                           │
+│  ┌────────────────────────┐  ┌──────────────────────────────┐ │
+│  │        useQuery        │  │        useMutation           │ │
+│  │  - Global caching      │  │  - Loading state             │ │
+│  │  - TTL expiration      │  │  - Error handling            │ │
+│  │  - Abort controller    │  │  - Lifecycle callbacks       │ │
+│  │  - Auto-refetch        │  │  - Variable tracking         │ │
+│  └────────────────────────┘  └──────────────────────────────┘ │
+│                                                                │
+│  ┌────────────────────────────────────────────────────────┐   │
+│  │           invalidateCartCacheByAuth                     │   │
+│  │  Cart-specific helper for guest/authenticated flows    │   │
+│  └────────────────────────────────────────────────────────┘   │
+└───────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌───────────────────────────────────────────────────────────────┐
+│                    Feature Hooks Layer                         │
+│  useGetMyCart, useCreateOrder, useGetProducts, useLogin ...   │
+└───────────────────────────────────────────────────────────────┘
 ```
+
+### useQuery Options
+
+| Option | Default | Description |
+|--------|---------|-------------|
+| `ttl` | 300000 (5 min) | Cache time-to-live in milliseconds |
+| `enabled` | `true` | Whether to auto-fetch on mount |
+| `initialData` | `null` | Initial data before first fetch |
+| `transformResponse` | - | Transform API response |
+| `onSuccess` | - | Callback on successful fetch |
+| `onError` | - | Callback on error |
+
+### useMutation Options
+
+| Option | Description |
+|--------|-------------|
+| `onMutate` | Called before mutation starts |
+| `onSuccess` | Called on success with `(result, variables)` |
+| `onError` | Called on error with `(error, variables)` |
+| `onSettled` | Called after mutation completes (success or error) |
+
+### Cache Invalidation
+
+```javascript
+import { invalidateCache, clearGlobalCache } from '../../../hooks/utils';
+
+// Invalidate specific cache
+invalidateCache('my-cart');
+invalidateCache('products-123');
+
+// Clear all cache
+clearGlobalCache();
+```
+
+### Cart Cache Invalidation Helper
+
+For cart-related mutations, use the dedicated helper:
+
+```javascript
+import { invalidateCartCacheByAuth } from '../../../hooks/utils';
+
+// Automatically handles guest vs authenticated user cache
+invalidateCartCacheByAuth(isAuthenticated, cartId);
+```
+
+This helper:
+- Invalidates `my-cart` cache for authenticated users
+- Invalidates `guest-cart-{id}` cache for guest users
 
 ### Available Hooks by Feature
 
@@ -91,9 +152,11 @@ Each data-fetching hook follows a consistent pattern:
 
 | Hook | Purpose | Returns |
 |------|---------|---------|
-| `useGetMyCart` | Fetch authenticated user's cart | `{ cart, loading, error, refetch }` |
-| `useGetCartById` | Fetch cart by ID (for guests) | `{ cart, loading, error }` |
-| `useCreateCart` | Add item to cart | `{ addToCart, loading, error }` |
+| `useGetMyCart` | Fetch authenticated user's cart | `{ data, isLoading, error, refetch }` |
+| `useGetCartById` | Fetch cart by ID (for guests) | `{ data, isLoading, error }` |
+| `useCreateCart` | Add item to cart | `{ create, isLoading }` |
+| `useUpdateCart` | Update cart item quantity | `{ update, isLoading, updatingItemId }` |
+| `useDeleteCart` | Remove item from cart | `{ remove, isLoading, deletingItemId }` |
 
 #### Product Hooks (`src/features/product/hooks/`)
 

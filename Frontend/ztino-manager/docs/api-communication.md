@@ -65,6 +65,7 @@ Centralized endpoint definitions:
 | `ENDPOINTS.ADMIN.PRODUCT_VARIANTS` | /admin/product-variants |
 | `ENDPOINTS.ADMIN.PRODUCT_IMAGES` | /admin/product-images |
 | `ENDPOINTS.ADMIN.PRODUCT_COLORS` | /admin/product-colors |
+| `ENDPOINTS.ADMIN.ORDER` | /admin/orders |
 
 ## API Layer Structure
 
@@ -99,16 +100,101 @@ Product and image operations use FormData for file uploads:
 - Content-Type is set to `multipart/form-data`
 - Files are appended to FormData object
 
-## Custom Hooks Pattern
+## Base Hook Utilities
 
-Each API function has a corresponding hook for state management:
+Location: `src/hooks/utils/`
 
-| Hook | Responsibility |
-|------|----------------|
-| `useGet*` | Fetch data on mount, manage loading/error/data |
-| `useCreate*` | Expose create function, manage loading/error |
-| `useUpdate*` | Expose update function, manage loading/error |
-| `useDelete*` | Expose delete function, manage loading/error |
+Feature hooks are built on reusable base hooks that eliminate boilerplate code.
+
+### useQuery
+
+Caching-enabled hook for data fetching.
+
+**Signature:**
+```javascript
+const { data, isLoading, error, refetch, isCached } = useQuery(key, queryFn, options);
+```
+
+**Parameters:**
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `key` | `string \| null` | Unique cache key. Pass `null` to disable. |
+| `queryFn` | `(ctx) => Promise` | Async function receiving `{ signal }` for abort |
+| `options.ttl` | `number` | Cache TTL in ms (default: 5 min) |
+| `options.enabled` | `boolean` | Enable auto-fetch (default: `true`) |
+| `options.initialData` | `any` | Data before first fetch |
+| `options.transformResponse` | `function` | Transform raw response |
+| `options.onSuccess` | `function` | Success callback |
+| `options.onError` | `function` | Error callback |
+
+**Returns:**
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `data` | `any` | Fetched/cached data |
+| `isLoading` | `boolean` | Loading state |
+| `error` | `Error \| null` | Error if failed |
+| `refetch` | `function` | Force refetch (bypasses cache) |
+| `isCached` | `boolean` | Whether data came from cache |
+
+**Cache Management:**
+```javascript
+import { invalidateCache, clearGlobalCache } from '../hooks/utils';
+
+invalidateCache('products');  // Clear specific key
+clearGlobalCache();           // Clear all cached data
+```
+
+### useMutation
+
+Hook for mutation operations (create/update/delete).
+
+**Signature:**
+```javascript
+const { mutate, isLoading, error, mutatingVariables, reset } = useMutation(mutationFn, options);
+```
+
+**Parameters:**
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `mutationFn` | `(variables) => Promise` | Async mutation function |
+| `options.onMutate` | `function` | Called before mutation |
+| `options.onSuccess` | `function` | Called on success with `(result, variables)` |
+| `options.onError` | `function` | Called on error with `(error, variables)` |
+| `options.onSettled` | `function` | Called after mutation completes |
+
+**Returns:**
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `mutate` | `function` | Trigger mutation with variables |
+| `isLoading` | `boolean` | Loading state |
+| `error` | `Error \| null` | Error if failed |
+| `mutatingVariables` | `any` | Current mutation variables |
+| `reset` | `function` | Reset hook state |
+
+### Example: Feature Hook Implementation
+
+```javascript
+// Query hook - just 6 lines!
+import { useQuery } from '../../../hooks/utils';
+import { getCategories } from '../api';
+
+export const useGetCategories = () => {
+    return useQuery('categories', getCategories, { initialData: [] });
+};
+
+// Mutation hook - just 7 lines!
+import { useMutation } from '../../../hooks/utils';
+import { createCategory } from '../api';
+
+export const useCreateCategory = () => {
+    const { mutate, isLoading } = useMutation(createCategory);
+    return { create: mutate, isLoading };
+};
+```
 
 Hooks are located in `src/features/[feature]/hooks/`.
 

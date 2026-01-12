@@ -64,6 +64,21 @@ Reusable utility functions.
 | `localStorage.js` | Token and user persistence helpers |
 | `index.js` | Barrel exports |
 
+#### `src/hooks/`
+Custom hook utilities and base hooks.
+
+| Subdirectory | Purpose |
+|--------------|---------|
+| `utils/` | Base hooks for queries and mutations |
+
+##### `src/hooks/utils/`
+
+| File | Purpose | Exports |
+|------|---------|---------|
+| `useMutation.js` | Mutation operations with loading/error state | `useMutation` |
+| `useQuery.js` | Queries with caching, abort control | `useQuery`, `invalidateCache`, `clearGlobalCache` |
+| `index.js` | Barrel exports | All utilities |
+
 #### `src/routes/`
 Routing configuration and route guards.
 

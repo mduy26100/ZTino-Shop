@@ -17,6 +17,8 @@ src/features/cart/
 │   ├── useGetMyCart.js
 │   ├── useGetCartById.js
 │   ├── useCreateCart.js
+│   ├── useUpdateCart.js
+│   ├── useDeleteCart.js
 │   └── index.js
 ├── components/
 │   ├── CartItemCard.jsx
@@ -35,6 +37,8 @@ src/features/cart/
 | `getMyCart()` | GET | `/carts` | Fetch authenticated user's cart |
 | `getCartById(id)` | GET | `/carts/:id` | Fetch cart by ID (guest users) |
 | `createCart(cart)` | POST | `/carts` | Add item to cart |
+| `updateCart(cart)` | PUT | `/carts/:id` | Update cart item quantity |
+| `deleteCart(cartItemId)` | DELETE | `/carts/:id` | Remove item from cart |
 
 ### createCart Payload
 
@@ -76,15 +80,73 @@ Fetches a specific cart by ID, primarily for guest users.
 Adds an item to the cart.
 
 **Returns**:
-- `addToCart(payload)` - Function to add item
-- `loading` - Loading state
-- `error` - Error object if failed
+- `create(payload)` - Function to add item
+- `isLoading` - Loading state
 
 **Guest Cart Flow**:
 1. Check if user is authenticated
 2. If not, check localStorage for `guestCartId`
 3. Include `cartId` in payload if available
 4. On successful response, store returned `cartId` if new
+5. Automatically invalidates cart cache
+
+### useUpdateCart
+
+Updates cart item quantity.
+
+**Returns**:
+- `update(payload)` - Update function
+- `isLoading` - Loading state
+- `updatingItemId` - ID of currently updating item
+
+**Payload**:
+```javascript
+{
+  cartId: string,           // Required
+  productVariantId: string, // Required
+  quantity: number          // New quantity
+}
+```
+
+Automatically invalidates cart cache after successful update.
+
+### useDeleteCart
+
+Removes an item from the cart.
+
+**Returns**:
+- `remove(cartItemId)` - Remove function
+- `isLoading` - Loading state
+- `deletingItemId` - ID of currently deleting item
+
+Automatically invalidates cart cache after successful removal.
+
+## Cache Invalidation
+
+Cart hooks use `invalidateCartCacheByAuth` from `src/hooks/utils/` to automatically refresh cart data after mutations.
+
+**Location**: `src/hooks/utils/invalidateCartCache.js`
+
+### invalidateCartCacheByAuth
+
+```javascript
+invalidateCartCacheByAuth(isAuthenticated, cartIdOverride?)
+```
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `isAuthenticated` | `boolean` | From `useAuth()` context |
+| `cartIdOverride` | `string?` | Optional guest cart ID |
+
+**Behavior**:
+- **Authenticated users**: Invalidates `my-cart` cache key
+- **Guest users**: Invalidates `guest-cart-{id}` cache key
+
+**Used by**:
+- `useCreateCart` - After adding item
+- `useUpdateCart` - After quantity change
+- `useDeleteCart` - After item removal
+- `useCreateOrder` - After order placement (clears cart)
 
 ## Components
 

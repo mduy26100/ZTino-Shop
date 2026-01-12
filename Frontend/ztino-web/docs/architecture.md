@@ -91,6 +91,13 @@ feature/
 - **`src/utils/localStorage.js`**: Token and user persistence
 - **`src/utils/jwtDecode.js`**: JWT parsing and validation
 
+### 8. Hook Utilities Layer
+- **`src/hooks/utils/useQuery.js`**: Base query hook with global caching
+- **`src/hooks/utils/useMutation.js`**: Base mutation hook with lifecycle callbacks
+- **`src/hooks/utils/invalidateCartCache.js`**: Helper for cart cache invalidation
+
+All feature hooks use these base utilities. This eliminates code duplication and ensures consistent loading/error handling across the application.
+
 ## Data Flow Pattern
 
 ```
