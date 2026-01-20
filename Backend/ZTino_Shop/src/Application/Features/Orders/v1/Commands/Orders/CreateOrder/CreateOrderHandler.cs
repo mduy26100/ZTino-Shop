@@ -33,67 +33,78 @@ namespace Application.Features.Orders.v1.Commands.Orders.CreateOrder
 
         public async Task<CreateOrderResponseDto> Handle(CreateOrderCommand request, CancellationToken cancellationToken)
         {
-            var dto = request.Dto;
-            var userId = _currentUser.UserId == Guid.Empty ? null : (Guid?)_currentUser.UserId;
+            using var transaction = await _context.BeginTransactionAsync(cancellationToken);
 
-            var cart = await _cartRepository.FindOneAsync(
-                c => c.Id == dto.CartId && c.IsActive,
-                asNoTracking: false,
-                cancellationToken)
-                ?? throw new NotFoundException($"Cart with ID {dto.CartId} not found.");
-
-            cart.ValidateOwnership(userId);
-            cart.AssignToUser(userId);
-
-            var selectedItems = cart.CartItems
-                .Where(ci => dto.SelectedCartItemIds.Contains(ci.Id))
-                .ToList();
-
-            if (selectedItems.Count == 0 || selectedItems.Count != dto.SelectedCartItemIds.Count)
+            try
             {
-                throw new BusinessRuleException("One or more selected cart items were not found or are invalid.");
+                var dto = request.Dto;
+                var userId = _currentUser.UserId == Guid.Empty ? null : (Guid?)_currentUser.UserId;
+
+                var cart = await _cartRepository.FindOneAsync(
+                    c => c.Id == dto.CartId && c.IsActive,
+                    asNoTracking: false,
+                    cancellationToken)
+                    ?? throw new NotFoundException($"Cart with ID {dto.CartId} not found.");
+
+                cart.ValidateOwnership(userId);
+                cart.AssignToUser(userId);
+
+                var selectedItems = cart.CartItems
+                    .Where(ci => dto.SelectedCartItemIds.Contains(ci.Id))
+                    .ToList();
+
+                if (selectedItems.Count == 0 || selectedItems.Count != dto.SelectedCartItemIds.Count)
+                {
+                    throw new BusinessRuleException("One or more selected cart items were not found or are invalid.");
+                }
+
+                var stockItems = await _inventoryService.PrepareAndValidateStockAsync(selectedItems, cancellationToken);
+
+                var order = Order.Create(
+                    userId,
+                    dto.CustomerName,
+                    dto.CustomerPhone,
+                    dto.CustomerEmail,
+                    dto.Note,
+                    stockItems);
+
+                order.SetShippingAddress(
+                    dto.ShippingAddress.RecipientName,
+                    dto.ShippingAddress.PhoneNumber,
+                    dto.ShippingAddress.Street,
+                    dto.ShippingAddress.Ward,
+                    dto.ShippingAddress.District,
+                    dto.ShippingAddress.City);
+
+                await _orderRepository.AddAsync(order, cancellationToken);
+
+                foreach (var (variant, quantity) in stockItems)
+                {
+                    variant.DeductStock(quantity);
+                }
+
+                _cartItemRepository.RemoveRange(selectedItems);
+                cart.MarkUpdated();
+
+                await _context.SaveChangesAsync(cancellationToken);
+                await transaction.CommitAsync(cancellationToken);
+
+                return new CreateOrderResponseDto
+                {
+                    OrderId = order.Id,
+                    OrderCode = order.OrderCode,
+                    TotalAmount = order.TotalAmount,
+                    Status = order.Status,
+                    PaymentStatus = order.PaymentStatus,
+                    PaymentMethod = order.PaymentMethod,
+                    Message = "Order created successfully."
+                };
             }
-
-            var stockItems = await _inventoryService.PrepareAndValidateStockAsync(selectedItems, cancellationToken);
-
-            var order = Order.Create(
-                userId,
-                dto.CustomerName,
-                dto.CustomerPhone,
-                dto.CustomerEmail,
-                dto.Note,
-                stockItems);
-
-            order.SetShippingAddress(
-                dto.ShippingAddress.RecipientName,
-                dto.ShippingAddress.PhoneNumber,
-                dto.ShippingAddress.Street,
-                dto.ShippingAddress.Ward,
-                dto.ShippingAddress.District,
-                dto.ShippingAddress.City);
-
-            await _orderRepository.AddAsync(order, cancellationToken);
-
-            foreach (var (variant, quantity) in stockItems)
+            catch
             {
-                variant.DeductStock(quantity);
+                await transaction.RollbackAsync(cancellationToken);
+                throw;
             }
-
-            _cartItemRepository.RemoveRange(selectedItems);
-            cart.MarkUpdated();
-
-            await _context.SaveChangesAsync(cancellationToken);
-
-            return new CreateOrderResponseDto
-            {
-                OrderId = order.Id,
-                OrderCode = order.OrderCode,
-                TotalAmount = order.TotalAmount,
-                Status = order.Status,
-                PaymentStatus = order.PaymentStatus,
-                PaymentMethod = order.PaymentMethod,
-                Message = "Order created successfully."
-            };
         }
     }
 }

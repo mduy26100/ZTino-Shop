@@ -17,9 +17,14 @@ namespace Application.Tests.Orders.v1.Commands.CreateOrder
         private readonly Mock<IInventoryService> _inventoryService = new();
         private readonly Mock<ICurrentUser> _currentUser = new();
         private readonly Mock<IApplicationDbContext> _context = new();
+        private readonly Mock<IDatabaseTransaction> _transaction = new();
 
         private CreateOrderHandler CreateHandler()
         {
+            _context
+                .Setup(x => x.BeginTransactionAsync(It.IsAny<CancellationToken>()))
+                .ReturnsAsync(_transaction.Object);
+
             return new CreateOrderHandler(
                 _orderRepo.Object,
                 _cartRepo.Object,
@@ -86,17 +91,18 @@ namespace Application.Tests.Orders.v1.Commands.CreateOrder
             _currentUser.Setup(x => x.UserId).Returns(userId);
 
             _cartRepo.Setup(x =>
-                    x.FindOneAsync(It.IsAny<Expression<Func<Cart, bool>>>(), false, It.IsAny<CancellationToken>()))
+                x.FindOneAsync(It.IsAny<Expression<Func<Cart, bool>>>(), false, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(cart);
 
             _inventoryService.Setup(x =>
-                    x.PrepareAndValidateStockAsync(It.IsAny<List<CartItem>>(), It.IsAny<CancellationToken>()))
+                x.PrepareAndValidateStockAsync(It.IsAny<List<CartItem>>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new List<(ProductVariant, int)>
                 {
                     (variant, cartItem.Quantity)
                 });
 
             var handler = CreateHandler();
+
             var result = await handler.Handle(CreateCommand(cartId, cartItemId), CancellationToken.None);
 
             Assert.NotEqual(Guid.Empty, result.OrderId);
@@ -105,19 +111,24 @@ namespace Application.Tests.Orders.v1.Commands.CreateOrder
             _orderRepo.Verify(x => x.AddAsync(It.IsAny<Order>(), It.IsAny<CancellationToken>()), Times.Once);
             _cartItemRepo.Verify(x => x.RemoveRange(It.IsAny<IEnumerable<CartItem>>()), Times.Once);
             _context.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
+
+            _transaction.Verify(x => x.CommitAsync(It.IsAny<CancellationToken>()), Times.Once);
+            _transaction.Verify(x => x.RollbackAsync(It.IsAny<CancellationToken>()), Times.Never);
         }
 
         [Fact]
         public async Task Handle_Should_Throw_NotFound_When_Cart_Not_Found()
         {
             _cartRepo.Setup(x =>
-                    x.FindOneAsync(It.IsAny<Expression<Func<Cart, bool>>>(), false, It.IsAny<CancellationToken>()))
+                x.FindOneAsync(It.IsAny<Expression<Func<Cart, bool>>>(), false, It.IsAny<CancellationToken>()))
                 .ReturnsAsync((Cart?)null);
 
             var handler = CreateHandler();
 
             await Assert.ThrowsAsync<NotFoundException>(() =>
                 handler.Handle(CreateCommand(Guid.NewGuid(), 1), CancellationToken.None));
+
+            _transaction.Verify(x => x.RollbackAsync(It.IsAny<CancellationToken>()), Times.Once);
         }
 
         [Fact]
@@ -126,7 +137,7 @@ namespace Application.Tests.Orders.v1.Commands.CreateOrder
             var cart = new Cart { Id = Guid.NewGuid(), IsActive = true };
 
             _cartRepo.Setup(x =>
-                    x.FindOneAsync(It.IsAny<Expression<Func<Cart, bool>>>(), false, It.IsAny<CancellationToken>()))
+                x.FindOneAsync(It.IsAny<Expression<Func<Cart, bool>>>(), false, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(cart);
 
             var handler = CreateHandler();
@@ -150,6 +161,8 @@ namespace Application.Tests.Orders.v1.Commands.CreateOrder
 
             await Assert.ThrowsAsync<BusinessRuleException>(() =>
                 handler.Handle(command, CancellationToken.None));
+
+            _transaction.Verify(x => x.RollbackAsync(It.IsAny<CancellationToken>()), Times.Once);
         }
 
         [Fact]
@@ -158,13 +171,15 @@ namespace Application.Tests.Orders.v1.Commands.CreateOrder
             var cart = new Cart { Id = Guid.NewGuid(), IsActive = true };
 
             _cartRepo.Setup(x =>
-                    x.FindOneAsync(It.IsAny<Expression<Func<Cart, bool>>>(), false, It.IsAny<CancellationToken>()))
+                x.FindOneAsync(It.IsAny<Expression<Func<Cart, bool>>>(), false, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(cart);
 
             var handler = CreateHandler();
 
             await Assert.ThrowsAsync<BusinessRuleException>(() =>
                 handler.Handle(CreateCommand(cart.Id, 99), CancellationToken.None));
+
+            _transaction.Verify(x => x.RollbackAsync(It.IsAny<CancellationToken>()), Times.Once);
         }
 
         [Fact]
@@ -185,17 +200,19 @@ namespace Application.Tests.Orders.v1.Commands.CreateOrder
             cart.CartItems.Add(cartItem);
 
             _cartRepo.Setup(x =>
-                    x.FindOneAsync(It.IsAny<Expression<Func<Cart, bool>>>(), false, It.IsAny<CancellationToken>()))
+                x.FindOneAsync(It.IsAny<Expression<Func<Cart, bool>>>(), false, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(cart);
 
             _inventoryService.Setup(x =>
-                    x.PrepareAndValidateStockAsync(It.IsAny<List<CartItem>>(), It.IsAny<CancellationToken>()))
+                x.PrepareAndValidateStockAsync(It.IsAny<List<CartItem>>(), It.IsAny<CancellationToken>()))
                 .ThrowsAsync(new BusinessRuleException("Stock not enough"));
 
             var handler = CreateHandler();
 
             await Assert.ThrowsAsync<BusinessRuleException>(() =>
                 handler.Handle(CreateCommand(cartId, cartItem.Id), CancellationToken.None));
+
+            _transaction.Verify(x => x.RollbackAsync(It.IsAny<CancellationToken>()), Times.Once);
         }
     }
 }
