@@ -66,6 +66,13 @@ namespace Infrastructure.Persistence
             builder.ApplyConfiguration(new AppSettingConfiguration());
         }
 
+        public async Task<IDatabaseTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default)
+        {
+            var transaction = await Database.BeginTransactionAsync(cancellationToken);
+
+            return new EfDatabaseTransaction(transaction);
+        }
+
 
         // Auth
         public DbSet<RefreshToken> RefreshTokens { get; set; }
