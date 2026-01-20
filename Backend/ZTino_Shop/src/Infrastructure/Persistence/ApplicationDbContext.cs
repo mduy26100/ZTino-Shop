@@ -1,4 +1,5 @@
 using Application.Common.Abstractions.Persistence;
+using Application.Common.Exceptions;
 using Domain.Models.AppSettings;
 using Domain.Models.Carts;
 using Domain.Models.Finances;
@@ -73,6 +74,17 @@ namespace Infrastructure.Persistence
             return new EfDatabaseTransaction(transaction);
         }
 
+        public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                return await base.SaveChangesAsync(cancellationToken);
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                throw new ConcurrencyException("The data has been changed by someone else. Please try again.");
+            }
+        }
 
         // Auth
         public DbSet<RefreshToken> RefreshTokens { get; set; }
