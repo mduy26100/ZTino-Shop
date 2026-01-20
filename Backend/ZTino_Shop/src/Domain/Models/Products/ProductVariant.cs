@@ -10,6 +10,7 @@
         public int StockQuantity { get; set; }
         public decimal Price { get; set; }
         public bool IsActive { get; set; } = true;
+        public byte[] RowVersion { get; set; } = default!;
 
         public ProductColor ProductColor { get; set; } = default!;
         public Size Size { get; set; } = default!;

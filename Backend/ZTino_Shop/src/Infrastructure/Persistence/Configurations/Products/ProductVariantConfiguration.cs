@@ -19,6 +19,9 @@ namespace Infrastructure.Persistence.Configurations.Products
             builder.Property(v => v.IsActive)
                 .HasDefaultValue(true);
 
+            builder.Property(v => v.RowVersion)
+                .IsRowVersion();
+
             builder.HasOne(v => v.ProductColor)
                 .WithMany(pc => pc.ProductVariants)
                 .HasForeignKey(v => v.ProductColorId)
