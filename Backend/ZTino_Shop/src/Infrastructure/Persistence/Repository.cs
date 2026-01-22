@@ -1,4 +1,6 @@
 using Application.Common.Abstractions.Persistence;
+using Ardalis.Specification;
+using Ardalis.Specification.EntityFrameworkCore;
 
 namespace Infrastructure.Persistence
 {
@@ -6,14 +8,37 @@ namespace Infrastructure.Persistence
     {
         protected readonly ApplicationDbContext _context;
         protected readonly DbSet<T> _dbSet;
+        protected readonly ISpecificationEvaluator _specificationEvaluator;
 
         public Repository(ApplicationDbContext context)
         {
             _context = context;
             _dbSet = context.Set<T>();
+            _specificationEvaluator = SpecificationEvaluator.Default;
         }
 
-        // Query
+        // -----------------------
+        // Helpers (Specification)
+        // -----------------------
+        protected virtual IQueryable<T> ApplySpecification(ISpecification<T> specification)
+        {
+            if (specification is null)
+                return _dbSet.AsQueryable();
+
+            return _specificationEvaluator.GetQuery(_dbSet.AsQueryable(), specification);
+        }
+
+        protected virtual IQueryable<TResult> ApplySpecification<TResult>(ISpecification<T, TResult> specification)
+        {
+            if (specification is null)
+                throw new ArgumentNullException(nameof(specification));
+
+            return _specificationEvaluator.GetQuery<T, TResult>(_dbSet.AsQueryable(), specification);
+        }
+
+        // -----------------------
+        // Query - Expression based
+        // -----------------------
         public virtual IQueryable<T> GetAll(Expression<Func<T, bool>>? filter = null, bool asNoTracking = true)
         {
             IQueryable<T> query = _dbSet;
@@ -65,7 +90,103 @@ namespace Infrastructure.Persistence
             return await query.FirstOrDefaultAsync(cancellationToken);
         }
 
+        // -----------------------
+        // Query - Specification based
+        // -----------------------
+        public virtual async Task<T?> GetBySpecAsync(ISpecification<T> specification, CancellationToken cancellationToken = default)
+        {
+            var query = ApplySpecification(specification);
+            return await query.FirstOrDefaultAsync(cancellationToken);
+        }
+
+        public virtual async Task<TResult?> GetBySpecAsync<TResult>(ISpecification<T, TResult> specification, CancellationToken cancellationToken = default)
+        {
+            var query = ApplySpecification(specification);
+            return await query.FirstOrDefaultAsync(cancellationToken);
+        }
+
+        public virtual async Task<T?> FirstOrDefaultAsync(ISpecification<T> specification, CancellationToken cancellationToken = default)
+        {
+            var query = ApplySpecification(specification);
+            return await query.FirstOrDefaultAsync(cancellationToken);
+        }
+
+        public virtual async Task<TResult?> FirstOrDefaultAsync<TResult>(ISpecification<T, TResult> specification, CancellationToken cancellationToken = default)
+        {
+            var query = ApplySpecification(specification);
+            return await query.FirstOrDefaultAsync(cancellationToken);
+        }
+
+        public virtual async Task<T?> SingleOrDefaultAsync(ISingleResultSpecification<T> specification, CancellationToken cancellationToken = default)
+        {
+            var query = ApplySpecification((ISpecification<T>)specification);
+            return await query.SingleOrDefaultAsync(cancellationToken);
+        }
+
+        public virtual async Task<TResult?> SingleOrDefaultAsync<TResult>(ISingleResultSpecification<T, TResult> specification, CancellationToken cancellationToken = default)
+        {
+            var query = ApplySpecification(specification);
+            return await query.SingleOrDefaultAsync(cancellationToken);
+        }
+
+        public virtual async Task<List<T>> ListAsync(CancellationToken cancellationToken = default)
+        {
+            return await _dbSet.AsNoTracking().ToListAsync(cancellationToken);
+        }
+
+        public virtual async Task<List<T>> ListAsync(ISpecification<T> specification, CancellationToken cancellationToken = default)
+        {
+            var query = ApplySpecification(specification).AsNoTracking();
+            return await query.ToListAsync(cancellationToken);
+        }
+
+        public virtual async Task<List<TResult>> ListAsync<TResult>(ISpecification<T, TResult> specification, CancellationToken cancellationToken = default)
+        {
+            var query = ApplySpecification(specification);
+            return await query.ToListAsync(cancellationToken);
+        }
+
+        public virtual async Task<int> CountAsync(ISpecification<T> specification, CancellationToken cancellationToken = default)
+        {
+            var query = ApplySpecification(specification);
+            return await query.CountAsync(cancellationToken);
+        }
+
+        public virtual async Task<int> CountAsync(CancellationToken cancellationToken = default)
+        {
+            return await _dbSet.CountAsync(cancellationToken);
+        }
+
+        public virtual async Task<bool> AnyAsync(ISpecification<T> specification, CancellationToken cancellationToken = default)
+        {
+            var query = ApplySpecification(specification);
+            return await query.AnyAsync(cancellationToken);
+        }
+
+        public virtual async Task<bool> AnyAsync(CancellationToken cancellationToken = default)
+        {
+            return await _dbSet.AnyAsync(cancellationToken);
+        }
+
+        public virtual IAsyncEnumerable<T> AsAsyncEnumerable(ISpecification<T> specification)
+        {
+            var query = ApplySpecification(specification);
+            return query.AsAsyncEnumerable();
+        }
+
+        // Generic GetById (support different id types)
+        public virtual async Task<T?> GetByIdAsync<TId>(TId id, CancellationToken cancellationToken = default) where TId : notnull
+        {
+            if (id is null)
+                throw new ArgumentNullException(nameof(id), "Id cannot be null when retrieving an entity.");
+
+            var entity = await _dbSet.FindAsync(new object[] { id! }, cancellationToken);
+            return entity;
+        }
+
+        // -----------------------
         // Add / Update / Delete
+        // -----------------------
         public virtual async Task AddAsync(T entity, CancellationToken cancellationToken = default)
         {
             await _dbSet.AddAsync(entity, cancellationToken);
@@ -91,7 +212,9 @@ namespace Infrastructure.Persistence
             _dbSet.RemoveRange(entities);
         }
 
-        // Existence check
+        // -----------------------
+        // Existence check (Expression based)
+        // -----------------------
         public virtual async Task<bool> AnyAsync(
             Expression<Func<T, bool>> predicate,
             CancellationToken cancellationToken = default)

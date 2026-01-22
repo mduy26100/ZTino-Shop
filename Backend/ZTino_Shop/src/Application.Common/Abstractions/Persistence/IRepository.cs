@@ -1,6 +1,8 @@
+using Ardalis.Specification;
+
 namespace Application.Common.Abstractions.Persistence
 {
-    public interface IRepository<T, TKey> where T : class
+    public interface IRepository<T, TKey> : IReadRepositoryBase<T> where T : class
     {
         // Query
         IQueryable<T> GetAll(Expression<Func<T, bool>>? filter = null, bool asNoTracking = true);
