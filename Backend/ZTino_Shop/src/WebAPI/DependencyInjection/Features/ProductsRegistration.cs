@@ -19,7 +19,6 @@ namespace WebAPI.DependencyInjection.Features
             services.AddScoped<IProductColorRepository, ProductColorRepository>();
 
             // Services
-            services.AddScoped<IProductQueryService, ProductQueryService>();
             services.AddScoped<IInventoryService, InventoryService>();
             services.AddScoped<IStockService, StockService>();
 
