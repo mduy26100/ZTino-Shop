@@ -1,27 +1,25 @@
 ﻿using Application.Features.Products.v1.DTOs.Products;
-using Application.Features.Products.v1.Services;
+using Application.Features.Products.v1.Repositories;
+using Application.Features.Products.v1.Specifications;
 
 namespace Application.Features.Products.v1.Queries.Products.GetProductDetail
 {
     public class GetProductDetailHandler : IRequestHandler<GetProductDetailQuery, ProductDetailDto?>
     {
-        private readonly IProductQueryService _productQueryService;
+        private readonly IProductRepository _productRepository;
 
-        public GetProductDetailHandler(IProductQueryService productQueryService)
+        public GetProductDetailHandler(IProductRepository productRepository)
         {
-            _productQueryService = productQueryService;
+            _productRepository = productRepository;
         }
 
         public async Task<ProductDetailDto?> Handle(GetProductDetailQuery request, CancellationToken cancellationToken)
         {
-            var product = await _productQueryService.GetProductDetailAsync(request.id, cancellationToken);
+            var spec = new ProductDetailSpec(request.id);
 
-            if(product == null)
-            {
-                throw new NotFoundException($"Product with Id {request.id} not found.");
-            }
+            var productDto = await _productRepository.FirstOrDefaultAsync(spec, cancellationToken);
 
-            return product;
+            return productDto;
         }
     }
 }

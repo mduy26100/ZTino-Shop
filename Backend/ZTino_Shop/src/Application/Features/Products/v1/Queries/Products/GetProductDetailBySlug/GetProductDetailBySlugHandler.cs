@@ -1,22 +1,25 @@
 ﻿using Application.Features.Products.v1.DTOs.Products;
-using Application.Features.Products.v1.Services;
+using Application.Features.Products.v1.Repositories;
+using Application.Features.Products.v1.Specifications;
 
 namespace Application.Features.Products.v1.Queries.Products.GetProductDetailBySlug
 {
     public class GetProductDetailBySlugHandler : IRequestHandler<GetProductDetailBySlugQuery, ProductDetailDto?>
     {
-        private readonly IProductQueryService _productQueryService;
+        private readonly IProductRepository _productRepository;
 
-        public GetProductDetailBySlugHandler(IProductQueryService productQueryService)
+        public GetProductDetailBySlugHandler(IProductRepository productRepository)
         {
-            _productQueryService = productQueryService;
+            _productRepository = productRepository;
         }
 
         public async Task<ProductDetailDto?> Handle(GetProductDetailBySlugQuery request, CancellationToken cancellationToken)
         {
-            var product = await _productQueryService.GetProductDetailBySlugAsync(request.slug, cancellationToken);
+            var spec = new ProductDetailSpec(request.slug);
 
-            return product;
+            var productDto = await _productRepository.FirstOrDefaultAsync(spec, cancellationToken);
+
+            return productDto;
         }
     }
 }
