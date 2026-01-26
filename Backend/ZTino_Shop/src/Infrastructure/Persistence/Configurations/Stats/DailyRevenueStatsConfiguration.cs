@@ -1,4 +1,5 @@
 using Domain.Models.Stats;
+using Infrastructure.Persistence.Constants;
 
 namespace Infrastructure.Persistence.Configurations.Stats
 {
@@ -6,7 +7,7 @@ namespace Infrastructure.Persistence.Configurations.Stats
     {
         public void Configure(EntityTypeBuilder<DailyRevenueStats> builder)
         {
-            builder.ToTable("DailyRevenueStats");
+            builder.ToTable("DailyRevenueStats", SchemaNames.Analytics);
 
             builder.HasKey(s => s.Id);
 

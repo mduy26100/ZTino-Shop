@@ -1,4 +1,5 @@
 ﻿using Domain.Models.AppSettings;
+using Infrastructure.Persistence.Constants;
 
 namespace Infrastructure.Persistence.Configurations.AppSettings
 {
@@ -6,7 +7,7 @@ namespace Infrastructure.Persistence.Configurations.AppSettings
     {
         public void Configure(EntityTypeBuilder<AppSetting> builder)
         {
-            builder.ToTable("AppSettings");
+            builder.ToTable("AppSettings", SchemaNames.System);
 
             builder.HasKey(x => x.Id);
 

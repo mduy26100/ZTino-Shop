@@ -1,4 +1,5 @@
 using Domain.Models.Products;
+using Infrastructure.Persistence.Constants;
 
 namespace Infrastructure.Persistence.Configurations.Products
 {
@@ -6,7 +7,7 @@ namespace Infrastructure.Persistence.Configurations.Products
     {
         public void Configure(EntityTypeBuilder<Color> builder)
         {
-            builder.ToTable("Colors");
+            builder.ToTable("Colors", SchemaNames.Catalog);
 
             builder.HasKey(c => c.Id);
 

@@ -14,6 +14,7 @@ using Infrastructure.Persistence.Configurations.Finances;
 using Infrastructure.Persistence.Configurations.Orders;
 using Infrastructure.Persistence.Configurations.Products;
 using Infrastructure.Persistence.Configurations.Stats;
+using Infrastructure.Persistence.Constants;
 
 namespace Infrastructure.Persistence
 {
@@ -33,8 +34,13 @@ namespace Infrastructure.Persistence
 
             // Auth
             builder.ApplyConfiguration(new RefreshTokenConfiguration());
-            builder.Entity<ApplicationUser>().ToTable("AppUsers");
-            builder.Entity<ApplicationRole>().ToTable("AppRoles");
+            builder.Entity<ApplicationUser>().ToTable("Users", SchemaNames.Identity);
+            builder.Entity<ApplicationRole>().ToTable("Roles", SchemaNames.Identity);
+            builder.Entity<IdentityUserClaim<Guid>>().ToTable("UserClaims", SchemaNames.Identity);
+            builder.Entity<IdentityUserRole<Guid>>().ToTable("UserRoles", SchemaNames.Identity);
+            builder.Entity<IdentityUserLogin<Guid>>().ToTable("UserLogins", SchemaNames.Identity);
+            builder.Entity<IdentityRoleClaim<Guid>>().ToTable("RoleClaims", SchemaNames.Identity);
+            builder.Entity<IdentityUserToken<Guid>>().ToTable("UserTokens", SchemaNames.Identity);
 
             // Products
             builder.ApplyConfiguration(new CategoryConfiguration());

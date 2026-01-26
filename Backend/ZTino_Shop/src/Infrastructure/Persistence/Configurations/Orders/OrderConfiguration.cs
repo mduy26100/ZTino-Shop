@@ -1,4 +1,5 @@
 using Domain.Models.Orders;
+using Infrastructure.Persistence.Constants;
 
 namespace Infrastructure.Persistence.Configurations.Orders
 {
@@ -6,7 +7,7 @@ namespace Infrastructure.Persistence.Configurations.Orders
     {
         public void Configure(EntityTypeBuilder<Order> builder)
         {
-            builder.ToTable("Orders");
+            builder.ToTable("Orders", SchemaNames.Sales);
 
             builder.HasKey(o => o.Id);
 

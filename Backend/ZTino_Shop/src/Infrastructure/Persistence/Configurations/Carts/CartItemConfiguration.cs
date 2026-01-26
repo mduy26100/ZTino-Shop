@@ -1,4 +1,5 @@
 using Domain.Models.Carts;
+using Infrastructure.Persistence.Constants;
 
 namespace Infrastructure.Persistence.Configurations.Carts
 {
@@ -6,7 +7,7 @@ namespace Infrastructure.Persistence.Configurations.Carts
     {
         public void Configure(EntityTypeBuilder<CartItem> builder)
         {
-            builder.ToTable("CartItems");
+            builder.ToTable("CartItems", SchemaNames.Sales);
 
             builder.HasKey(ci => ci.Id);
 

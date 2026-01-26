@@ -1,4 +1,5 @@
 using Infrastructure.Auth.Models;
+using Infrastructure.Persistence.Constants;
 
 namespace Infrastructure.Persistence.Configurations.Auth
 {
@@ -6,7 +7,7 @@ namespace Infrastructure.Persistence.Configurations.Auth
     {
         public void Configure(EntityTypeBuilder<RefreshToken> builder)
         {
-            builder.ToTable("RefreshTokens");
+            builder.ToTable("RefreshTokens", SchemaNames.Identity);
 
             builder.HasKey(rt => rt.Id);
 

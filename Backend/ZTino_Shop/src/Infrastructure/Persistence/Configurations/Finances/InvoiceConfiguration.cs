@@ -1,4 +1,5 @@
 using Domain.Models.Finances;
+using Infrastructure.Persistence.Constants;
 
 namespace Infrastructure.Persistence.Configurations.Finances
 {
@@ -6,7 +7,7 @@ namespace Infrastructure.Persistence.Configurations.Finances
     {
         public void Configure(EntityTypeBuilder<Invoice> builder)
         {
-            builder.ToTable("Invoices");
+            builder.ToTable("Invoices", SchemaNames.Billing);
 
             builder.HasKey(i => i.Id);
 
