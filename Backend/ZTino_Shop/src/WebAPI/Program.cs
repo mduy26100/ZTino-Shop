@@ -25,6 +25,7 @@ if (app.Environment.IsDevelopment())
 // ===== Request Pipeline =====
 app.UseHttpsRedirection();
 app.UseCors("AllowAll");
+app.UseRateLimiter();
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 app.UseAuthentication();
 app.UseAuthorization();

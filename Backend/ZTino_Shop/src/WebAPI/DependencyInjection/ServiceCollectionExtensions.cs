@@ -82,6 +82,7 @@ namespace WebAPI.DependencyInjection
         {
             services.AddCorsPolicies();
             services.AddApiVersioningConfig();
+            services.AddRateLimitingConfig();
             return services;
         }
     }
