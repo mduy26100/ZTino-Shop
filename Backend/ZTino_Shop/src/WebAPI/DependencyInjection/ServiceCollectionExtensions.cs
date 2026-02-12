@@ -23,7 +23,7 @@ namespace WebAPI.DependencyInjection
                 .AddApplicationCore()
                 .AddSecurity(configuration)
                 .AddFeatures()
-                .AddCrossCutting();
+                .AddCrossCutting(configuration);
         }
 
         /// <summary>
@@ -78,11 +78,12 @@ namespace WebAPI.DependencyInjection
         /// <summary>
         /// Cross-cutting concerns: CORS, API Versioning, etc.
         /// </summary>
-        public static IServiceCollection AddCrossCutting(this IServiceCollection services)
+        public static IServiceCollection AddCrossCutting(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddCorsPolicies();
             services.AddApiVersioningConfig();
             services.AddRateLimitingConfig();
+            services.AddHealthCheckConfig(configuration);
             return services;
         }
     }

@@ -1,4 +1,6 @@
-﻿using Serilog;
+﻿using HealthChecks.UI.Client;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Serilog;
 using WebAPI.DependencyInjection;
 using WebAPI.DependencyInjection.CrossCutting;
 using WebAPI.Filters.Response;
@@ -30,6 +32,16 @@ if (app.Environment.IsDevelopment())
 // ===== Request Pipeline =====
 app.UseHttpsRedirection();
 app.UseCors("AllowAll");
+app.MapHealthChecks("/health/live", new HealthCheckOptions
+{
+    Predicate = (check) => check.Tags.Contains("live"),
+    ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
+});
+app.MapHealthChecks("/health/ready", new HealthCheckOptions
+{
+    Predicate = (check) => check.Tags.Contains("ready"),
+    ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
+});
 app.UseSerilogRequestLogging(options =>
 {
     options.MessageTemplate = "HTTP {RequestMethod} {RequestPath} responded {StatusCode} in {Elapsed:0.0000} ms";
